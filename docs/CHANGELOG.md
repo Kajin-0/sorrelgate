@@ -1,5 +1,13 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T05:36:33.235Z — CSV import and native UI verified (20/20 XCTest in macOS Actions #33)
+- **Verified:** [Actions #33](https://github.com/Kajin-0/sorrelgate/actions/runs/44871510490) completed SUCCESS on code commit `445949d54d26b4e02e30d83794649edd09ff7b8f`; macOS 26 Apple Silicon, Swift 6.3.3, Xcode 26.6. `swift test --parallel` invoked **20/20 XCTest** (16 previous, 4 new CSV); native XcodeGen/SwiftUI app BUILD SUCCEEDED and unsigned artifact uploaded.
+- **Failure/fix:** Earlier run #31 failed on Windows CRLF test fixtures because Swift Character groups CRLF into a grapheme cluster; switched tokenizer to Unicode scalars, then passed all CSV fixtures and app build in #33.
+- **Scope:** PR #10 staged native CSV file selection, explicit title column mapping and review of all invalid/duplicate rows; accepted tasks are copied only into unsaved office revision draft. No automatic office save or historical transaction change.
+- **Limits:** No physical Mac usability test, XLSX support, task status/required/notes column mapping, or office migration UX; M2 incomplete. Continue $0 budget.
+- **Next:** XLSX import with review/mapping, then M1 robustness gates.
+
+
 ## 2026-11-21T05:32:20.683Z — M2 CSV parser, column review and native import interface (CI PENDING)
 - **Branch:** `feature/m2-csv-import-20261121`, scoped extension following merged office-profile PR #9 (`8c127df`).
 - **Core:** UTF-8 CSV parser with BOM support, quoted commas/embedded newlines, escape handling, 2 MiB/2,000 row/64 column limits and non-silent errors; explicit mapped title column, full invalid/duplicate row review, no silent partial import.
