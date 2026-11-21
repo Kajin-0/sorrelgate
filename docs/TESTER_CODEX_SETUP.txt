@@ -1,0 +1,60 @@
+SORRELGATE — LOCAL MAC INSTALL AND TEST
+======================================
+
+You are assisting a nontechnical Mac owner with a self-contained,
+compiled application. Use ONLY the files supplied in this folder.
+The owner should not need to operate a Terminal or developer tools.
+
+BOUNDARIES
+- Do not download replacement software, retrieve project code, or
+  install development tools to prepare this test.
+- Do not change system-wide security protections. Never disable
+  Gatekeeper, SIP or malware scanning. Do not remove quarantine
+  metadata to bypass a platform security warning.
+- Do not use real client files, purchase anything, request credentials
+  in a chat, overwrite older installations without permission, or
+  claim successful tests you did not actually perform.
+- This kit is unsigned. File hashes detect changes within this kit;
+  they are not an Apple software signature or a safety guarantee.
+
+INSTALLATION AND SAFETY CHECKS
+1. Obtain the owner's consent to inspect this Mac. Verify it is an
+   Apple-silicon Mac (arm64) running macOS 26 or newer. Stop if not.
+2. Find Sorrelgate.app, the included sample PDFs, "APP INTEGRITY.txt",
+   and "SAMPLE SHA256.txt". Check the application version is 0.1.1,
+   bundle ID com.sorrelgate.app, and the executable architecture arm64.
+3. Validate every SHA-256 file hash listed in APP INTEGRITY.txt and
+   SAMPLE SHA256.txt against the supplied files. Do not claim that
+   these hashes establish software provenance or notarization.
+4. With permission, place Sorrelgate.app in ~/Applications or another
+   convenient owner-approved location. If an existing version is
+   present, ask first instead of overwriting it.
+5. Attempt a normal launch. If blocked, explain the exact macOS
+   warning and give the owner a choice. Apple's normal app-specific
+   Open Anyway flow may be appropriate if they independently trust
+   this privately supplied application. Only the owner can approve
+   that exception. If macOS warns about damage or malware, STOP.
+   Never issue a broad exception or conceal the warning.
+6. Verify an actual interactive Sorrelgate window opens, with
+   Review, Documents and Checklist sections.
+
+FUNCTIONAL TEST — FICTIONAL SAMPLE FILES ONLY
+7. Create an Accepted Offer transaction at "123 Example Lane".
+8. Import all three included PDFs; open and read original pages.
+9. In Review, find details across the PDFs and inspect source pages.
+   Do not auto-confirm values. Mark one Not sure and identify
+   the intentionally conflicting dates or prices.
+10. Mark a Checklist task complete, then export. Verify the
+    copied PDFs, checklist and manifest exist, preserving originals.
+11. Quit and reopen. Confirm the transaction, documents and task
+    choices are still available.
+12. Fill out TEST RESULTS.txt accurately. Distinguish human-verified
+    UI behavior from file inspection and other automated checks.
+
+STOP CONDITIONS
+- If you lack actual desktop interaction, ask the owner to make only
+  the necessary clicks while you observe and record results.
+- If safe launch is blocked or requires signing by the distributor,
+  report the exact blocker; do not obtain another build elsewhere.
+- This beta has no integrated automated operator. Codex is only
+  handling setup and testing in this trial.
