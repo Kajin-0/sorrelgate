@@ -1,5 +1,12 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T13:48:25.927Z — PR #16 degraded multipage OCR + filesystem integrity merged into main
+- **Merge:** [PR #16](https://github.com/Kajin-0/sorrelgate/pull/16) squash-merged `d896b47efd5c732c776f76bc331a0ca6d1cab934`. Post-merge CI pending at this entry; source [#92](https://github.com/Kajin-0/sorrelgate/actions/runs/44909992770), [#93](https://github.com/Kajin-0/sorrelgate/actions/runs/44909997219) and docs-head [#95](https://github.com/Kajin-0/sorrelgate/actions/runs/44910402256) all **SUCCESS: 51/51 XCTest, native SwiftUI build, unsigned artifact**.
+- **Proven scope:** image-only 5-page PDF baseline/skew/low-contrast/Gaussian blur 7/7 synthetic tokens on each of four content pages, blank page refused OCR; staged 256 KiB in a POSIX FIFO before active-read cancellation; source/destination chmod denial, verified zero records/leftovers and successful retry; previously imported missing/corrupt original never called duplicate; disk-write failure identified as storage.
+- **Repeated CI 50-PDF timings:** #92 10.373 s (4.820/s), #93 8.113 s (6.163/s), final docs-head #95 9.035 s (5.534/s), on hosted Mac; this spread demonstrates timing variability rather than a controlled regression. Do not extrapolate to client scans.
+- **Limits:** true macOS ENOSPC, actual Finder security-scoped URL revocation, process kill, unpredictable field OCR and first human Mac pilot remain open. $0 additional spend. Commercial NO-GO.
+
+
 ## 2026-11-21T13:44:21.185Z — PR #16 degraded OCR + blocked FIFO cancellation source CI PASS; merge pending
 - **Verification:** [macOS Actions #92](https://github.com/Kajin-0/sorrelgate/actions/runs/44909992770) and [#93](https://github.com/Kajin-0/sorrelgate/actions/runs/44909997219), both SUCCESS at source `524506ce7c7cf8374cf443517d7026668581f630`. **51/51 XCTest** (46 baseline + 5), native SwiftUI `xcodebuild` SUCCESS, unsigned artifact uploaded; suite includes real FIFO cancellation with 256 KiB staged, POSIX read/write permission denial and recovery, and duplicate SHA rehash under deliberate corruption/deletion.
 - **Vision metrics:** Five **image-only** PDF pages including one blank. Synthetic seven-token word recall = **1.000** for baseline, 4° skew, 0.48 gray low-contrast text and Gaussian blur radius 2.2px. Blank abstained (`unavailable`); page order, original PDF SHA-256/bytes and reopen confirmed. This is controlled legible text, **not** performance on authentic field-scanned real-estate documents.
