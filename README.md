@@ -31,6 +31,10 @@ Sorrelgate helps a nontechnical transaction coordinator organize signed PDFs, tr
 | [`docs/CODEX_MASTER_PROMPT.md`](docs/CODEX_MASTER_PROMPT.md) | Instructions for starting Codex on an authorized Mac |
 | [`docs/workflows/CA_SELLER_SIDE_STARTER.json`](docs/workflows/CA_SELLER_SIDE_STARTER.json) | Editable starter tasks, **not legal forms or legal advice** |
 
+## Tracked implementation issues
+
+Milestones are tracked in [issues #1–#7](https://github.com/Kajin-0/sorrelgate/issues), each with explicit acceptance tests. [Issue #8](https://github.com/Kajin-0/sorrelgate/issues/8) is the **private-repository gate** before committing proprietary application code.
+
 ## First coding goal — milestone M0/M1
 
 Create a real transaction, import a mixed batch of PDFs, preserve original hashes, extract text / OCR, display source pages, attach docs to an editable checklist, export a manifest, then close and reopen with state intact. **Build and test on a Mac**. Only after this verified vertical slice should broader automation be layered on.
