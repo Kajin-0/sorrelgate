@@ -51,8 +51,8 @@ struct CSVImportReviewSheet: View {
                     }
                     if !reviewed.issues.isEmpty {
                         Section("Rows requiring correction — import blocked") {
-                            ForEach(Array(reviewed.issues.prefix(50).enumerated()), id: \.offset) { _, issue in
-                                Text("Line \(issue.sourceLine): \(issue.detail)")
+                            ForEach(Array(reviewed.issues.prefix(50).enumerated()), id: \.offset) { pair in
+                                Text("Line \(pair.element.sourceLine): \(pair.element.detail)")
                                     .foregroundStyle(.red)
                                     .textSelection(.enabled)
                             }
