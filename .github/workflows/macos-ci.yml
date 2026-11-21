@@ -32,6 +32,8 @@ jobs:
           test -s "$RUNNER_TEMP/sorrelgate-m1-batch.txt"
           cat "$RUNNER_TEMP/sorrelgate-m1-ocr.txt"
           cat "$RUNNER_TEMP/sorrelgate-m1-batch.txt"
+          test -s "$RUNNER_TEMP/sorrelgate-m1-degraded.txt"
+          cat "$RUNNER_TEMP/sorrelgate-m1-degraded.txt"
       - name: Generate native Xcode project
         run: xcodegen generate --spec project.yml
       - name: Build Mac app (unsigned, CI only)

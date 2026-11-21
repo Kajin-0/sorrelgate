@@ -13,6 +13,7 @@ public enum DocumentProcessingError: Error, LocalizedError {
     case invalidTaskTitle
     case duplicateDestination
     case corruptedOriginal(String)
+    case storage(String)
     case database(String)
 
     public var errorDescription: String? {
@@ -24,6 +25,7 @@ public enum DocumentProcessingError: Error, LocalizedError {
         case .invalidTaskTitle: "Enter a task description (1–250 characters)."
         case .duplicateDestination: "The destination contains an unexpected file. Nothing was overwritten."
         case .corruptedOriginal(let name): "Stored document '\(name)' failed its integrity check."
+        case .storage(let message): "Local document storage failed: \(message)"
         case .database(let message): "Document storage error: \(message)"
         }
     }
@@ -254,6 +256,13 @@ public actor DocumentWorkspace {
         if let existing = try store.findDocument(
             transactionID: transactionID, sha256: sha
         ) {
+            // A DB duplicate is not proof that its original PDF still exists
+            // or is intact. Never claim "already imported" for a lost or
+            // corrupted stored source.
+            guard let storedHash = try? Self.hashFile(at: storedPDFURL(for: existing)),
+                  storedHash == sha else {
+                throw DocumentProcessingError.corruptedOriginal(existing.originalName)
+            }
             return .duplicate(existing)
         }
 
@@ -411,7 +420,9 @@ public actor DocumentWorkspace {
         let input = try FileHandle(forReadingFrom: source)
         defer { try? input.close() }
         guard FileManager.default.createFile(atPath: destination.path, contents: nil) else {
-            throw DocumentProcessingError.invalidPDF(source.lastPathComponent)
+            throw DocumentProcessingError.storage(
+                "Unable to create a temporary PDF copy. Check free disk space and folder permissions."
+            )
         }
         let output = try FileHandle(forWritingTo: destination)
         defer { try? output.close() }
