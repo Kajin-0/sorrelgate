@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** PR #12 M2 office requirement/notes + additive SQLite migration passed 27 XCTest/native macOS build in GitHub Actions #56 on f5820de; verify docs-only follow-up, merge and check main CI. Then add explicit CSV/XLSX requirement/notes column mapping, and harden M1 OCR, cancellation, interrupted transaction recovery and filesystem failures. Historical snapshots must remain unchanged. No paid developer membership/installer for supervised pilot.
+**Next:** PR #12 M2 office requirement/notes + additive SQLite migration MERGED to main in `990f6094`; branch CI #56/#58 passed 27 XCTest/native app. Verify post-merge main CI. Then add explicitly reviewed CSV/XLSX metadata mappings and harden M1 OCR, cancellation, interrupted transaction recovery and filesystem failures. Preserve historical task snapshots. No paid developer membership/installer for supervised pilot.

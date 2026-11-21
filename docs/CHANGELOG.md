@@ -1,5 +1,11 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T05:59:37.188Z — M2 task requirement/notes PR #12 merged; main CI pending
+- **Merge:** [PR #12](https://github.com/Kajin-0/sorrelgate/pull/12) squash-merged to `main` as `990f6094caa159e095aace8895fd70f0c06b9ed9` after successful feature CI [#56](https://github.com/Kajin-0/sorrelgate/actions/runs/44872995179) and documentation-head CI [#58](https://github.com/Kajin-0/sorrelgate/actions/runs/44873214162).
+- **Evidence:** Both runs PASS 27/27 XCTest, XcodeGen project generation, native SwiftUI app build and unsigned artifact. This documentation-only follow-up does not claim completed post-merge main CI yet.
+- **Remaining:** Rich spreadsheet column mapping, transaction initialization recovery, M1 OCR/failure tests, real Mac usability, notarization, and M3–M6. Release remains NO-GO.
+
+
 ## 2026-11-21T05:56:46.154Z — M2 office requirement/notes CI verified (source PR #12)
 - **Evidence:** [macOS Actions #56](https://github.com/Kajin-0/sorrelgate/actions/runs/44872995179) SUCCESS on `f5820de053a87b9dc5c2a0bdfddf9dafc4c5c979` (feature branch). `swift test --parallel` executed **27/27 XCTest cases** (24 baseline + 3 new metadata/migration cases); XcodeGen and native SwiftUI app BUILD SUCCEEDED; unsigned test ZIP artifact 14693969678 uploaded (2,833,304 bytes; seven-day retention).
 - **Coverage:** Real legacy SQLite schema upgraded in place without resetting existing task completion; historical requirement/notes snapshots survive office edits and reopen; metadata-only revision and invalid 501-character note rejection verified. Tests do not substitute for real user Mac GUI.

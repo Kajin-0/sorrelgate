@@ -1,6 +1,6 @@
 # Sorrelgate — Verified development status
 
-**Verified:** 2026-11-21T05:56:04Z, [macOS Actions #56](https://github.com/Kajin-0/sorrelgate/actions/runs/44872995179) SUCCESS on task-metadata source `f5820de053a87b9dc5c2a0bdfddf9dafc4c5c979`: **27/27 XCTest**, native SwiftUI Mac build, artifact upload PASS. PR #12 merge pending. Baseline main Actions #54 also PASS.
+**Verified:** M2 office requirement/notes **merged to main in [PR #12](https://github.com/Kajin-0/sorrelgate/pull/12)**, squash commit `990f6094caa159e095aace8895fd70f0c06b9ed9`. Feature [macOS Actions #56](https://github.com/Kajin-0/sorrelgate/actions/runs/44872995179) and final docs-branch [#58](https://github.com/Kajin-0/sorrelgate/actions/runs/44873214162): **27/27 XCTest**, native SwiftUI Mac build, unsigned artifact upload PASS. Post-merge main CI pending at documentation time.
 **Repository:** https://github.com/Kajin-0/sorrelgate (public by owner's choice)
 **Budget:** $0 additional during the early MVP. Apple membership, signing, notarization, paid APIs and cloud hosting are DEFERRED. Codex may build locally using free Xcode on the external tester's Mac with the owner's consent.
 **No owner Mac:** GitHub Actions macOS runners verify builds and automated tests; real UI, macOS permissions, real OCR performance and on-device LLM must be validated later on the tester's Mac.
@@ -23,14 +23,14 @@
 ## Working code and limitations
 - M0: native SwiftUI app and local SQLite transaction database; CI PASS, human UI not verified.
 - M1: Finder-selected PDF import, SHA-256 original preservation, PDFKit extraction / Vision OCR fallback, duplicate handling, preview, checklist/document links, export package. Synthetic backend tests PASS; scanned OCR accuracy, full error/cancellation and macOS interaction remain unverified.
-- M2: **IN PROGRESS.** Office profiles (PR #9), CSV title-column import (PR #10), and reviewed XLSX sheet/title import (PR #11) merged after successful macOS source-branch CI. Bundled versioned catalog has **9 listing and 12 accepted-offer administrative tasks**. Historical transaction rows are preserved; human Mac UX remains unverified. **NEW verified feature branch (PR #12):** office task requirement (unspecified/required/optional), notes, additive SQLite migration, revisioned snapshot copying, and native editor; three new regressions, 27/27 macOS XCTest + native build PASS in Actions #56. Main merge is pending. Rich spreadsheet metadata mapping, due dates, workflow status, and migration UX remain outstanding.
+- M2: **IN PROGRESS.** Office profiles (PR #9), CSV title-column import (PR #10), and reviewed XLSX sheet/title import (PR #11) merged after successful macOS source-branch CI. Bundled versioned catalog has **9 listing and 12 accepted-offer administrative tasks**. Historical transaction rows are preserved; human Mac UX remains unverified. **MERGED via PR #12:** office requirement (unspecified/required/optional), notes, additive legacy SQLite migrations, revisioned transaction task snapshots, and native editor. Three new XCTest cases; **27/27 source tests + native build PASS** in Actions #56 and #58. Actual external Mac GUI and customer data migrations remain unverified. Rich spreadsheet metadata mapping, due dates, workflow status, and migration UX remain outstanding.
 - M3 recognition/validation: NOT STARTED.
 - M4 timelines/drafts: NOT STARTED.
 - M5 LLM operates typed backend: NOT STARTED (typed service foundation exists).
 - M6 commercial release: NOT STARTED. Paid Apple distribution postponed until strong MVP and owner approval.
 
 ## Next engineering tasks
-1. PR #12 feature-source CI gate is GREEN (27 XCTest + Mac build). Verify docs-only follow-up CI and merge; confirm post-merge main build.
+1. Verify latest post-merge main macOS CI and keep main green. PR #12 already merged with green source and docs-head CI.
 2. Add explicitly reviewed CSV/XLSX column mapping for office requirement/notes and negative-control fixtures. Preserve source row numbers and existing template revisions.
 3. Add idempotent recovery of transaction initialization after an interruption between the two SQLite databases; validate restart cases.
 4. Harden M1 Vision scanned-page OCR, import cancellation, corrupt/disk failures, and 50-PDF throughput with Mac CI.
