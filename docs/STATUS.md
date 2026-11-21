@@ -1,6 +1,6 @@
 # Sorrelgate — Verified development status
 
-**Verified baseline:** 2026-11-21 PR #11 XLSX merged; macOS Actions #54 SUCCESS on main e6b6291. **New task-metadata slice:** source submitted on feature branch; new tests and app build PENDING.
+**Verified:** 2026-11-21T05:56:04Z, [macOS Actions #56](https://github.com/Kajin-0/sorrelgate/actions/runs/44872995179) SUCCESS on task-metadata source `f5820de053a87b9dc5c2a0bdfddf9dafc4c5c979`: **27/27 XCTest**, native SwiftUI Mac build, artifact upload PASS. PR #12 merge pending. Baseline main Actions #54 also PASS.
 **Repository:** https://github.com/Kajin-0/sorrelgate (public by owner's choice)
 **Budget:** $0 additional during the early MVP. Apple membership, signing, notarization, paid APIs and cloud hosting are DEFERRED. Codex may build locally using free Xcode on the external tester's Mac with the owner's consent.
 **No owner Mac:** GitHub Actions macOS runners verify builds and automated tests; real UI, macOS permissions, real OCR performance and on-device LLM must be validated later on the tester's Mac.
@@ -23,14 +23,14 @@
 ## Working code and limitations
 - M0: native SwiftUI app and local SQLite transaction database; CI PASS, human UI not verified.
 - M1: Finder-selected PDF import, SHA-256 original preservation, PDFKit extraction / Vision OCR fallback, duplicate handling, preview, checklist/document links, export package. Synthetic backend tests PASS; scanned OCR accuracy, full error/cancellation and macOS interaction remain unverified.
-- M2: **IN PROGRESS.** Office profiles (PR #9), CSV title-column import (PR #10), and reviewed XLSX sheet/title import (PR #11) merged after successful macOS source-branch CI. Bundled versioned catalog has **9 listing and 12 accepted-offer administrative tasks**. Historical transaction rows are preserved; human Mac UX remains unverified. **NEW unverified feature branch:** office task requirement (unspecified/required/optional) and notes, additive SQLite migration, revisioned snapshot copying, native editor; three regression tests added. CI is pending. Rich spreadsheet metadata mapping, due dates, workflow status, and migration UX remain outstanding.
+- M2: **IN PROGRESS.** Office profiles (PR #9), CSV title-column import (PR #10), and reviewed XLSX sheet/title import (PR #11) merged after successful macOS source-branch CI. Bundled versioned catalog has **9 listing and 12 accepted-offer administrative tasks**. Historical transaction rows are preserved; human Mac UX remains unverified. **NEW verified feature branch (PR #12):** office task requirement (unspecified/required/optional), notes, additive SQLite migration, revisioned snapshot copying, and native editor; three new regressions, 27/27 macOS XCTest + native build PASS in Actions #56. Main merge is pending. Rich spreadsheet metadata mapping, due dates, workflow status, and migration UX remain outstanding.
 - M3 recognition/validation: NOT STARTED.
 - M4 timelines/drafts: NOT STARTED.
 - M5 LLM operates typed backend: NOT STARTED (typed service foundation exists).
 - M6 commercial release: NOT STARTED. Paid Apple distribution postponed until strong MVP and owner approval.
 
 ## Next engineering tasks
-1. Run macOS CI for the new office task requirement/notes branch. Repair compilation/test failures; merge only after 27 XCTest cases and native app build pass.
+1. PR #12 feature-source CI gate is GREEN (27 XCTest + Mac build). Verify docs-only follow-up CI and merge; confirm post-merge main build.
 2. Add explicitly reviewed CSV/XLSX column mapping for office requirement/notes and negative-control fixtures. Preserve source row numbers and existing template revisions.
 3. Add idempotent recovery of transaction initialization after an interruption between the two SQLite databases; validate restart cases.
 4. Harden M1 Vision scanned-page OCR, import cancellation, corrupt/disk failures, and 50-PDF throughput with Mac CI.

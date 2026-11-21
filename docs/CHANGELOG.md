@@ -1,5 +1,12 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T05:56:46.154Z — M2 office requirement/notes CI verified (source PR #12)
+- **Evidence:** [macOS Actions #56](https://github.com/Kajin-0/sorrelgate/actions/runs/44872995179) SUCCESS on `f5820de053a87b9dc5c2a0bdfddf9dafc4c5c979` (feature branch). `swift test --parallel` executed **27/27 XCTest cases** (24 baseline + 3 new metadata/migration cases); XcodeGen and native SwiftUI app BUILD SUCCEEDED; unsigned test ZIP artifact 14693969678 uploaded (2,833,304 bytes; seven-day retention).
+- **Coverage:** Real legacy SQLite schema upgraded in place without resetting existing task completion; historical requirement/notes snapshots survive office edits and reopen; metadata-only revision and invalid 501-character note rejection verified. Tests do not substitute for real user Mac GUI.
+- **Deployment:** PR #12 remains draft/merge-pending at entry time. No signing/notarization, outside-Mac usability, live office documents, or document OCR performance verified. No new paid services.
+- **Next:** Merge only after latest docs commit CI; continue explicit CSV/XLSX metadata mappings and M1 reliability.
+
+
 ## 2026-11-21T05:53:40.145Z — M2 office requirement and notes: implementation and migration tests (CI PENDING)
 - **Scope:** Add an explicit office requirement value (unspecified / office required / office optional) and optional notes to versioned office tasks. Copy both fields into immutable transaction checklist rows; expose in native Office Checklists editor. Avoid interpreting unlabeled historical checklists as legally required.
 - **Schema migration:** Existing `office_template_rows` and `checklist_tasks` receive additive idempotent columns with `unspecified` and empty-note defaults. No destructive rewrite and no new dependency. User-edited historical completion/document links are preserved.
