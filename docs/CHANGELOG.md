@@ -1,5 +1,13 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T14:29:48.465Z — Outcome-gated product contract; stop synthetic microhardening churn
+- **Scope:** New [docs/DELIVERY_CONTRACT.md](DELIVERY_CONTRACT.md) defines one Accepted Offer north-star workflow and five measurable gates: G1 evidence-backed review, G2 human-reviewed deliverables, G3 recovery/security, G4 permissioned agent, G5 external Mac pilot/commercial release.
+- **Current evidence:** [main Actions #97](https://github.com/Kajin-0/sorrelgate/actions/runs/44910712360) success at `704e39c93947261305145dd5f944833df2c4a78a`: 51 XCTest/native SwiftUI build. This change is **planning/documentation only**; it makes **no new product capability claims** and has **no new runtime tests**.
+- **Decision:** Freeze M1 synthetic OCR/IO edge-case additions unless a measured gate fails or P0/P1 occurs. Prioritize G1 smallest complete PDF source-link/user confirmation/persistent reopen slice, then end-to-end accepted-offer outputs before AI.
+- **Stop policy:** one active gate, one complete vertical outcome per PR, two non-advancing PRs force diagnosis rather than a third speculative change; all gates report PASS/FAIL/BLOCKED. When CI engineering exits pass but external Mac/user data unavailable, stop feature work and request the external pilot. Commercial release is NO-GO until actual human/installer evidence and explicit spending approval.
+- **No architecture or runtime changes; no new dependencies; no cost.**
+
+
 ## 2026-11-21T13:48:25.927Z — PR #16 degraded multipage OCR + filesystem integrity merged into main
 - **Merge:** [PR #16](https://github.com/Kajin-0/sorrelgate/pull/16) squash-merged `d896b47efd5c732c776f76bc331a0ca6d1cab934`. Post-merge CI pending at this entry; source [#92](https://github.com/Kajin-0/sorrelgate/actions/runs/44909992770), [#93](https://github.com/Kajin-0/sorrelgate/actions/runs/44909997219) and docs-head [#95](https://github.com/Kajin-0/sorrelgate/actions/runs/44910402256) all **SUCCESS: 51/51 XCTest, native SwiftUI build, unsigned artifact**.
 - **Proven scope:** image-only 5-page PDF baseline/skew/low-contrast/Gaussian blur 7/7 synthetic tokens on each of four content pages, blank page refused OCR; staged 256 KiB in a POSIX FIFO before active-read cancellation; source/destination chmod denial, verified zero records/leftovers and successful retry; previously imported missing/corrupt original never called duplicate; disk-write failure identified as storage.

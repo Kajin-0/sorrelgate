@@ -1,5 +1,8 @@
 # Sorrelgate — Staged implementation roadmap
 
+**Active execution contract (2026-11-21):** [Outcome-based delivery gates G1–G5](DELIVERY_CONTRACT.md). This roadmap preserves the original M0–M6 architecture, but **the execution priority is a single Accepted Offer outcome**, not sequential accumulation of subfeatures. G1 source-linked review is active; G2 human-completed deliverables, G3 safety/restore, G4 permissioned agent, G5 external Mac pilot/release are gated. Stop when the gate's measured exit evidence passes or an external dependency is explicitly blocked. No more synthetic OCR/IO polishing absent a measured failure.
+
+
 **Status:** M0/M1 core CI green. M2 named office profiles, independent versioned checklist templates, snapshot metadata and native editor pass 16 XCTest cases plus Mac build in [PR #9 Actions #14](https://github.com/Kajin-0/sorrelgate/actions/runs/44870973186), now merged to main (`8c127df`). CSV title-column importer passed 20 XCTest cases plus native build in PR #10 [Actions #33](https://github.com/Kajin-0/sorrelgate/actions/runs/44871510490); XLSX/Excel importer with worksheet/column review passed [Actions #50](https://github.com/Kajin-0/sorrelgate/actions/runs/44872179791) (24 XCTest and native Mac build) in PR #11; richer metadata and human beta remain pending. Owner lacks a local Mac, so interactive validation is deferred to external beta. See [remote testing](REMOTE_TEST_STRATEGY.md). Detailed tasks are in [Implementation Checklist](IMPLEMENTATION_CHECKLIST.md).
 
 | Milestone | Deliverable | Required exit evidence |
