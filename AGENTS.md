@@ -3,7 +3,7 @@
 **Updated:** 2026-11-20T23:19:47-05:00 (`America/New_York`)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**State at handoff:** M0 SwiftUI/SQLite scaffold and GitHub Actions workflow committed; actual CI results must be checked in `docs/STATUS.md`. No Mac app release, PDF OCR pipeline, or AI agent yet. `docs/STATUS.md` is authoritative for subsequent progress.
+**State at handoff:** M0 native SwiftUI/SQLite scaffold built successfully in [GitHub Actions run #1](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670), with four XCTest cases invoked. Physical Mac UI smoke test pending. No paid release, PDF OCR pipeline, or AI agent yet; read `docs/STATUS.md` for latest verified evidence. `docs/STATUS.md` is authoritative for subsequent progress.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Inspect the latest GitHub Actions run (macos-26) for the M0 native SwiftUI/SQLite scaffold; repair actual errors, then validate on a physical Mac. Do not claim a successful Mac app from source files alone. After M0 is verified, begin the M1 import/preview/export vertical slice. For Codex use `docs/CODEX_MASTER_PROMPT.md`; for regular ChatGPT use connected GitHub tools and verify GitHub CI runs.
+**Next:** The first macOS Actions run passed (Xcode 26.6, Swift 6.3.3); validate UI launch and restart persistence on a physical Mac and expand M0 failure-path tests. Do not claim a successful Mac app from source files alone. After M0 is verified, begin the M1 import/preview/export vertical slice. For Codex use `docs/CODEX_MASTER_PROMPT.md`; for regular ChatGPT use connected GitHub tools and verify GitHub CI runs.

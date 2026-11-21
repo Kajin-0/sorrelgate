@@ -1,34 +1,41 @@
 # Sorrelgate — Current verified state
 
-**Last updated:** 2026-11-21T04:36:43.885Z (UTC)
-**Phase:** M0 initial implementation committed; build/test verification pending.
-**Repository:** https://github.com/Kajin-0/sorrelgate
-**Visibility:** PUBLIC by owner choice, not a blocker.
-**Release:** NOT READY. No signed/notarized app, TC pilot, PDF OCR pipeline or LLM agent yet.
+**Last verified:** 2026-11-21T04:39:17.086Z (UTC)
+**Phase:** M0 implemented, CI verified; physical Mac user testing outstanding.
+**Repository:** https://github.com/Kajin-0/sorrelgate (public by owner's choice)
+**Release:** NOT READY. Unsigned CI development build only; no notarized installer or real-world TC pilot.
 
-## Implementation present
-- Swift package \`SorrelgateCore\`: typed create/list transaction actions, SQLite-backed durable local records and input validation.
-- SwiftUI desktop app: transaction list, create sheet, selection/details, clear M1 placeholders, app preferences.
-- Swift package tests: create/list, database reopening, blank address rejection, SQL injection string treated as data.
-- \`project.yml\` for XcodeGen (MIT, developer-only); \`.github/workflows/macos-ci.yml\` builds and tests on \`macos-26\` and uploads an unsigned debug artifact.
-- Customer runtime requires neither terminal nor Python/Node/Homebrew.
-- **No code has yet been compiled or executed in this ChatGPT session.** Actual GitHub Actions evidence determines correctness.
+## Verified CI results
+- [GitHub Actions run #1](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670): **SUCCESS**, on commit \`36a0639b949dc8017ab428e063f31d38dd4cae94\`.
+- Environment: macos-26-arm64 runner; **Apple Silicon arm64**; **Xcode 26.6**; **Swift 6.3.3**.
+- \`brew install xcodegen\`: success; XcodeGen 2.46.0 (developer-only MIT tool).
+- \`swift test --parallel\`: exit 0; **four XCTest cases invoked** (create/list, reopen persistence, missing-address rejection, SQL string stored as data). The separate Swift Testing harness reported **0 Swift Testing cases**; that line must not be mistaken for zero XCTest invocations.
+- \`xcodegen generate --spec project.yml\`: exit 0; generated native project.
+- \`xcodebuild -project Sorrelgate.xcodeproj -scheme Sorrelgate -configuration Debug -destination "generic/platform=macOS" -derivedDataPath .build/DerivedData CODE_SIGNING_ALLOWED=NO build\`: **BUILD SUCCEEDED**.
+- \`ditto\` packaging and \`actions/upload-artifact@v4\`: success. [Unsigned development build](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670), 216,314-byte archive, artifact ID 14692755902; expires 2026-11-28.
+- These are **CI build and test** results; there has been **no physical user-interface smoke test**.
+
+## Implemented
+- Native SwiftUI transaction list, create-transaction sheet, selected detail, Settings.
+- \`SorrelgateCore\` Swift package with typed create/list actions, input validation and local SQLite persistence.
+- Core automated test cases and \`macos-26\` GitHub Actions pipeline.
+- Project handoff protocol and change tracking available to regular ChatGPT and Codex.
 
 ## Milestone gates
 | Milestone | State | Evidence |
 |---|---|---|
-| M0 Native app, actions, SQLite, CI | IN PROGRESS | Code authored; CI and physical Mac validation pending |
-| M1 PDF import / OCR / preview / checklists / export | NOT STARTED | No implementation |
+| M0 Native Mac foundation / CI | IN PROGRESS (CI passed) | Actions run #1 green; interactive Mac launch and full M0 negative tests still required |
+| M1 PDF import / OCR / preview / checklist / export | NOT STARTED | No PDF engine yet |
 | M2 Office profiles / XLSX / versioning | NOT STARTED | No implementation |
 | M3 Classification / linked document checks | NOT STARTED | No implementation |
 | M4 Timeline / draft communications / exports | NOT STARTED | No implementation |
-| M5 Guarded LLM-controlled actions | NOT STARTED | No model integrations |
-| M6 Commercial Mac release | NOT STARTED | No signing, notarization or pilot |
+| M5 Guarded LLM-controlled actions | NOT STARTED | No model execution |
+| M6 Commercial Mac release | NOT STARTED | No signed/notarized build or pilot |
 
-## Immediate next steps
-1. Inspect [GitHub Actions](https://github.com/Kajin-0/sorrelgate/actions) for push-triggered macOS run; record job ID, exact toolchain, test counts and outcomes, fix any errors. Do not mark M0 passed without evidence.
-2. Run actual desktop application on an authorized Mac when available: create transaction, quit, reopen, verify persistence and accessibility.
-3. Finish M0 with negative tests; then implement M1 as a verified end-to-end PDF/document-review vertical slice.
-4. Update CHANGELOG + STATUS in each substantive change; record decisions in DECISIONS. Never commit customer records, signatures, passwords or private office templates.
+## Next executable steps
+1. Obtain a physical Mac smoke test of the [unsigned development build](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670) through authorized developer testing; confirm app launch, create, quit/reopen and transaction persistence. Never instruct nontechnical customers to bypass macOS Gatekeeper as the normal installation path.
+2. Expand restart/SQLite failure tests and explicitly record findings for M0.
+3. Implement M1: user-selected batch PDF intake, preserved original copies + SHA-256, PDFKit text extraction, Vision OCR fallback, preview and checklist/export, without a user terminal.
+4. For each implementation iteration, check GitHub CI, update this file and append timestamped verification to CHANGELOG.
 
-**Development mode:** Regular ChatGPT + GitHub Actions is the standard loop; Codex optional. Root AGENTS.md is mandatory fresh-session handoff.
+**Security/quality:** No real contracts or secrets in Git; all original PDF data must remain immutable. Cloud inference is opt-in only. Agent tool access is not implemented yet.

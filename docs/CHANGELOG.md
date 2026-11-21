@@ -2,6 +2,15 @@
 
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
+## 2026-11-21T04:39:17.086Z — First verified Apple-silicon build and four XCTest executions
+- **Verification:** [Actions run #1](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670) completed SUCCESS on commit 36a0639b949dc8017ab428e063f31d38dd4cae94.
+- **Environment:** macos-26-arm64, Xcode 26.6, Swift 6.3.3, developer-only XcodeGen 2.46.0.
+- **Tests:** \`swift test --parallel\` returned zero exit code; test runner invoked four XCTest methods (create/list, reopen durability, blank-address rejection, SQL string safety). Note: Swift Testing's separate "0 tests" message does not count XCTest cases.
+- **Build:** Generated project; \`xcodebuild ... CODE_SIGNING_ALLOWED=NO build\` returned BUILD SUCCEEDED; uploaded 216,314-byte unsigned Mac artifact (ID 14692755902, expires 2026-11-28).
+- **Limitations:** Physical Mac UI launch, accessibility, signed/notarized distribution, PDF OCR, and AI tool execution remain untested/unimplemented; no release claim.
+- **Next:** M0 Mac smoke test + failure paths; then M1 PDF vertical slice.
+- **Documentation update:** STATUS, README, AGENTS, checklist, issue #1.
+
 ## 2026-11-21T04:36:43.885Z — Begin M0: native SwiftUI, SQLite persistence, macOS Actions CI
 - **Scope:** Establish a true native Mac app, independent SorrelgateCore typed actions, SQLite persistence, restart/validation tests, XcodeGen project specification and macos-26 GitHub Actions workflow.
 - **Changed files:** Package.swift, project.yml, SorrelgateApp/, Sources/SorrelgateCore/, Tests/SorrelgateCoreTests/, .github/workflows/macos-ci.yml, .gitignore, README, STATUS, AGENTS, DECISIONS and checklist.
