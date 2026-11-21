@@ -9,6 +9,22 @@ import PDFKit
 import XCTest
 @testable import SorrelgateCore
 
+/// Test-only asynchronous release gate for an actual POSIX FIFO writer.
+/// Does not consume a Swift concurrency worker while waiting for the test.
+private actor FIFOReleaseGate {
+    private var released = false
+
+    func release() {
+        released = true
+    }
+
+    func waitUntilReleased() async {
+        while !released {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+    }
+}
+
 /// Synthetic-only quality gates. Image-only samples never include PDF text.
 /// The FIFO test cancels while the file-copy read loop is actively waiting.
 @MainActor
@@ -224,7 +240,7 @@ final class PDFHardeningTests: XCTestCase {
         XCTAssertEqual(Darwin.mkfifo(pipe.path, 0o600), 0)
         let store = try workspace(root)
         let transaction = UUID()
-        let closeWriter = DispatchSemaphore(value: 0)
+        let closeWriter = FIFOReleaseGate()
 
         // Writer supplies one partial chunk and then deliberately holds the FIFO
         // open. The import read loop blocks in its next read until released.
@@ -236,7 +252,7 @@ final class PDFHardeningTests: XCTestCase {
             let written = payload.withUnsafeBytes { bytes in
                 Darwin.write(fd, bytes.baseAddress, bytes.count)
             }
-            closeWriter.wait()
+            await closeWriter.waitUntilReleased()
             return written
         }
         let importTask = Task.detached(priority: .userInitiated) {
@@ -256,7 +272,7 @@ final class PDFHardeningTests: XCTestCase {
             }
         }
         importTask.cancel()
-        closeWriter.signal()
+        await closeWriter.release()
         let written = await writer.value
         XCTAssertEqual(written, 4096, "Test must feed bytes before cancellation.")
         XCTAssertTrue(sawCopiedBytes, "Cancellation must happen after real staged bytes.")
