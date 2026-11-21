@@ -9,6 +9,8 @@ public enum DocumentProcessingError: Error, LocalizedError {
     case invalidPDF(String)
     case noPages
     case missingDocument
+    case missingFieldProposal
+    case invalidFieldReviewStatus
     case invalidChecklistTask
     case invalidTaskTitle
     case duplicateDestination
@@ -21,6 +23,8 @@ public enum DocumentProcessingError: Error, LocalizedError {
         case .invalidPDF(let name): "Could not open '\(name)' as a valid PDF."
         case .noPages: "The PDF has no readable pages."
         case .missingDocument: "That document could not be found."
+        case .missingFieldProposal: "That field review item is not in this transaction."
+        case .invalidFieldReviewStatus: "Choose Confirm, Reject, or Unknown for a proposed field."
         case .invalidChecklistTask: "That checklist item could not be found in this transaction."
         case .invalidTaskTitle: "Enter a task description (1–250 characters)."
         case .duplicateDestination: "The destination contains an unexpected file. Nothing was overwritten."
@@ -67,6 +71,39 @@ public struct ImportedDocument: Identifiable, Equatable, Sendable {
 public enum ImportDisposition: Sendable {
     case imported(ImportedDocument)
     case duplicate(ImportedDocument)
+}
+
+/// First G1 field: deliberately narrow, explicit text rather than AI guessing.
+/// New types require new held-out extraction and provenance tests.
+public enum FieldProposalKind: String, Sendable {
+    case acceptanceDate
+
+    public var displayName: String {
+        switch self {
+        case .acceptanceDate: "Acceptance date"
+        }
+    }
+}
+
+public enum FieldReviewStatus: String, Sendable {
+    case proposed
+    case confirmed
+    case rejected
+    case unknown
+}
+
+/// A candidate is NOT a validated contract fact. Page indexes are zero-based.
+/// sourceSHA256 binds displayed evidence to the immutable imported original.
+public struct FieldProposal: Identifiable, Equatable, Sendable {
+    public let id: UUID
+    public let transactionID: UUID
+    public let documentID: UUID
+    public let sourceSHA256: String
+    public let pageIndex: Int
+    public let kind: FieldProposalKind
+    public let value: String
+    public let evidence: String
+    public let status: FieldReviewStatus
 }
 
 public struct ChecklistItem: Identifiable, Equatable, Sendable {
@@ -119,6 +156,99 @@ public actor DocumentWorkspace {
 
     public func pageText(documentID: UUID) throws -> [DocumentPageText] {
         try store.pageText(documentID: documentID)
+    }
+
+    /// Review items are always scoped to one transaction, never globally listed.
+    public func fieldProposals(for transactionID: UUID) throws -> [FieldProposal] {
+        try store.fieldProposals(transactionID: transactionID)
+    }
+
+    /// First deliberately constrained field proposal: an *explicitly labeled*
+    /// ISO acceptance date in a source page. No legal date calculation,
+    /// signature inference, completion claim, or model instruction execution.
+    /// Re-running discovery must never reset a human review decision.
+    @discardableResult
+    public func proposeAcceptanceDates(
+        from documentID: UUID, in transactionID: UUID
+    ) throws -> [FieldProposal] {
+        guard let document = try store.documents(transactionID: transactionID).first(
+            where: { $0.id == documentID }
+        ) else {
+            throw DocumentProcessingError.missingDocument
+        }
+        guard let actualSHA = try? Self.hashFile(at: storedPDFURL(for: document)),
+              actualSHA == document.sha256 else {
+            throw DocumentProcessingError.corruptedOriginal(document.originalName)
+        }
+        let expression = try NSRegularExpression(
+            pattern: #"^\s*Acceptance\s+Date\s*:\s*(\d{4}-\d{2}-\d{2})\s*$"#,
+            options: [.caseInsensitive]
+        )
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)!
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.isLenient = false
+        for page in try store.pageText(documentID: documentID)
+            where page.method != .unavailable {
+            try Task<Never, Never>.checkCancellation()
+            for rawLine in page.text.components(separatedBy: .newlines) {
+                let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
+                let lineText = line as NSString
+                let fullRange = NSRange(location: 0, length: lineText.length)
+                guard let match = expression.firstMatch(
+                    in: line, range: fullRange
+                ), match.range(at: 1).location != NSNotFound else { continue }
+                let value = lineText.substring(with: match.range(at: 1))
+                // Reject impossible calendar dates instead of proposing a
+                // superficially ISO-shaped but nonsensical value.
+                guard let date = formatter.date(from: value),
+                      formatter.string(from: date) == value else { continue }
+                try store.insertFieldProposal(
+                    transactionID: transactionID, documentID: documentID,
+                    pageIndex: page.pageIndex, kind: .acceptanceDate,
+                    value: value, evidence: line
+                )
+            }
+        }
+        return try store.fieldProposals(transactionID: transactionID).filter {
+            $0.documentID == documentID && $0.kind == .acceptanceDate
+        }
+    }
+
+    /// Return only a source PDF that still matches the candidate's imported
+    /// document hash; never trust the proposed field's copied metadata alone.
+    public func sourcePDFURL(
+        for proposalID: UUID, in transactionID: UUID
+    ) throws -> URL {
+        guard let proposal = try store.fieldProposals(transactionID: transactionID)
+            .first(where: { $0.id == proposalID }),
+              let document = try store.documents(transactionID: transactionID)
+                .first(where: { $0.id == proposal.documentID }),
+              document.sha256 == proposal.sourceSHA256,
+              proposal.pageIndex >= 0, proposal.pageIndex < document.pageCount
+        else { throw DocumentProcessingError.missingFieldProposal }
+        let url = storedPDFURL(for: document)
+        guard let hash = try? Self.hashFile(at: url), hash == document.sha256 else {
+            throw DocumentProcessingError.corruptedOriginal(document.originalName)
+        }
+        return url
+    }
+
+    /// The decision comes only from an explicit human UI action.
+    /// A future agent must be denied direct access to this confirmation path.
+    public func reviewFieldProposal(
+        _ proposalID: UUID, in transactionID: UUID, as status: FieldReviewStatus
+    ) throws {
+        guard status != .proposed else {
+            throw DocumentProcessingError.invalidFieldReviewStatus
+        }
+        // Invalidate decisions against an original that is missing or corrupted.
+        _ = try sourcePDFURL(for: proposalID, in: transactionID)
+        try store.reviewFieldProposal(
+            proposalID, transactionID: transactionID, status: status
+        )
     }
 
     public func storedPDFURL(for document: ImportedDocument) -> URL {
@@ -508,6 +638,23 @@ private final class DocumentSQLiteStore {
               PRIMARY KEY(document_id, page_index),
               FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE
             );
+            CREATE TABLE IF NOT EXISTS field_proposals(
+              id TEXT PRIMARY KEY NOT NULL,
+              transaction_id TEXT NOT NULL,
+              document_id TEXT NOT NULL,
+              page_index INTEGER NOT NULL CHECK(page_index >= 0),
+              kind TEXT NOT NULL,
+              value TEXT NOT NULL,
+              evidence TEXT NOT NULL,
+              status TEXT NOT NULL DEFAULT 'proposed'
+                CHECK(status IN ('proposed', 'confirmed', 'rejected', 'unknown')),
+              UNIQUE(document_id, page_index, kind, value),
+              FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE,
+              FOREIGN KEY(document_id, page_index)
+                REFERENCES document_pages(document_id, page_index)
+            );
+            CREATE INDEX IF NOT EXISTS idx_field_proposals_transaction
+              ON field_proposals(transaction_id);
             CREATE TABLE IF NOT EXISTS checklist_tasks(
               id TEXT PRIMARY KEY NOT NULL,
               transaction_id TEXT NOT NULL,
@@ -615,6 +762,91 @@ private final class DocumentSQLiteStore {
         } catch {
             try? execute("ROLLBACK;")
             throw error
+        }
+    }
+
+
+    func fieldProposals(transactionID: UUID) throws -> [FieldProposal] {
+        try withStatement("""
+            SELECT p.id, p.transaction_id, p.document_id, d.sha256,
+                   p.page_index, p.kind, p.value, p.evidence, p.status
+            FROM field_proposals p
+            JOIN documents d ON d.id=p.document_id
+              AND d.transaction_id=p.transaction_id
+            WHERE p.transaction_id=?
+            ORDER BY d.created_at, p.page_index, p.kind, p.value;
+            """) { statement in
+            try bind(transactionID.uuidString, at: 1, to: statement)
+            var proposals: [FieldProposal] = []
+            while true {
+                let result = sqlite3_step(statement)
+                if result == SQLITE_DONE { return proposals }
+                guard result == SQLITE_ROW else { throw error }
+                guard let id = UUID(uuidString: text(statement, index: 0)),
+                      let owner = UUID(uuidString: text(statement, index: 1)),
+                      let documentID = UUID(uuidString: text(statement, index: 2)),
+                      let kind = FieldProposalKind(rawValue: text(statement, index: 5)),
+                      let status = FieldReviewStatus(rawValue: text(statement, index: 8))
+                else { throw DocumentProcessingError.database("Invalid field proposal data") }
+                proposals.append(FieldProposal(
+                    id: id, transactionID: owner, documentID: documentID,
+                    sourceSHA256: text(statement, index: 3),
+                    pageIndex: Int(sqlite3_column_int(statement, 4)),
+                    kind: kind, value: text(statement, index: 6),
+                    evidence: text(statement, index: 7), status: status
+                ))
+            }
+        }
+    }
+
+    /// SQL enforces the existence and ownership of the document and page.
+    /// Idempotence leaves any prior human-confirmed/rejected/unknown state intact.
+    func insertFieldProposal(
+        transactionID: UUID, documentID: UUID, pageIndex: Int,
+        kind: FieldProposalKind, value: String, evidence: String
+    ) throws {
+        try withStatement("""
+            INSERT INTO field_proposals
+              (id, transaction_id, document_id, page_index, kind, value, evidence, status)
+            SELECT ?, ?, d.id, ?, ?, ?, ?, 'proposed'
+            FROM documents d
+            JOIN document_pages pg ON pg.document_id=d.id AND pg.page_index=?
+            WHERE d.id=? AND d.transaction_id=?
+            ON CONFLICT(document_id, page_index, kind, value) DO NOTHING;
+            """) { statement in
+            try bind(UUID().uuidString, at: 1, to: statement)
+            try bind(transactionID.uuidString, at: 2, to: statement)
+            sqlite3_bind_int(statement, 3, Int32(pageIndex))
+            try bind(kind.rawValue, at: 4, to: statement)
+            try bind(value, at: 5, to: statement)
+            try bind(evidence, at: 6, to: statement)
+            sqlite3_bind_int(statement, 7, Int32(pageIndex))
+            try bind(documentID.uuidString, at: 8, to: statement)
+            try bind(transactionID.uuidString, at: 9, to: statement)
+            guard sqlite3_step(statement) == SQLITE_DONE else { throw error }
+        }
+    }
+
+    func reviewFieldProposal(
+        _ id: UUID, transactionID: UUID, status: FieldReviewStatus
+    ) throws {
+        try withStatement("""
+            UPDATE field_proposals SET status=?
+            WHERE id=? AND transaction_id=?
+              AND EXISTS(
+                SELECT 1 FROM documents d
+                WHERE d.id=field_proposals.document_id
+                  AND d.transaction_id=?
+              );
+            """) { statement in
+            try bind(status.rawValue, at: 1, to: statement)
+            try bind(id.uuidString, at: 2, to: statement)
+            try bind(transactionID.uuidString, at: 3, to: statement)
+            try bind(transactionID.uuidString, at: 4, to: statement)
+            guard sqlite3_step(statement) == SQLITE_DONE else { throw error }
+            guard sqlite3_changes(database) == 1 else {
+                throw DocumentProcessingError.missingFieldProposal
+            }
         }
     }
 

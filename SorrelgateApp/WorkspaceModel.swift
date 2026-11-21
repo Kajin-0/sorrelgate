@@ -7,6 +7,7 @@ final class WorkspaceModel: ObservableObject {
     @Published var selectedTransactionID: UUID?
     @Published var selectedDocumentID: UUID?
     @Published private(set) var documents: [ImportedDocument] = []
+    @Published private(set) var fieldProposals: [FieldProposal] = []
     @Published private(set) var tasks: [ChecklistItem] = []
     @Published private(set) var offices: [OfficeProfile] = []
     @Published private(set) var checklistSource: ChecklistSnapshot?
@@ -14,9 +15,12 @@ final class WorkspaceModel: ObservableObject {
     @Published var noticeMessage: String?
     @Published private(set) var isImporting = false
     @Published private(set) var isCreatingTransaction = false
+    @Published private(set) var isFindingProposals = false
     @Published private(set) var importCount = 0
     @Published private(set) var importTotal = 0
     @Published var previewURL: URL?
+    @Published private(set) var previewPageIndex = 0
+    @Published private(set) var previewNavigationID = UUID()
 
     private var service: SorrelgateService?
     private var documentWorkspace: DocumentWorkspace?
@@ -156,17 +160,21 @@ final class WorkspaceModel: ObservableObject {
         guard let workspace = documentWorkspace, let id = selectedTransactionID else {
             lastLoadedTransactionID = nil
             documents = []
+            fieldProposals = []
             tasks = []
             checklistSource = nil
             selectedDocumentID = nil
             previewURL = nil
+            previewPageIndex = 0
             return
         }
         if lastLoadedTransactionID != id {
             lastLoadedTransactionID = id
             selectedDocumentID = nil
             previewURL = nil
+            previewPageIndex = 0
             documents = []
+            fieldProposals = []
             tasks = []
             checklistSource = nil
         }
@@ -174,10 +182,12 @@ final class WorkspaceModel: ObservableObject {
             do {
                 let loadedDocuments = try await workspace.documents(for: id)
                 let loadedTasks = try await workspace.checklist(for: id)
+                let loadedProposals = try await workspace.fieldProposals(for: id)
                 let snapshot = try await workspace.checklistSnapshot(for: id)
                 guard selectedTransactionID == id else { return }
                 documents = loadedDocuments
                 tasks = loadedTasks
+                fieldProposals = loadedProposals
                 checklistSource = snapshot
                 if let selectedDocumentID,
                    let selected = loadedDocuments.first(where: { $0.id == selectedDocumentID }) {
@@ -185,6 +195,7 @@ final class WorkspaceModel: ObservableObject {
                 } else {
                     selectedDocumentID = nil
                     previewURL = nil
+                    previewPageIndex = 0
                 }
             } catch {
                 if selectedTransactionID == id {
@@ -246,13 +257,84 @@ final class WorkspaceModel: ObservableObject {
     func selectDocument(_ document: ImportedDocument?) {
         guard let document, let workspace = documentWorkspace else {
             previewURL = nil
+            previewPageIndex = 0
             return
+        }
+        if selectedDocumentID != document.id {
+            previewPageIndex = 0
+            previewNavigationID = UUID()
         }
         selectedDocumentID = document.id
         Task {
             let url = await workspace.storedPDFURL(for: document)
             if selectedDocumentID == document.id {
                 previewURL = url
+            }
+        }
+    }
+
+    func findAcceptanceDatesInSelectedDocument() {
+        guard let workspace = documentWorkspace,
+              let transactionID = selectedTransactionID,
+              let documentID = selectedDocumentID,
+              !isFindingProposals else { return }
+        isFindingProposals = true
+        noticeMessage = nil
+        Task {
+            defer { isFindingProposals = false }
+            do {
+                let matches = try await workspace.proposeAcceptanceDates(
+                    from: documentID, in: transactionID
+                )
+                guard selectedTransactionID == transactionID else { return }
+                loadSelected()
+                noticeMessage = matches.isEmpty
+                    ? "No explicitly labeled ISO acceptance date found. Review the PDF manually."
+                    : "Found \(matches.count) source-linked candidate(s). Dates are not confirmed."
+            } catch {
+                if selectedTransactionID == transactionID {
+                    errorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    func showProposalSource(_ proposal: FieldProposal) {
+        guard let workspace = documentWorkspace,
+              selectedTransactionID == proposal.transactionID else { return }
+        Task {
+            do {
+                let url = try await workspace.sourcePDFURL(
+                    for: proposal.id, in: proposal.transactionID
+                )
+                guard selectedTransactionID == proposal.transactionID else { return }
+                selectedDocumentID = proposal.documentID
+                previewPageIndex = proposal.pageIndex
+                previewNavigationID = UUID()
+                previewURL = url
+            } catch {
+                if selectedTransactionID == proposal.transactionID {
+                    errorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    func reviewProposal(_ proposal: FieldProposal, as status: FieldReviewStatus) {
+        guard let workspace = documentWorkspace,
+              selectedTransactionID == proposal.transactionID else { return }
+        Task {
+            do {
+                try await workspace.reviewFieldProposal(
+                    proposal.id, in: proposal.transactionID, as: status
+                )
+                if selectedTransactionID == proposal.transactionID {
+                    loadSelected()
+                }
+            } catch {
+                if selectedTransactionID == proposal.transactionID {
+                    errorMessage = error.localizedDescription
+                }
             }
         }
     }
