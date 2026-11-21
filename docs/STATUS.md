@@ -5,6 +5,12 @@
 **Budget:** $0 additional during the early MVP. Apple membership, signing, notarization, paid APIs and cloud hosting are DEFERRED. Codex may build locally using free Xcode on the external tester's Mac with the owner's consent.
 **No owner Mac:** GitHub Actions macOS runners verify builds and automated tests; real UI, macOS permissions, real OCR performance and on-device LLM must be validated later on the tester's Mac.
 
+## In-flight M2 implementation (branch `feature/m2-office-profiles-20261121`; verification PENDING)
+- Submitted: named office profiles; independent workflow checklists; append-only office template revisions with optimistic version checks; atomic transaction checklist copies and provenance; SwiftUI office management and office selection on transaction creation.
+- New synthetic tests: office isolation, restart recovery, old/new template versions, manual-task protection, stale-version/duplicate office rejection.
+- **New tests and SwiftUI integration are NOT YET VERIFIED.** Continue using successful Actions #7 as the last baseline until branch CI completes.
+- Current scope deliberately excludes CSV/XLSX import and real Mac UX verification.
+
 ## Latest verified Mac CI: PASS
 - [GitHub Actions #7](https://github.com/Kajin-0/sorrelgate/actions/runs/44870027594) SUCCESS on source commit `5b419be1f9a7bce6a0402c069f55463930a52c13`.
 - Apple Silicon macOS 26, Xcode 26.6, Swift 6.3.3, XcodeGen 2.46.0.
@@ -23,7 +29,7 @@
 - M6 commercial release: NOT STARTED. Paid Apple distribution postponed until strong MVP and owner approval.
 
 ## Next engineering tasks
-1. Build named office profiles and office-specific editable checklist templates, taking immutable snapshots into each new transaction.
+1. Verify M2 office profile/template implementation in Mac CI, repair any failures and record measured test outcomes.
 2. Add CSV then XLSX import with column mapping preview. No need for external office systems in first MVP.
 3. Harden PDF importer/OCR (raster scan benchmark, cancellation, corrupt/disk-error cases, 50-PDF batch) and maintain CI green.
 4. Keep an authorized Codex-assisted local Mac build for the first supervised tester, not a paid signed app. See [free tester handoff](FREE_MAC_TESTER_HANDOFF.md).
