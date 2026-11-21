@@ -1,6 +1,6 @@
 # Sorrelgate — Verified development status
 
-**Latest merged:** [PR #14](https://github.com/Kajin-0/sorrelgate/pull/14) as `4037eb86de729f80c27251ccb2cccaeeda5528a1`. Source CI [#72](https://github.com/Kajin-0/sorrelgate/actions/runs/44877714802), [#73](https://github.com/Kajin-0/sorrelgate/actions/runs/44877718244), and docs-head [#74](https://github.com/Kajin-0/sorrelgate/actions/runs/44877944051) **SUCCESS: 39/39 XCTest, native XcodeGen/SwiftUI Mac build, unsigned artifact**. Post-merge `main` CI pending at documentation time; earlier main #66 PASS.
+**Latest verified `main`:** [Actions #77](https://github.com/Kajin-0/sorrelgate/actions/runs/44878217155) SUCCESS at `37b909a2e233265b3ffe75796b339d85f3460794` (**39 XCTest, XcodeGen/native SwiftUI build, unsigned artifact**). **Current scoped branch `feature/m1-pdf-reliability-20261121`:** PDF/OCR and filesystem reliability tests submitted, new CI **NOT YET RUN**; baseline 39 tests + 7 new = target **46 XCTest**.
 **Repository:** https://github.com/Kajin-0/sorrelgate (public by owner's choice)
 **Budget:** $0 additional during the early MVP. Apple membership, signing, notarization, paid APIs and cloud hosting are DEFERRED. Codex may build locally using free Xcode on the external tester's Mac with the owner's consent.
 **No owner Mac:** GitHub Actions macOS runners verify builds and automated tests; real UI, macOS permissions, real OCR performance and on-device LLM must be validated later on the tester's Mac.
@@ -22,7 +22,7 @@
 
 ## Working code and limitations
 - M0: native SwiftUI app and local SQLite transaction database; CI PASS, human UI not verified.
-- M1: Finder-selected PDF import, SHA-256 original preservation, PDFKit extraction / Vision OCR fallback, duplicate handling, preview, checklist/document links, export package. Synthetic backend tests PASS; scanned OCR accuracy, full error/cancellation and macOS interaction remain unverified.
+- M1: **IN PROGRESS.** Finder-selected PDF import, SHA-256 originals, PDFKit text/Vision fallback, linked checklists and export are implemented and previously tested on synthetic digital PDFs. New branch adds 7 CI tests (NOT YET RUN): raster-only synthetic Vision OCR with measured token recall, deterministic cancellation/retry and three-file partial batch retention, obstruction and database-write-fault rollback/retry, pre-existing corrupt original rejection, and **50 mixed PDFs (46 selectable text + 4 raster images)** with per-original SHA-256 and file-byte equality, persisted page methods, reopen, wall-clock throughput and p50/p95 import times. Production adds checks immediately after synchronous Vision and before SQLite commit; no new service. Real office scans/field OCR generalization, ENOSPC and security-scoped Finder denial, actual UI cancellation and external Mac behavior **unverified**.
 - M2: **IN PROGRESS.** PR #9 office profiles, PR #10 CSV, PR #11 XLSX, PR #12 office requirement/notes + legacy SQLite migrations, PR #13 explicit reviewed spreadsheet metadata all merged; CI #66 passed 33 XCTest/native SwiftUI app. **Merged in PR #14 (source CI PASS):** transaction creation durability uses a version-frozen `ChecklistSeedPlan` (office ID/name, workflow, template version, task titles/requirements/notes) in an atomic transaction+intent commit to `transactions.sqlite`. Prepared tasks/provenance commit atomically in `documents.sqlite`; recovery replays until verified/acknowledged, including crash after document commit. Conflicting manual tasks remain unchanged and pending intent remains for human review. Old transactions lacking recorded intents cannot automatically recover their original office/version; no guess is made. Six new synthetic tests passed in #72/#73/#74 (39/39 total); macOS GUI manual restart still unverified. Current handoff is not claiming physical Mac reliability or commercial readiness.
 - M3 recognition/validation: NOT STARTED.
 - M4 timelines/drafts: NOT STARTED.
@@ -30,8 +30,8 @@
 - M6 commercial release: NOT STARTED. Paid Apple distribution postponed until strong MVP and owner approval.
 
 ## Next engineering tasks
-1. Verify newest post-merge `main` GitHub Actions run following PR #14; latest source/doc CI already green 39/39.
-2. Harden M1 PDF/Vision OCR against scanned pages, cancellation/retry, corrupt/low-disk/permission failures, and large 50-PDF mixed batches using synthetic/public-safe inputs. Build clear accuracy/performance metrics; no OEM or user data required.
-3. Test physical Mac relaunch and multi-window UI/transaction error notices with an authorized tester; GitHub CI does not prove this.
-4. Complete remaining M2 lifecycle/due-date, office change UX; advance M3 evidence-linked field extraction and manual review only after M1 gate.
-5. Strict $0 additional MVP cost; commercial release NO-GO until Mac pilot, security, AI-action approvals and signing/notarization.
+1. Run `feature/m1-pdf-reliability-20261121` feature macOS Actions, inspect the expected 46 XCTest, Vision synthetic recognition and **measured** 50-PDF wall-clock throughput/p50/p95, then fix failures and verify native SwiftUI build before merging.
+2. Broaden M1 quality only after baseline: real scanned/skewed/multipage/OCR fixtures, reliable cancellation during in-progress I/O, actual disk-full ENOSPC and Finder permission/URL revocation fault injection; compare to explicit accuracy/performance requirements.
+3. External supervised Mac workflow for Finder-selected imports, user cancel/retry, 50-file load, exports and startup/relaunch. CI compilation is not a human usability test.
+4. Continue M2 task dates/statuses, M3 source-linked recognition and human approval only after reliable ingestion.
+5. $0 additional MVP spending. Commercial release NO-GO until physical pilot, security, consent, AI gating and signed/notarized distribution.
