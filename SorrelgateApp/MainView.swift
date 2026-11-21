@@ -8,6 +8,7 @@ struct MainView: View {
     @State private var isPresentingNewTransaction = false
     @State private var isPresentingPDFPicker = false
     @State private var newTaskTitle = ""
+    @State private var editingTask: ChecklistItem?
 
     var body: some View {
         NavigationSplitView {
@@ -59,6 +60,13 @@ struct MainView: View {
         }
         .onChange(of: workspace.selectedTransactionID) { _, _ in
             workspace.loadSelected()
+        }
+        .sheet(item: $editingTask) { item in
+            EditTaskSheet(
+                task: item,
+                onSave: { workspace.renameTask(item, to: $0) },
+                onRemove: { workspace.removeTask(item) }
+            )
         }
         .sheet(isPresented: $isPresentingNewTransaction) {
             NewTransactionSheet { address, workflow in
@@ -159,8 +167,19 @@ struct MainView: View {
                         }
                     }
                     Divider()
-                    Text("Checklist")
-                        .font(.headline)
+                    HStack {
+                        Text("Checklist").font(.headline)
+                        Spacer()
+                        if workspace.tasks.isEmpty {
+                            Button("Load Starter Tasks") {
+                                workspace.loadStarterChecklist(for: transaction)
+                            }
+                        } else {
+                            Text("\(workspace.tasks.filter(\.isCompleted).count) of \(workspace.tasks.count)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                     HStack {
                         TextField("Add a task", text: $newTaskTitle)
                             .onSubmit { addTask() }
@@ -194,6 +213,13 @@ struct MainView: View {
                                     Image(systemName: "link")
                                 }
                                 .help("Link a PDF to this task")
+                                Button {
+                                    editingTask = item
+                                } label: {
+                                    Image(systemName: "ellipsis.circle")
+                                }
+                                .buttonStyle(.borderless)
+                                .help("Rename or remove this task")
                             }
                             if let linkedID = item.linkedDocumentID,
                                let document = workspace.documents.first(where: { $0.id == linkedID }) {

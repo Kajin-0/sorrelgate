@@ -18,6 +18,7 @@ final class WorkspaceModel: ObservableObject {
     private var service: SorrelgateService?
     private var documentWorkspace: DocumentWorkspace?
     private var importTask: Task<Void, Never>?
+    private var lastLoadedTransactionID: UUID?
 
     init() {
         do {
@@ -62,6 +63,19 @@ final class WorkspaceModel: ObservableObject {
             refresh()
             selectedTransactionID = transaction.id
             loadSelected()
+            if let documentWorkspace {
+                Task {
+                    do {
+                        _ = try await documentWorkspace.seedStarterChecklist(
+                            for: transaction.id, workflow: workflow
+                        )
+                        if selectedTransactionID == transaction.id { loadSelected() }
+                    } catch {
+                        errorMessage = "Transaction saved, but starter tasks failed to load: " +
+                            error.localizedDescription
+                    }
+                }
+            }
             return true
         } catch {
             errorMessage = error.localizedDescription
@@ -71,13 +85,20 @@ final class WorkspaceModel: ObservableObject {
 
     func loadSelected() {
         guard let workspace = documentWorkspace, let id = selectedTransactionID else {
+            lastLoadedTransactionID = nil
             documents = []
             tasks = []
+            selectedDocumentID = nil
             previewURL = nil
             return
         }
-        selectedDocumentID = nil
-        previewURL = nil
+        if lastLoadedTransactionID != id {
+            lastLoadedTransactionID = id
+            selectedDocumentID = nil
+            previewURL = nil
+            documents = []
+            tasks = []
+        }
         Task {
             do {
                 let loadedDocuments = try await workspace.documents(for: id)
@@ -85,8 +106,17 @@ final class WorkspaceModel: ObservableObject {
                 guard selectedTransactionID == id else { return }
                 documents = loadedDocuments
                 tasks = loadedTasks
+                if let selectedDocumentID,
+                   let selected = loadedDocuments.first(where: { $0.id == selectedDocumentID }) {
+                    previewURL = await workspace.storedPDFURL(for: selected)
+                } else {
+                    selectedDocumentID = nil
+                    previewURL = nil
+                }
             } catch {
-                errorMessage = error.localizedDescription
+                if selectedTransactionID == id {
+                    errorMessage = error.localizedDescription
+                }
             }
         }
     }
@@ -160,6 +190,41 @@ final class WorkspaceModel: ObservableObject {
             do {
                 _ = try await workspace.addTask(text, for: id)
                 loadSelected()
+            } catch { errorMessage = error.localizedDescription }
+        }
+    }
+
+    func loadStarterChecklist(for transaction: TransactionRecord) {
+        guard let workspace = documentWorkspace else { return }
+        Task {
+            do {
+                let count = try await workspace.seedStarterChecklist(
+                    for: transaction.id, workflow: transaction.workflow
+                )
+                if selectedTransactionID == transaction.id { loadSelected() }
+                noticeMessage = count > 0
+                    ? "Loaded \(count) starter tasks. Review for your office."
+                    : "Your existing tasks were preserved."
+            } catch { errorMessage = error.localizedDescription }
+        }
+    }
+
+    func renameTask(_ item: ChecklistItem, to title: String) {
+        guard let workspace = documentWorkspace else { return }
+        Task {
+            do {
+                try await workspace.renameTask(item.id, in: item.transactionID, to: title)
+                if selectedTransactionID == item.transactionID { loadSelected() }
+            } catch { errorMessage = error.localizedDescription }
+        }
+    }
+
+    func removeTask(_ item: ChecklistItem) {
+        guard let workspace = documentWorkspace else { return }
+        Task {
+            do {
+                try await workspace.removeTask(item.id, in: item.transactionID)
+                if selectedTransactionID == item.transactionID { loadSelected() }
             } catch { errorMessage = error.localizedDescription }
         }
     }

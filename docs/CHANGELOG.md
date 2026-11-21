@@ -2,6 +2,12 @@
 
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
+## 2026-11-21T05:15:20.571Z — Wire seller starter tasks into Mac interface and document free pilot installation
+- **UI:** Automatically initialize an editable snapshot on new transaction; Load Starter Tasks for older empty transactions; task edit sheet provides rename/confirmed removal and preserves PDFs; keep selected PDF preview on checklist updates.
+- **Tester plan:** FREE_MAC_TESTER_HANDOFF.md gives Codex instructions for a supervised zero-cost local Xcode build and test on the user's Mac; paid Apple notarization deferred.
+- **Verification:** Source changes submitted; latest Mac CI run must be inspected before claiming new GUI compiles. Physical UI has not been tested.
+- **Next:** Resolve CI, then build office profiles/template management with Excel import.
+
 ## 2026-11-21T05:14:07.576Z — Add bundled versioned starter checklist domain actions; $0 assisted pilot policy
 - **Added:** 9 listing and 12 accepted-offer administrative starter tasks loaded from JSON via Swift Package resources; atomic idempotent SQL seed, scoped task rename/remove, and two XCTest suites covering counts, no overwrite, restart persistence and cross-transaction denial.
 - **Budget:** Apple paid enrollment/signing/notarization deferred. Free Codex-assisted local Xcode build approved for the first external Mac pilot.

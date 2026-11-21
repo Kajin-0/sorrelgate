@@ -13,6 +13,8 @@
 - Atomic, idempotent checklist initialization in DocumentWorkspace; existing manual tasks preserved.
 - Transaction-scoped task rename/remove operations, leaving original PDFs untouched.
 - Two additional XCTest tests for seeding, no overwrite, restart persistence and cross-transaction protection.
+- SwiftUI now automatically seeds checklists for new transactions and offers a Load Starter Tasks action for older empty workspaces; editable task sheet renames/removes tasks and selected PDF persists across checklist refresh.
+- Free tester handoff instructions added for Codex-assisted local Xcode build, without Apple membership.
 **This new feature is NOT YET VERIFIED until fresh Actions completes.**
 
 ## Milestones

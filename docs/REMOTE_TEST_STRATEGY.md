@@ -13,10 +13,13 @@
 - First-install Gatekeeper behavior on a customer's Mac, VoiceOver/keyboard ergonomics, actual target-model performance, and end-to-end on-device Apple Foundation Models behavior without an eligible device/model runtime.
 - Real TC workflow utility. All of these are **PENDING EXTERNAL MAC PILOT** until tested, not "passed" or "not needed."
 
-## Delivery plan for the FIRST external Mac tester
+## $0 Codex-assisted local Mac pilot
+For the initial test, **do not purchase Apple Developer membership or any other service**. With tester permission, Codex on the external Mac may install free Xcode/XcodeGen, clone Sorrelgate, compile from source and open the local development app. The end user should not type terminal commands. This is an assisted pilot, not the final one-click installer; never disable system-wide Mac security. Full setup/test instructions: [FREE_MAC_TESTER_HANDOFF.md](FREE_MAC_TESTER_HANDOFF.md).
+
+## Later commercial self-service delivery (deferred)
 1. Finish an actually useful MVP vertical slice: create transaction, select files, OCR scanned PDFs, link documents to checklist, preserve originals, export review package. Favor synthetic documents for initial use.
 2. Prepare a distinct TESTER release configuration with versioned installer and clear first-run instructions.
-3. Preferred low-friction distribution: Developer ID code-signed, hardened runtime, Apple-notarized application, packaged/stapled DMG; alternative supported App Store Connect/TestFlight flow where available. Apple Developer account, identities and related credentials are prerequisites and must be securely managed as GitHub encrypted secrets, **never committed to public repo**. This setup is not completed.
+3. **Only for later commercial self-service distribution:** Developer ID code-signed and Apple-notarized build, or supported App Store route. Apple membership costs and credentials are deferred until the user approves. A free Codex-assisted local build is sufficient for the initial supervised tester.
 4. Do not send an unsigned GitHub Actions build as a routine one-click install to a nontechnical TC; Gatekeeper may block. Never direct them to disable system-wide Mac security.
 5. Give the tester a short five-minute onboarding guide and a small synthetic sample transaction. Ask them to open, import, inspect, export, quit/relaunch, and report confusing screens.
 6. Gather results via version number, Mac model, macOS version, pass/fail tasks, redacted screenshots and opt-in sanitized diagnostics. Keep real client PDFs, signatures and financial information out of public GitHub issues.
@@ -26,7 +29,8 @@
 - **CI passed:** specific hosted automated tests were executed successfully.
 - **App compiled:** Xcode produced .app; no claim it was manually opened.
 - **Unsigned artifact:** developer ZIP for controlled testing only, **not** the product install.
-- **Tester ready:** installable beta passes CI, signing, notarization (or eligible alternative), privacy prerequisites, and launch/readme packaging.
+- **Assisted pilot ready:** authorized Codex/developer builds locally on tester Mac with free Xcode; requires hands-on verification, not paid signing.
+- **Self-service tester ready:** signed/notarized build or eligible alternative and clean install; deferred until commercial phase.
 - **Human verified:** real Mac user executed named tasks on target hardware and reported outcomes.
 - **Sellable:** all release gates, including usability, privacy, licensing and authorized TC pilot, have passed.
 
