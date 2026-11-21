@@ -149,6 +149,21 @@ public actor DocumentWorkspace {
         )
     }
 
+    /// Freeze selected template and metadata before a transaction is recorded.
+    public func prepareChecklistSeed(
+        workflow: WorkflowKind, officeID: UUID? = nil
+    ) throws -> ChecklistSeedPlan {
+        try officeTemplates.prepareSeed(workflow: workflow, officeID: officeID)
+    }
+
+    /// Replay an immutable creation intent; no lookup of current office templates.
+    @discardableResult
+    public func applyPreparedChecklistSeed(
+        _ plan: ChecklistSeedPlan, for transactionID: UUID
+    ) throws -> Int {
+        try officeTemplates.seedPreparedTransaction(transactionID, plan: plan)
+    }
+
     public func offices() throws -> [OfficeProfile] {
         try officeTemplates.offices()
     }

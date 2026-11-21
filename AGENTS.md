@@ -1,9 +1,9 @@
 # AGENTS.md — Sorrelgate permanent agent handoff
 
-**Updated:** 2026-11-21T06:39:55.323Z (UTC)
+**Updated:** 2026-11-21T06:57:02.364Z (UTC)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**Latest verified:** [PR #13](https://github.com/Kajin-0/sorrelgate/pull/13) merged to main `404ac3c` after [macOS Actions #63](https://github.com/Kajin-0/sorrelgate/actions/runs/44876286333) and [#64](https://github.com/Kajin-0/sorrelgate/actions/runs/44876289970) both SUCCESS: **33 XCTest**, XcodeGen/native Mac SwiftUI app and unsigned artifacts PASS. Explicit mapped CSV/XLSX task requirements/notes implemented; physical Mac GUI/installer/OCR/LLM unverified. Strict $0 MVP budget.
+**Latest verified baseline:** [main Actions #66](https://github.com/Kajin-0/sorrelgate/actions/runs/44876628233) SUCCESS on `39abac2` (33 XCTest + native SwiftUI Mac build). **New branch:** `feature/m2-crash-safe-initialization-20261121` adds frozen checklist creation intents and crash replay across transaction/document SQLite files, six synthetic interruption tests, and native async Create flow. Source CI [#72](https://github.com/Kajin-0/sorrelgate/actions/runs/44877714802) and [#73](https://github.com/Kajin-0/sorrelgate/actions/runs/44877718244) **PASS: 39/39 XCTest, XcodeGen/native Mac build and artifact upload**. Merge pending. No physical Mac, OCR accuracy, agent execution or commercial release validation. $0 additional MVP cost.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Verify post-merge `main` CI for PR #13 `404ac3c`; then prioritize idempotent recovery of interrupted transaction creation across `transactions.sqlite` and `documents.sqlite`, with no duplicate or rewritten checklists. M1 scanned OCR, PDF cancellation, permission/low-disk failures, and 50-PDF batch remain hardening tasks. CSV/XLSX title+optional requirement+notes mapping is implemented and verified in #63/#64, no header inference, no source mutation, no automatic template Save. Preserve historical snapshots and avoid architecture churn. No paid installer/developer membership during supervised MVP.
+**Next:** PR #14 frozen checklist creation/replay code CI [#72](https://github.com/Kajin-0/sorrelgate/actions/runs/44877714802) / [#73](https://github.com/Kajin-0/sorrelgate/actions/runs/44877718244) both SUCCESS **39 XCTest + native Mac app** after fixing a throwing-expression guard and XCTest actor-await assertions; merge and check post-merge `main` CI. The immutable `ChecklistSeedPlan` records selected office ID/name, workflow, version, requirements and notes alongside the transaction in one `transactions.sqlite` commit. Document-side seeding + source are atomic in `documents.sqlite`; restart replay verifies snapshot before ack; conflicting user tasks remain untouched. Legacy no-intent records are not guessed. Next harden M1 Vision scanned OCR, PDF cancel/retry/low disk, and 50-PDF batch. No $ spending, real Mac UI still unverified.
