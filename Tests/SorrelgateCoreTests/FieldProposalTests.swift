@@ -427,7 +427,8 @@ final class FieldProposalTests: XCTestCase {
         XCTAssertTrue(proposals.isEmpty,
             "A late corrupted PDF must roll back all new candidates in this batch")
         let reopened = try makeWorkspace(root)
-        XCTAssertTrue(try await reopened.fieldProposals(for: transactionID).isEmpty)
+        let reopenedProposals = try await reopened.fieldProposals(for: transactionID)
+        XCTAssertTrue(reopenedProposals.isEmpty)
     }
 
     func testBatchFailurePreservesPreviouslyConfirmedProposalWithoutPartialNewOnes() async throws {
