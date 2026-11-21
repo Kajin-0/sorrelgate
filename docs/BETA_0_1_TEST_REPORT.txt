@@ -1,0 +1,37 @@
+SORRELGATE BETA 0.1.0 - TEST RESULTS
+====================================
+
+Use only synthetic data. Do not report confidential names, addresses,
+documents, signatures or screenshots containing client information.
+
+Tester (optional alias): __________________________
+Mac model / Apple chip: ___________________________
+macOS version: ____________________________________
+App version: ______________________________________
+Source commit (from BUILD INFO.txt): ______________
+
+Mark PASS, FAIL or NOT TRIED next to each checkpoint:
+
+[ ] Sorrelgate opened safely: _____________________
+[ ] Accepted Offer transaction created: ___________
+[ ] Starter checklist visible and editable: _______
+[ ] Three sample PDFs imported: ___________________
+[ ] PDF preview displayed the expected pages: _____
+[ ] Source-linked date and price review worked: ___
+[ ] Deliberate competing values were visible: _____
+[ ] Export contained PDF copies and manifest: _____
+[ ] Quit/reopen preserved transaction and tasks: ___
+
+What was most confusing?
+1.
+2.
+3.
+
+Error messages / reproduction steps (no private data):
+
+
+What single improvement would help most?
+
+
+Technician: attach exact commit and sanitized diagnostic details only.
+Do not equate passing automated CI with passing any of these user steps.
