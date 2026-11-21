@@ -2,6 +2,13 @@
 
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
+## 2026-11-21T05:14:07.576Z — Add bundled versioned starter checklist domain actions; $0 assisted pilot policy
+- **Added:** 9 listing and 12 accepted-offer administrative starter tasks loaded from JSON via Swift Package resources; atomic idempotent SQL seed, scoped task rename/remove, and two XCTest suites covering counts, no overwrite, restart persistence and cross-transaction denial.
+- **Budget:** Apple paid enrollment/signing/notarization deferred. Free Codex-assisted local Xcode build approved for the first external Mac pilot.
+- **Verification:** Prior M1 CI run #5 passed; **new changes not yet tested**, trigger Actions on commit.
+- **Next:** Verify CI, connect starter UI, then office-specific editable profiles and Excel/CSV importer.
+- **Commit:** Source commit associated with this entry.
+
 ## 2026-11-21T05:06:56.566Z — M1 automated test suite and native Mac build verified successful
 - **CI:** [Run #5](https://github.com/Kajin-0/sorrelgate/actions/runs/44869071688) on `da8ca53d6b984d4eb59f404163866cdbecb71cd3` **SUCCESS**; Xcode 26.6, Swift 6.3.3, macOS 26 arm64.
 - **Verification:** `swift test --parallel` exit 0, nine XCTest cases (five synthetic-PDF scenarios plus four transaction tests); `xcodegen` generation PASS; `xcodebuild` native Mac app BUILD SUCCEEDED; archive and artifact upload successful.

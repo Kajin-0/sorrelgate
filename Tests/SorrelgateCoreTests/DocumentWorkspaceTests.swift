@@ -169,6 +169,71 @@ final class DocumentWorkspaceTests: XCTestCase {
         XCTAssertTrue(text.contains("12 Harmless Test Street"))
     }
 
+
+    func testStarterChecklistCountsAndIdempotence() async throws {
+        let root = try makeTemporaryFolder()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let workspace = try makeWorkspace(root: root)
+        let listing = UUID(), accepted = UUID(), customID = UUID()
+        let a = try await workspace.seedStarterChecklist(
+            for: listing, workflow: .listingPreparation
+        )
+        XCTAssertEqual(a, 9)
+        let b = try await workspace.seedStarterChecklist(
+            for: accepted, workflow: .acceptedOffer
+        )
+        XCTAssertEqual(b, 12)
+        let repeated = try await workspace.seedStarterChecklist(
+            for: listing, workflow: .listingPreparation
+        )
+        XCTAssertEqual(repeated, 0)
+        _ = try await workspace.addTask("Unique office task", for: customID)
+        let skipped = try await workspace.seedStarterChecklist(
+            for: customID, workflow: .acceptedOffer
+        )
+        XCTAssertEqual(skipped, 0)
+        let existing = try await workspace.checklist(for: customID)
+        XCTAssertEqual(existing.map(\.title), ["Unique office task"])
+        let listingItems = try await workspace.checklist(for: listing)
+        XCTAssertEqual(listingItems.first?.title, "Receive signed listing agreement")
+    }
+
+    func testStarterAndTaskEditsPersistAcrossReopen() async throws {
+        let root = try makeTemporaryFolder()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let transaction = UUID(), other = UUID()
+        let firstID: UUID
+        do {
+            let workspace = try makeWorkspace(root: root)
+            let count = try await workspace.seedStarterChecklist(
+                for: transaction, workflow: .acceptedOffer
+            )
+            XCTAssertEqual(count, 12)
+            let tasks = try await workspace.checklist(for: transaction)
+            firstID = try XCTUnwrap(tasks.first?.id)
+            do {
+                try await workspace.renameTask(firstID, in: other, to: "Unauthorized")
+                XCTFail("Cross-transaction rename must fail")
+            } catch {
+                XCTAssertTrue(error is DocumentProcessingError)
+            }
+            try await workspace.renameTask(firstID, in: transaction, to: "Office paperwork")
+        }
+        let reopened = try makeWorkspace(root: root)
+        let tasks = try await reopened.checklist(for: transaction)
+        XCTAssertEqual(tasks.count, 12)
+        XCTAssertEqual(tasks.first?.title, "Office paperwork")
+        do {
+            try await reopened.removeTask(firstID, in: other)
+            XCTFail("Cross-transaction deletion must fail")
+        } catch {
+            XCTAssertTrue(error is DocumentProcessingError)
+        }
+        try await reopened.removeTask(firstID, in: transaction)
+        let after = try await reopened.checklist(for: transaction)
+        XCTAssertEqual(after.count, 11)
+    }
+
     func testImportManyIndependentSyntheticPDFs() async throws {
         let root = try makeTemporaryFolder()
         defer { try? FileManager.default.removeItem(at: root) }

@@ -120,6 +120,29 @@ public actor DocumentWorkspace {
         return item
     }
 
+    /// Atomic first-use setup. A coordinator's existing tasks are never replaced.
+    @discardableResult
+    public func seedStarterChecklist(
+        for transactionID: UUID, workflow: WorkflowKind
+    ) throws -> Int {
+        try store.seedTasksIfEmpty(
+            transactionID: transactionID,
+            titles: StarterChecklist.titles(for: workflow)
+        )
+    }
+
+    public func renameTask(_ taskID: UUID, in transactionID: UUID, to title: String) throws {
+        let value = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty, value.count <= 250 else {
+            throw DocumentProcessingError.invalidTaskTitle
+        }
+        try store.renameTask(taskID, transactionID: transactionID, title: value)
+    }
+
+    public func removeTask(_ taskID: UUID, in transactionID: UUID) throws {
+        try store.removeTask(taskID, transactionID: transactionID)
+    }
+
     public func updateTask(_ taskID: UUID, in transactionID: UUID, completed: Bool) throws {
         try store.updateTask(taskID, transactionID: transactionID, completed: completed)
     }
@@ -531,6 +554,61 @@ private final class DocumentSQLiteStore {
                 try bind(task.transactionID.uuidString, at: 2, to: statement)
                 try bind(task.title, at: 3, to: statement)
                 guard sqlite3_step(statement) == SQLITE_DONE else { throw error }
+            }
+    }
+
+    func seedTasksIfEmpty(transactionID: UUID, titles: [String]) throws -> Int {
+        try execute("BEGIN IMMEDIATE TRANSACTION;")
+        do {
+            let count = try withStatement(
+                "SELECT COUNT(*) FROM checklist_tasks WHERE transaction_id=?;"
+            ) { statement in
+                try bind(transactionID.uuidString, at: 1, to: statement)
+                guard sqlite3_step(statement) == SQLITE_ROW else { throw error }
+                return Int(sqlite3_column_int(statement, 0))
+            }
+            if count != 0 {
+                try execute("COMMIT;")
+                return 0
+            }
+            for title in titles {
+                try addTask(ChecklistItem(
+                    id: UUID(), transactionID: transactionID,
+                    title: title, isCompleted: false, linkedDocumentID: nil
+                ))
+            }
+            try execute("COMMIT;")
+            return titles.count
+        } catch {
+            try? execute("ROLLBACK;")
+            throw error
+        }
+    }
+
+    func renameTask(_ id: UUID, transactionID: UUID, title: String) throws {
+        try withStatement("""
+            UPDATE checklist_tasks SET title=? WHERE id=? AND transaction_id=?;
+            """) { statement in
+                try bind(title, at: 1, to: statement)
+                try bind(id.uuidString, at: 2, to: statement)
+                try bind(transactionID.uuidString, at: 3, to: statement)
+                guard sqlite3_step(statement) == SQLITE_DONE else { throw error }
+                guard sqlite3_changes(database) == 1 else {
+                    throw DocumentProcessingError.invalidChecklistTask
+                }
+            }
+    }
+
+    func removeTask(_ id: UUID, transactionID: UUID) throws {
+        try withStatement("""
+            DELETE FROM checklist_tasks WHERE id=? AND transaction_id=?;
+            """) { statement in
+                try bind(id.uuidString, at: 1, to: statement)
+                try bind(transactionID.uuidString, at: 2, to: statement)
+                guard sqlite3_step(statement) == SQLITE_DONE else { throw error }
+                guard sqlite3_changes(database) == 1 else {
+                    throw DocumentProcessingError.invalidChecklistTask
+                }
             }
     }
 

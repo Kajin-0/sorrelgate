@@ -10,6 +10,7 @@ let package = Package(
     targets: [
         .target(
             name: "SorrelgateCore",
+            resources: [.process("Resources")],
             linkerSettings: [.linkedLibrary("sqlite3")]
         ),
         .testTarget(
