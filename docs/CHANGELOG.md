@@ -1,5 +1,13 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T07:00:36.788Z — PR #14 crash-safe creation and restart replay merged, 39-test CI PASS
+- **Merge:** [PR #14](https://github.com/Kajin-0/sorrelgate/pull/14) squash-merged to `main` as `4037eb86de729f80c27251ccb2cccaeeda5528a1`.
+- **Evidence:** Feature-source macOS Actions [#72](https://github.com/Kajin-0/sorrelgate/actions/runs/44877714802) and [#73](https://github.com/Kajin-0/sorrelgate/actions/runs/44877718244), and docs-head [#74](https://github.com/Kajin-0/sorrelgate/actions/runs/44877944051) all **SUCCESS**: `swift test --parallel` invoked **39/39 XCTest cases**, XcodeGen native Mac application BUILD SUCCEEDED, unsigned artifact uploaded. This update is documentation only, so post-merge `main` CI remains pending at entry time.
+- **Implemented:** Atomic transaction+frozen office checklist intent, two-step idempotent document-side task/provenance commit and acknowledgment, automatic launch retry, non-destructive conflict handling, a single async GUI Create action preventing repeated submissions, and six restart/rollback/snapshot tests.
+- **Known limits:** Two SQLite files remain separate; legacy records without intents cannot reconstruct an originally selected office. Synthetic file-handle reopen tests are not a physical abrupt-process-kill or human Mac UX test. Commercial readiness remains NO-GO.
+- **Next:** Post-merge main CI, then M1 Vision scanned OCR/cancellation/low disk and 50-PDF throughput.
+
+
 ## 2026-11-21T06:57:02.364Z — Crash-safe transaction initialization CI verified (PR #14; merge pending)
 - **Verification:** [Actions #72](https://github.com/Kajin-0/sorrelgate/actions/runs/44877714802) and [#73](https://github.com/Kajin-0/sorrelgate/actions/runs/44877718244) both SUCCESS on `21078ef603f584d7fa82151f503faba222344aa9`. Each ran **39/39 XCTest cases** (33 baseline + 6 new), generated Xcode project, built native SwiftUI Mac app with signing disabled, and uploaded an unsigned artifact. No real macOS user GUI was exercised.
 - **Repair trail:** Initial CI #68/#69 found a throwing-expression Swift compiler error in `OfficeTemplateStore`; fixed at `a8befc5`. CI #70/#71 then exposed `await` in XCTest assertion autoclosures; fixed at `21078ef`. The final source CI is green; no data-loss assertion failures were observed.

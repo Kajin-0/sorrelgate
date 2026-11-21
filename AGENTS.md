@@ -1,9 +1,9 @@
 # AGENTS.md — Sorrelgate permanent agent handoff
 
-**Updated:** 2026-11-21T06:57:02.364Z (UTC)
+**Updated:** 2026-11-21T07:00:36.788Z (UTC)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**Latest verified baseline:** [main Actions #66](https://github.com/Kajin-0/sorrelgate/actions/runs/44876628233) SUCCESS on `39abac2` (33 XCTest + native SwiftUI Mac build). **New branch:** `feature/m2-crash-safe-initialization-20261121` adds frozen checklist creation intents and crash replay across transaction/document SQLite files, six synthetic interruption tests, and native async Create flow. Source CI [#72](https://github.com/Kajin-0/sorrelgate/actions/runs/44877714802) and [#73](https://github.com/Kajin-0/sorrelgate/actions/runs/44877718244) **PASS: 39/39 XCTest, XcodeGen/native Mac build and artifact upload**. Merge pending. No physical Mac, OCR accuracy, agent execution or commercial release validation. $0 additional MVP cost.
+**Latest verified:** [PR #14](https://github.com/Kajin-0/sorrelgate/pull/14) crash-safe checklist creation and restart replay **MERGED** to `main` as `4037eb86de729f80c27251ccb2cccaeeda5528a1`. [macOS CI #72](https://github.com/Kajin-0/sorrelgate/actions/runs/44877714802), [#73](https://github.com/Kajin-0/sorrelgate/actions/runs/44877718244), and final docs-head [#74](https://github.com/Kajin-0/sorrelgate/actions/runs/44877944051) all **PASS 39 XCTest, native SwiftUI Mac build and artifact upload**. Post-merge main CI pending at entry time; physical Mac GUI/relaunch and disk fault injection not yet verified. $0 additional MVP cost.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** PR #14 frozen checklist creation/replay code CI [#72](https://github.com/Kajin-0/sorrelgate/actions/runs/44877714802) / [#73](https://github.com/Kajin-0/sorrelgate/actions/runs/44877718244) both SUCCESS **39 XCTest + native Mac app** after fixing a throwing-expression guard and XCTest actor-await assertions; merge and check post-merge `main` CI. The immutable `ChecklistSeedPlan` records selected office ID/name, workflow, version, requirements and notes alongside the transaction in one `transactions.sqlite` commit. Document-side seeding + source are atomic in `documents.sqlite`; restart replay verifies snapshot before ack; conflicting user tasks remain untouched. Legacy no-intent records are not guessed. Next harden M1 Vision scanned OCR, PDF cancel/retry/low disk, and 50-PDF batch. No $ spending, real Mac UI still unverified.
+**Next:** PR #14 frozen office checklist creation and durable replay MERGED (`4037eb8`). Branch CI #72/#73/#74 success **39 XCTest + native app**; verify latest post-merge main CI. New transaction creation atomically saves transaction+exact `ChecklistSeedPlan` in `transactions.sqlite`; separate `documents.sqlite` seeding creates task rows/provenance, then verifies/acknowledges. Restart replays unacknowledged plans; never replace manual tasks or use a newer office revision. Older no-intent transactions cannot reconstruct prior office; manual starter loading remains. **Next engineering milestone:** M1 scanned Vision OCR and cancellation/disk-failure hardening; then 50-PDF batch benchmarking. No $ spending, LLM/external human Mac still unverified.
