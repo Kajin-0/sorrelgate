@@ -57,6 +57,10 @@ Create a real transaction, import a mixed batch of PDFs, preserve original hashe
 
 This repository is **public by deliberate owner choice**. Do **not** stop coding or request a visibility change. Public GitHub content is visible to others; do not commit real client contracts, personal/financial information, signatures, office credentials, blank copyrighted real estate forms, signing keys, or anything that must remain confidential. No open-source license for Sorrelgate's own application code has been granted merely by publishing it. License, support, distribution and commercial terms still require deliberate decisions. Third-party dependencies may be Apache 2.0, MIT, BSD or similarly audited commercially permissive licenses; Apple system frameworks remain subject to Apple terms.
 
+## Active delivery objective
+
+Build **one complete Accepted Offer transaction workflow** before expanding features. The [outcome-based Delivery Contract](docs/DELIVERY_CONTRACT.md) gives five measurable G1–G5 gates, a hard no-churn policy and separate engineering / real-Mac-pilot / commercial stopping points. **G1 evidence-backed source-page review is next.** This contract supersedes earlier broad “keep developing M1” phrasing; current production/safety status remains as shown above.
+
 ## Maintainers / agent handoff
 
 Every substantive implementation change must update [`docs/CHANGELOG.md`](docs/CHANGELOG.md) and [`docs/STATUS.md`](docs/STATUS.md) in the same PR, with exact test evidence or an explicit **not run** entry. Record architectural deviations in [`docs/DECISIONS.md`](docs/DECISIONS.md). See [`AGENTS.md`](AGENTS.md) for the full protocol.

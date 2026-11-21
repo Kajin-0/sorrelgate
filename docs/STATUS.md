@@ -1,5 +1,8 @@
 # Sorrelgate — Verified development status
 
+**Execution scope locked (2026-11-21):** [Delivery Contract](DELIVERY_CONTRACT.md) defines five measurable product gates. Active **G1 — evidence-backed review (M3)**, following 51-test [main CI #97](https://github.com/Kajin-0/sorrelgate/actions/runs/44910712360) success at `704e39c93947261305145dd5f944833df2c4a78a`. G2–G5 are future gates; no agent or full accepted-offer transaction capability should be claimed yet. This is a planning/documentation-only change: **no new runtime tests were executed** as evidence for additional product capabilities.
+
+
 **Latest merged:** [PR #16](https://github.com/Kajin-0/sorrelgate/pull/16) squash `d896b47efd5c732c776f76bc331a0ca6d1cab934`. Feature-source macOS Actions [#92](https://github.com/Kajin-0/sorrelgate/actions/runs/44909992770), [#93](https://github.com/Kajin-0/sorrelgate/actions/runs/44909997219) and final docs-head [#95](https://github.com/Kajin-0/sorrelgate/actions/runs/44910402256) **SUCCESS: 51/51 XCTest + native XcodeGen/SwiftUI build + unsigned artifact**. Post-merge main CI pending at this documentation entry.
 **Repository:** https://github.com/Kajin-0/sorrelgate (public by owner's choice)
 **Budget:** $0 additional during the early MVP. Apple membership, signing, notarization, paid APIs and cloud hosting are DEFERRED. Codex may build locally using free Xcode on the external tester's Mac with the owner's consent.
@@ -29,9 +32,9 @@
 - M5 LLM operates typed backend: NOT STARTED (typed service foundation exists).
 - M6 commercial release: NOT STARTED. Paid Apple distribution postponed until strong MVP and owner approval.
 
-## Next engineering tasks
-1. Confirm post-merge `main` macOS CI following PR #16 (`d896b47`), 51 XCTest, native Mac build and artifact. Latest PR #95 verified.
-2. True ENOSPC / low-disk state and Finder sandbox-security-scoped URL/permission revocation remain separate failure modes from passed POSIX EACCES tests; test and make failures actionable without deleting originals or inventing success.
-3. Evaluate difficult licensed/authorized scanner output including noise, perspective, text occlusion, handwriting, genuine office layouts; report CER/WER and confidence/abstention per source page, not only seven selected tokens.
-4. First authorized Mac pilot: Finder import UX, 50-file throughput responsiveness, cancel/retry, preview, quit/relaunch, export, accessibility and target hardware performance.
-5. Keep $0 additional budget, manual flow intact and avoid redesign. Complete M2 lifecycle/dates and M3 source evidence after ingestion gates. Commercial release NO-GO.
+## Next engineering tasks (outcome-based; see DELIVERY_CONTRACT.md)
+1. **G1 active:** source-linked recognition and human review, including one complete PDF → field/type proposal → correct original page → Confirm/Reject/Unknown → reopen path. Expand cautiously to essential fields; measure precision, coverage and Unknown against held-out labelled fixtures, **not** the 7-token synthetic OCR benchmark.
+2. **G2:** a complete accepted-offer manual workflow using confirmed dates, checklist status, two editable draft types and exported handoff with missing/contradictory issues; 10 real-state scenarios and 50-PDF/300-page stress.
+3. **G3:** coordinated whole-workspace backup/restore, fixed fault/security matrix, native relaunch and offline reliability; stop after gates pass, and reopen only P0/P1/reproducible faults.
+4. **G4:** permissioned local model adapter and shared typed actions/receipts with 30 scored scenarios; no unapproved verification or outbound action.
+5. **G5:** supervised Mac tester and genuine field-data evaluation; commercial gate separately requires authorized paid signing/notarization, security/licenses and measured TC time savings. **Engineering stops instead of churning when G1–G4 pass and external evidence is unavailable.**
