@@ -1,5 +1,9 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T16:31:46.461Z — Beta 0.1.0 code-head source CI passed, human Mac pilot still open
+- **Evidence:** [macOS Actions #44924654096](https://github.com/Kajin-0/sorrelgate/actions/runs/44924654096) SUCCESS at `5ad7dfa0d982b8777a16bf7a1f81671163cdf33f`. **59/59 XCTest**, native SwiftUI Mac BUILD SUCCEEDED; PDFKit verifier `BETA_PDFKIT_FIXTURES_PASS files=3 pages=7 checks=5`; SHA-256 fixture verification, ZIP CRC check `No errors detected`; `BETA_HANDOFF_PACKAGE_PASS`; unsigned ZIP uploaded **3,277,182 bytes**. Artifact `Sorrelgate-Beta-0.1.0-UNSIGNED-macOS` (ID 14714219672, expires 2026-12-05).
+- **Next:** PR #21 still pending final documentation-head CI/merge at this record; actual external Apple-silicon macOS 26+ human usability pilot is **NOT RUN**. No official signed/notarized self-installer; no real client documents or $ spent. Stop packaging feature churn; use the guided tester handoff.
+
 ## 2026-11-21T16:27:07.135Z — Beta 0.1.0 one-bundle assisted pilot, CI PENDING
 - **Goal:** Unblock the first real nontechnical Mac pilot without broad feature work. G1 remains the product gate; packaging is a bounded external evidence dependency.
 - **Implementation:** Native marketing version 0.1.0/build 1; synthetic generator for 3 real PDFs / 7 pages and optional CSV; macOS Apple PDFKit source verification; SHA-256 sample manifest; one ZIP with unsigned app, plain-text README FIRST, TEST RESULTS, technician setup, pinned source SHA; archive ZIP CRC validation. Replace old unsigned debug CI artifact with one 14-day-retained Beta 0.1.0 bundle. Update README, handoff and release docs.

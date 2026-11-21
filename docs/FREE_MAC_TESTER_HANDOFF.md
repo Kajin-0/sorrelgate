@@ -2,7 +2,7 @@
 
 ## Beta 0.1.0 — first real Mac pilot
 
-One versioned, **unsigned** ZIP artifact is prepared by [macOS GitHub Actions](https://github.com/Kajin-0/sorrelgate/actions), named Sorrelgate-Beta-0.1.0-UNSIGNED-macOS. It contains the native application, three fictional seven-page-total PDFs, optional task CSV, source commit, SHA-256 sample checksums, README FIRST.txt, TEST RESULTS.txt and TECHNICIAN SETUP.md.
+One versioned, **unsigned** ZIP artifact was verified in [macOS CI #44924654096](https://github.com/Kajin-0/sorrelgate/actions/runs/44924654096) (59/59 XCTest, native build, PDFKit checks and ZIP integrity), named Sorrelgate-Beta-0.1.0-UNSIGNED-macOS. It expires December 5, 2026; if expired, regenerate using the repository workflow. It contains the native application, three fictional seven-page-total PDFs, optional task CSV, source commit, SHA-256 sample checksums, README FIRST.txt, TEST RESULTS.txt and TECHNICIAN SETUP.md.
 
 **For a nontechnical tester:** No terminal commands are required of you. With your permission, an authorized Codex/technician must set up the app on your Mac. Read README FIRST.txt and complete TEST RESULTS.txt with fabricated PDFs only. Do not disable any Mac security protections.
 
