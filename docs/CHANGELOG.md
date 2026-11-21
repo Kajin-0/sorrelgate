@@ -2,6 +2,14 @@
 
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
+## 2026-11-21T04:54:03.882Z — Confirmed no owner Mac; revised CI-first delivery and external beta gates
+- **User constraint:** No Mac accessible to project owner. Do not pause coding until external Mac tester receives a usable build.
+- **Policy changes:** Mac CI remains mandatory for compilation and automated tests. Human UI/installer/Apple Intelligence runtime testing is deferred and remains unverified. First external tester path prioritizes a simple signed/notarized installer (or an eligible TestFlight route).
+- **Documents:** Updated AGENTS.md, README, docs/STATUS.md, docs/DECISIONS.md (ADR-009), docs/PROJECT_ROADMAP.md, docs/IMPLEMENTATION_CHECKLIST.md; added docs/REMOTE_TEST_STRATEGY.md.
+- **Tests:** Documentation-only changes; no new native app code or CI builds performed for this entry.
+- **Next:** Expand automated M0 negative tests and proceed to M1 PDF ingestion without waiting for local hardware.
+- **Commit:** Recorded in corresponding GitHub documentation commit.
+
 ## 2026-11-21T04:39:17.086Z — First verified Apple-silicon build and four XCTest executions
 - **Verification:** [Actions run #1](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670) completed SUCCESS on commit 36a0639b949dc8017ab428e063f31d38dd4cae94.
 - **Environment:** macos-26-arm64, Xcode 26.6, Swift 6.3.3, developer-only XcodeGen 2.46.0.

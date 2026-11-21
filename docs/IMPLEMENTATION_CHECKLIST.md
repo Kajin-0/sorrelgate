@@ -1,6 +1,6 @@
 # Sorrelgate — Implementation and QA Checklist
 
-Use as a release gate ledger; check boxes only when implementation **and actual tests** pass.
+Use as a release gate ledger; check boxes only when implementation **and actual tests** pass. Owner has **no local Mac**: mark CI gates and future human-Mac acceptance gates separately, and do not block implementation on hands-on hardware access (see `docs/REMOTE_TEST_STRATEGY.md`).
 
 ## M0 — Foundation
 - [ ] Public visibility explicitly accepted by owner; verify no sensitive materials are committed before each push
@@ -9,6 +9,12 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 - [ ] SQLite migrations, transactions, restart persistence
 - [ ] macOS CI build/test, dependency lock and license audit — **CI build/tests verified**; dependency/license audit not yet complete
 - [ ] Native application navigation: Transactions, Workspace, Settings
+
+## Remote CI and external Mac beta preparation
+- [x] First macOS Actions runner build/test passed; no local Mac required
+- [ ] Expand automated macOS app-launch and fresh-restart smoke tests where feasible
+- [ ] Build a signed/notarized low-friction distribution or supported TestFlight beta before nontechnical tester install
+- [ ] Obtain hands-on verification from external Mac tester; do not claim this based on CI
 
 ## M1 — Vertical slice
 - [ ] Create / edit / reopen transaction

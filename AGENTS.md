@@ -3,7 +3,7 @@
 **Updated:** 2026-11-20T23:19:47-05:00 (`America/New_York`)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**State at handoff:** M0 native SwiftUI/SQLite scaffold built successfully in [GitHub Actions run #1](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670), with four XCTest cases invoked. Physical Mac UI smoke test pending. No paid release, PDF OCR pipeline, or AI agent yet; read `docs/STATUS.md` for latest verified evidence. `docs/STATUS.md` is authoritative for subsequent progress.
+**State at handoff:** M0 native SwiftUI/SQLite scaffold built successfully in [GitHub Actions run #1](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670), with four XCTest cases invoked. No local Mac is available to the owner; physical UI/Apple Intelligence tests are deferred until an external Mac tester can install a tester-ready build. Hosted GitHub macOS CI is the active engineering verification environment. No paid release, PDF OCR pipeline, or AI agent yet; read `docs/STATUS.md` for latest verified evidence. `docs/STATUS.md` is authoritative for subsequent progress.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -51,7 +51,7 @@ When returning after a long gap, inspect real repository files, git status/histo
 
 1. Check actual branch, working tree, recent commits, and current `docs/STATUS.md`.
 2. **Repository visibility is not a blocker:** public GitHub is an explicit owner choice (2026-11-20). Continue normal development and commits without requiring private visibility. Do not publish secrets, personal information, customer documents, proprietary third-party forms, or any confidential material; review every committed artifact and test fixture.
-3. Verify macOS, Xcode, Swift and Apple Foundation Models availability on the actual developer Mac. Never claim a successful native build without running Xcode on macOS.
+3. The owner has **no local Mac**. Use macOS GitHub-hosted runners to verify the OS/Xcode/Swift toolchain, native builds, unit/integration tests, and safely automatable smoke tests. Do not require a local Mac or block M1+ engineering on an unavailable human test. Separately flag unverified real-user UI, Finder permissions, accessibility, signing/notarization and Apple Intelligence runtime behavior; these require a tester's compatible Mac.
 4. Pick exactly one small, measurable milestone slice. Specify desired behavior, tests, negative controls, and files to touch.
 5. Implement, run the tests, record commands, exit codes and environment versions. Use synthetic documents only in tests.
 6. Preserve user-authored work, avoid unrelated refactors, commit focused changes, prefer reviewable PRs.
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** The first macOS Actions run passed (Xcode 26.6, Swift 6.3.3); validate UI launch and restart persistence on a physical Mac and expand M0 failure-path tests. Do not claim a successful Mac app from source files alone. After M0 is verified, begin the M1 import/preview/export vertical slice. For Codex use `docs/CODEX_MASTER_PROMPT.md`; for regular ChatGPT use connected GitHub tools and verify GitHub CI runs.
+**Next:** Continue M0 failure-path/CI testing, then proceed to M1 PDF import/preview/export without waiting for a local Mac. No owner Mac exists; plan actual interactive acceptance testing at the first external Mac beta. See `docs/REMOTE_TEST_STRATEGY.md`. CI compilation does not prove real Mac usability or Apple Intelligence execution. For Codex use `docs/CODEX_MASTER_PROMPT.md`; for regular ChatGPT use connected GitHub tools and verify GitHub CI runs.

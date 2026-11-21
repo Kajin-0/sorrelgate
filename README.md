@@ -41,6 +41,10 @@ GitHub Actions automatically runs \`swift test --parallel\` and builds the nativ
 
 The source of the native Xcode project is [\`project.yml\`](project.yml), generated with XcodeGen (MIT; developer-only). On a developer Mac: \`brew install xcodegen\`, \`xcodegen generate\`, then open \`Sorrelgate.xcodeproj\`. Customers never install developer tools. Artifacts from CI are **unsigned development builds**, not customer releases.
 
+## No local Mac: testing and first external beta
+
+The owner currently has **no Mac**. Continue active implementation using GitHub Actions macOS runners and synthetic fixtures, while deferring hands-on UI and on-device model verification until a Mac tester can receive a build. An unsigned CI archive is **not** a normal nontechnical installation package. For the first low-friction external beta, prepare a signed and notarized build (or an eligible TestFlight distribution) when developer-account credentials are available. See [`docs/REMOTE_TEST_STRATEGY.md`](docs/REMOTE_TEST_STRATEGY.md). Do not pause M1–M5 work solely to await hardware access.
+
 ## First coding goal — milestone M0/M1
 
 Create a real transaction, import a mixed batch of PDFs, preserve original hashes, extract text / OCR, display source pages, attach docs to an editable checklist, export a manifest, then close and reopen with state intact. **Build and test on a Mac**. Only after this verified vertical slice should broader automation be layered on.
