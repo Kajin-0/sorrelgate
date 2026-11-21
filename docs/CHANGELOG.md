@@ -1,5 +1,21 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T05:56:46.154Z — M2 office requirement/notes CI verified (source PR #12)
+- **Evidence:** [macOS Actions #56](https://github.com/Kajin-0/sorrelgate/actions/runs/44872995179) SUCCESS on `f5820de053a87b9dc5c2a0bdfddf9dafc4c5c979` (feature branch). `swift test --parallel` executed **27/27 XCTest cases** (24 baseline + 3 new metadata/migration cases); XcodeGen and native SwiftUI app BUILD SUCCEEDED; unsigned test ZIP artifact 14693969678 uploaded (2,833,304 bytes; seven-day retention).
+- **Coverage:** Real legacy SQLite schema upgraded in place without resetting existing task completion; historical requirement/notes snapshots survive office edits and reopen; metadata-only revision and invalid 501-character note rejection verified. Tests do not substitute for real user Mac GUI.
+- **Deployment:** PR #12 remains draft/merge-pending at entry time. No signing/notarization, outside-Mac usability, live office documents, or document OCR performance verified. No new paid services.
+- **Next:** Merge only after latest docs commit CI; continue explicit CSV/XLSX metadata mappings and M1 reliability.
+
+
+## 2026-11-21T05:53:40.145Z — M2 office requirement and notes: implementation and migration tests (CI PENDING)
+- **Scope:** Add an explicit office requirement value (unspecified / office required / office optional) and optional notes to versioned office tasks. Copy both fields into immutable transaction checklist rows; expose in native Office Checklists editor. Avoid interpreting unlabeled historical checklists as legally required.
+- **Schema migration:** Existing `office_template_rows` and `checklist_tasks` receive additive idempotent columns with `unspecified` and empty-note defaults. No destructive rewrite and no new dependency. User-edited historical completion/document links are preserved.
+- **Compatibility:** Legacy title-only save still supported and preserves metadata for matched existing titles. CSV/XLSX title-only imports remain available but new metadata-column mappings are a separate scope.
+- **Tests added:** Three macOS XCTest scenarios: historical snapshot immutability across revision/restart, metadata-only version changes plus invalid-note refusal, and migration from real pre-metadata SQLite schemas.
+- **Verification:** New code/test/native app CI PENDING. Prior merged baseline `e6b6291` completed macOS Actions #54 successfully. No real Mac GUI or migration on real customer data tested.
+- **Next:** Repair and verify CI; merge only when clean. Expand spreadsheet mapping and M1 robustness without architectural churn.
+
+
 ## 2026-11-21T05:47:04.155Z — XLSX feature passes 24 XCTest and native Mac build (CI #50)
 - **Evidence:** [macOS Actions run #50](https://github.com/Kajin-0/sorrelgate/actions/runs/44872179791) **SUCCESS** for source commit `33686e2b2bb321d92f2238bec3e89adbc18d3ee8`. `swift test --parallel` invoked **24 XCTest cases** (20 previous + 4 new real ZIP/XML XLSX tests); XcodeGen project and native SwiftUI app BUILD SUCCEEDED; unsigned ZIP artifact uploaded. Code-signing and physical UI not tested.
 - **Implementation:** Multi-sheet Excel XLSX parser with shared+inline strings, sparse rows, formula/error refusal, ZIP archive declared-size safeguards; native XLSX file/sheet picker, explicit task-title column review and unsaved office checklist draft. Workbook parsing moved to detached user-initiated task to avoid blocking SwiftUI.

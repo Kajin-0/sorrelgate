@@ -7,11 +7,36 @@ public struct OfficeProfile: Identifiable, Equatable, Sendable {
     public let createdAt: Date
 }
 
+/// Office rules are user-supplied settings, not legal determinations.
+public enum OfficeTaskRequirement: String, CaseIterable, Sendable {
+    case unspecified
+    case required
+    case optional
+    public var displayName: String {
+        switch self {
+        case .unspecified: "Unspecified"
+        case .required: "Office required"
+        case .optional: "Office optional"
+        }
+    }
+}
+public struct OfficeTaskSpec: Equatable, Sendable {
+    public var title: String
+    public var requirement: OfficeTaskRequirement
+    public var notes: String
+    public init(title: String, requirement: OfficeTaskRequirement = .unspecified,
+                notes: String = "") {
+        self.title = title
+        self.requirement = requirement
+        self.notes = notes
+    }
+}
 public struct OfficeChecklistTemplate: Equatable, Sendable {
     public let officeID: UUID
     public let workflow: WorkflowKind
     public let version: Int
-    public let titles: [String]
+    public let tasks: [OfficeTaskSpec]
+    public var titles: [String] { tasks.map(\.title) }
 }
 
 public struct ChecklistSnapshot: Equatable, Sendable {
@@ -35,7 +60,7 @@ public enum OfficeTemplateError: Error, LocalizedError {
         case .invalidOfficeName: "Enter an office name between 1 and 120 characters."
         case .duplicateOfficeName: "An office with this name already exists."
         case .missingOffice: "The selected office no longer exists."
-        case .invalidTasks: "Use 1–100 distinct, nonempty task titles of up to 250 characters each."
+        case .invalidTasks: "Use 1–100 unique task titles (up to 250 characters) and notes (up to 500 characters)."
         case .staleTemplate: "The office checklist changed elsewhere. Reload before saving."
         case .invalidStoredData: "An office checklist record could not be read."
         }
@@ -80,6 +105,8 @@ final class OfficeTemplateStore {
                 version INTEGER NOT NULL,
                 ordinal INTEGER NOT NULL,
                 title TEXT NOT NULL,
+                requirement TEXT NOT NULL DEFAULT 'unspecified',
+                notes TEXT NOT NULL DEFAULT '',
                 PRIMARY KEY (office_id, workflow, version, ordinal),
                 FOREIGN KEY (office_id, workflow, version)
                     REFERENCES office_template_versions(office_id, workflow, version)
@@ -93,6 +120,10 @@ final class OfficeTemplateStore {
                 created_at REAL NOT NULL
             );
             """)
+        try addColumnIfNeeded(table: "office_template_rows", name: "requirement",
+                              definition: "TEXT NOT NULL DEFAULT 'unspecified'")
+        try addColumnIfNeeded(table: "office_template_rows", name: "notes",
+                              definition: "TEXT NOT NULL DEFAULT ''")
     }
 
     deinit {
@@ -143,7 +174,8 @@ final class OfficeTemplateStore {
             for workflow in WorkflowKind.allCases {
                 let names = try StarterChecklist.titles(for: workflow)
                 try insertRevision(
-                    officeID: office.id, workflow: workflow, version: 1, titles: names
+                    officeID: office.id, workflow: workflow, version: 1,
+                    tasks: names.map { OfficeTaskSpec(title: $0) }
                 )
             }
             try execute("COMMIT;")
@@ -166,44 +198,64 @@ final class OfficeTemplateStore {
                 return Int(sqlite3_column_int(query, 0))
             }
         guard let version else { throw OfficeTemplateError.missingOffice }
-        let titles = try statement("""
-            SELECT title FROM office_template_rows
+        let tasks = try statement("""
+            SELECT title, requirement, notes FROM office_template_rows
             WHERE office_id=? AND workflow=? AND version=?
             ORDER BY ordinal;
             """) { query in
                 try bind(officeID.uuidString, at: 1, to: query)
                 try bind(workflow.rawValue, at: 2, to: query)
                 sqlite3_bind_int(query, 3, Int32(version))
-                var names: [String] = []
+                var rows: [OfficeTaskSpec] = []
                 while true {
                     let status = sqlite3_step(query)
-                    if status == SQLITE_DONE { return names }
-                    guard status == SQLITE_ROW else { throw error }
-                    names.append(readText(query, 0))
+                    if status == SQLITE_DONE { return rows }
+                    guard status == SQLITE_ROW,
+                          let level = OfficeTaskRequirement(rawValue: readText(query, 1))
+                    else { throw OfficeTemplateError.invalidStoredData }
+                    rows.append(OfficeTaskSpec(
+                        title: readText(query, 0), requirement: level, notes: readText(query, 2)
+                    ))
                 }
             }
-        guard !titles.isEmpty else { throw OfficeTemplateError.invalidStoredData }
+        guard !tasks.isEmpty else { throw OfficeTemplateError.invalidStoredData }
         return OfficeChecklistTemplate(
-            officeID: officeID, workflow: workflow, version: version, titles: titles
+            officeID: officeID, workflow: workflow, version: version, tasks: tasks
         )
+    }
+
+    /// Preserve metadata when legacy callers rearrange known title-only rows.
+    @discardableResult
+    func saveTemplate(
+        officeID: UUID, workflow: WorkflowKind, expectedVersion: Int, titles input: [String]
+    ) throws -> OfficeChecklistTemplate {
+        let previous = try template(officeID: officeID, workflow: workflow)
+        let tasks = input.map { title -> OfficeTaskSpec in
+            let clean = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let found = previous.tasks.first(where: {
+                $0.title.compare(clean, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+            }) {
+                return OfficeTaskSpec(title: title, requirement: found.requirement, notes: found.notes)
+            }
+            return OfficeTaskSpec(title: title)
+        }
+        return try saveTemplate(officeID: officeID, workflow: workflow,
+                                expectedVersion: expectedVersion, tasks: tasks)
     }
 
     @discardableResult
     func saveTemplate(
-        officeID: UUID, workflow: WorkflowKind,
-        expectedVersion: Int, titles input: [String]
+        officeID: UUID, workflow: WorkflowKind, expectedVersion: Int, tasks input: [OfficeTaskSpec]
     ) throws -> OfficeChecklistTemplate {
-        let names = try validatedTitles(input)
+        let tasks = try validatedTasks(input)
         try execute("BEGIN IMMEDIATE TRANSACTION;")
         do {
             let current = try template(officeID: officeID, workflow: workflow)
-            guard current.version == expectedVersion else {
-                throw OfficeTemplateError.staleTemplate
-            }
-            if current.titles != names {
+            guard current.version == expectedVersion else { throw OfficeTemplateError.staleTemplate }
+            if current.tasks != tasks {
                 try insertRevision(
                     officeID: officeID, workflow: workflow,
-                    version: current.version + 1, titles: names
+                    version: current.version + 1, tasks: tasks
                 )
             }
             try execute("COMMIT;")
@@ -234,7 +286,7 @@ final class OfficeTemplateStore {
                 try execute("COMMIT;")
                 return 0
             }
-            let names: [String]
+            let tasks: [OfficeTaskSpec]
             let version: Int
             let officeName: String
             if let officeID {
@@ -242,24 +294,28 @@ final class OfficeTemplateStore {
                     throw OfficeTemplateError.missingOffice
                 }
                 let source = try template(officeID: officeID, workflow: workflow)
-                names = source.titles
+                tasks = source.tasks
                 version = source.version
                 officeName = office.name
             } else {
-                names = try StarterChecklist.titles(for: workflow)
+                tasks = try StarterChecklist.titles(for: workflow).map {
+                    OfficeTaskSpec(title: $0)
+                }
                 version = 1
                 officeName = "Built-in starter"
             }
             try statement("""
-                INSERT INTO checklist_tasks(id,transaction_id,title)
-                VALUES (?,?,?);
+                INSERT INTO checklist_tasks(id,transaction_id,title,requirement,notes)
+                VALUES (?,?,?,?,?);
                 """) { query in
-                    for title in names {
+                    for task in tasks {
                         sqlite3_reset(query)
                         sqlite3_clear_bindings(query)
                         try bind(UUID().uuidString, at: 1, to: query)
                         try bind(transactionID.uuidString, at: 2, to: query)
-                        try bind(title, at: 3, to: query)
+                        try bind(task.title, at: 3, to: query)
+                        try bind(task.requirement.rawValue, at: 4, to: query)
+                        try bind(task.notes, at: 5, to: query)
                         try done(query)
                     }
                 }
@@ -281,7 +337,7 @@ final class OfficeTemplateStore {
                     try done(query)
                 }
             try execute("COMMIT;")
-            return names.count
+            return tasks.count
         } catch {
             try? execute("ROLLBACK;")
             throw error
@@ -309,19 +365,29 @@ final class OfficeTemplateStore {
             }
     }
 
-    private func validatedTitles(_ input: [String]) throws -> [String] {
-        let titles = input.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-        guard (1...100).contains(titles.count),
-              titles.allSatisfy({
-                  !$0.isEmpty && $0.count <= 250 && !$0.contains("\n") && !$0.contains("\r")
+    private func validatedTasks(_ input: [OfficeTaskSpec]) throws -> [OfficeTaskSpec] {
+        let tasks = input.map {
+            OfficeTaskSpec(
+                title: $0.title.trimmingCharacters(in: .whitespacesAndNewlines),
+                requirement: $0.requirement,
+                notes: $0.notes.trimmingCharacters(in: .whitespacesAndNewlines)
+            )
+        }
+        guard (1...100).contains(tasks.count),
+              tasks.allSatisfy({
+                  !$0.title.isEmpty && $0.title.count <= 250 &&
+                  !$0.title.contains("\n") && !$0.title.contains("\r") &&
+                  $0.notes.count <= 500
               }),
-              Set(titles.map { $0.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }).count == titles.count
+              Set(tasks.map {
+                  $0.title.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+              }).count == tasks.count
         else { throw OfficeTemplateError.invalidTasks }
-        return titles
+        return tasks
     }
 
     private func insertRevision(
-        officeID: UUID, workflow: WorkflowKind, version: Int, titles: [String]
+        officeID: UUID, workflow: WorkflowKind, version: Int, tasks: [OfficeTaskSpec]
     ) throws {
         try statement("""
             INSERT INTO office_template_versions(office_id,workflow,version,created_at)
@@ -334,20 +400,39 @@ final class OfficeTemplateStore {
                 try done(query)
             }
         try statement("""
-            INSERT INTO office_template_rows(office_id,workflow,version,ordinal,title)
-            VALUES (?,?,?,?,?);
+            INSERT INTO office_template_rows
+                (office_id,workflow,version,ordinal,title,requirement,notes)
+            VALUES (?,?,?,?,?,?,?);
             """) { query in
-                for (position, title) in titles.enumerated() {
+                for (position, task) in tasks.enumerated() {
                     sqlite3_reset(query)
                     sqlite3_clear_bindings(query)
                     try bind(officeID.uuidString, at: 1, to: query)
                     try bind(workflow.rawValue, at: 2, to: query)
                     sqlite3_bind_int(query, 3, Int32(version))
                     sqlite3_bind_int(query, 4, Int32(position))
-                    try bind(title, at: 5, to: query)
+                    try bind(task.title, at: 5, to: query)
+                    try bind(task.requirement.rawValue, at: 6, to: query)
+                    try bind(task.notes, at: 7, to: query)
                     try done(query)
                 }
             }
+    }
+
+    /// Identifiers below are internal constants, never data from a workbook.
+    private func addColumnIfNeeded(table: String, name: String, definition: String) throws {
+        let names = try statement("PRAGMA table_info(\(table));") { query -> Set<String> in
+            var found = Set<String>()
+            while true {
+                let code = sqlite3_step(query)
+                if code == SQLITE_DONE { return found }
+                guard code == SQLITE_ROW else { throw error }
+                found.insert(readText(query, 1))
+            }
+        }
+        if !names.contains(name) {
+            try execute("ALTER TABLE \(table) ADD COLUMN \(name) \(definition);")
+        }
     }
 
     private func execute(_ sql: String) throws {

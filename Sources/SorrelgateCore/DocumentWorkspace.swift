@@ -73,6 +73,22 @@ public struct ChecklistItem: Identifiable, Equatable, Sendable {
     public let title: String
     public let isCompleted: Bool
     public let linkedDocumentID: UUID?
+    public let requirement: OfficeTaskRequirement
+    public let notes: String
+
+    public init(
+        id: UUID, transactionID: UUID, title: String, isCompleted: Bool,
+        linkedDocumentID: UUID?, requirement: OfficeTaskRequirement = .unspecified,
+        notes: String = ""
+    ) {
+        self.id = id
+        self.transactionID = transactionID
+        self.title = title
+        self.isCompleted = isCompleted
+        self.linkedDocumentID = linkedDocumentID
+        self.requirement = requirement
+        self.notes = notes
+    }
 }
 
 /// Separates document and task processing from the UI. The future LLM agent
@@ -155,6 +171,17 @@ public actor DocumentWorkspace {
         try officeTemplates.saveTemplate(
             officeID: officeID, workflow: workflow,
             expectedVersion: expectedVersion, titles: titles
+        )
+    }
+
+    @discardableResult
+    public func saveOfficeTemplate(
+        officeID: UUID, workflow: WorkflowKind,
+        expectedVersion: Int, tasks: [OfficeTaskSpec]
+    ) throws -> OfficeChecklistTemplate {
+        try officeTemplates.saveTemplate(
+            officeID: officeID, workflow: workflow,
+            expectedVersion: expectedVersion, tasks: tasks
         )
     }
 
@@ -452,10 +479,16 @@ private final class DocumentSQLiteStore {
               title TEXT NOT NULL,
               completed INTEGER NOT NULL DEFAULT 0,
               linked_document_id TEXT,
+              requirement TEXT NOT NULL DEFAULT 'unspecified',
+              notes TEXT NOT NULL DEFAULT '',
               FOREIGN KEY(linked_document_id) REFERENCES documents(id)
             );
             CREATE INDEX IF NOT EXISTS idx_task_transaction ON checklist_tasks(transaction_id);
         """)
+        try addColumnIfNeeded(table: "checklist_tasks", name: "requirement",
+                              definition: "TEXT NOT NULL DEFAULT 'unspecified'")
+        try addColumnIfNeeded(table: "checklist_tasks", name: "notes",
+                              definition: "TEXT NOT NULL DEFAULT ''")
     }
 
     deinit {
@@ -552,7 +585,8 @@ private final class DocumentSQLiteStore {
 
     func checklist(transactionID: UUID) throws -> [ChecklistItem] {
         try withStatement("""
-            SELECT id, transaction_id, title, completed, linked_document_id
+            SELECT id, transaction_id, title, completed, linked_document_id,
+                   requirement, notes
             FROM checklist_tasks WHERE transaction_id=? ORDER BY rowid;
             """) { statement in
                 try bind(transactionID.uuidString, at: 1, to: statement)
@@ -566,11 +600,18 @@ private final class DocumentSQLiteStore {
                     else { throw DocumentProcessingError.database("Invalid checklist ID") }
                     let linked = sqlite3_column_type(statement, 4) == SQLITE_NULL
                         ? nil : UUID(uuidString: text(statement, index: 4))
+                    guard let requirement = OfficeTaskRequirement(
+                        rawValue: text(statement, index: 5)
+                    ) else {
+                        throw DocumentProcessingError.database("Invalid checklist requirement")
+                    }
                     items.append(ChecklistItem(
                         id: id, transactionID: parentID,
                         title: text(statement, index: 2),
                         isCompleted: sqlite3_column_int(statement, 3) != 0,
-                        linkedDocumentID: linked
+                        linkedDocumentID: linked,
+                        requirement: requirement,
+                        notes: text(statement, index: 6)
                     ))
                 }
             }
@@ -682,6 +723,22 @@ private final class DocumentSQLiteStore {
                     throw DocumentProcessingError.invalidChecklistTask
                 }
             }
+    }
+
+    /// Additive and idempotent migration of old transaction checklists.
+    private func addColumnIfNeeded(table: String, name: String, definition: String) throws {
+        let names = try withStatement("PRAGMA table_info(\(table));") { statement -> Set<String> in
+            var found = Set<String>()
+            while true {
+                let code = sqlite3_step(statement)
+                if code == SQLITE_DONE { return found }
+                guard code == SQLITE_ROW else { throw error }
+                found.insert(text(statement, index: 1))
+            }
+        }
+        if !names.contains(name) {
+            try execute("ALTER TABLE \(table) ADD COLUMN \(name) \(definition);")
+        }
     }
 
     private func execute(_ sql: String) throws {

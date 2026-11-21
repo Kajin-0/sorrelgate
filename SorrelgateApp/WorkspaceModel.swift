@@ -85,14 +85,14 @@ final class WorkspaceModel: ObservableObject {
 
     func saveOfficeTemplate(
         officeID: UUID, workflow: WorkflowKind,
-        expectedVersion: Int, titles: [String]
+        expectedVersion: Int, tasks: [OfficeTaskSpec]
     ) async throws -> OfficeChecklistTemplate {
         guard let documentWorkspace else {
             throw DocumentProcessingError.database("Workspace unavailable")
         }
         return try await documentWorkspace.saveOfficeTemplate(
             officeID: officeID, workflow: workflow,
-            expectedVersion: expectedVersion, titles: titles
+            expectedVersion: expectedVersion, tasks: tasks
         )
     }
 

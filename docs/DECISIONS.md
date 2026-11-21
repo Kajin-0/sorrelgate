@@ -2,6 +2,10 @@
 
 **Policy:** Never silently reverse decisions. Append dated records with rationale, competing alternatives and outcome.
 
+## ADR-015 — 2026-11-21T05:53:40.145Z — Office requirement/notes and non-destructive metadata migration
+**Accepted implementation approach; CI pending:** Office template task rows gain three-state `requirement` (unspecified/required/optional) plus notes, both copied into the existing immutable per-transaction checklist snapshot. The unspecified default is necessary because older task titles do not establish legal or office-mandated requirements. Keep prior rows intact via idempotent SQLite ADD COLUMN migrations; preserve completion/link state, optimistic template revision checks, and title-only compatibility. UI edits typed metadata, not only titles. **Tradeoff:** status/due dates, CSV/XLSX metadata column mapping, multi-database transaction creation recovery and human Mac UX remain separate; don't generalize the workflow or claim legal sufficiency.
+
+
 ## ADR-007 — 2026-11-20T23:19:47-05:00 — Public repository accepted; steady sales prioritized
 **Accepted (supersedes ADR-005):** Keep `Kajin-0/sorrelgate` public if desired. **Public visibility is not a stop gate** for implementation, releases, or sales. The owner prioritizes a useful product and steady commercial customers over concealing early source. Continue to protect credentials, private client information, confidential office templates, licensed third-party forms and signing materials. Do not add an open-source license to Sorrelgate's own code unless the owner expressly chooses it. Publishing code publicly makes it viewable/copiable in practice even if its license does not grant redistribution; price and support based on delivered value, not source secrecy. **Tradeoff:** public code can be inspected or replicated; commercial distribution and app licensing can still be offered.
 

@@ -15,7 +15,7 @@ struct OfficeSettingsSheet: View {
     @State private var csvTable: CSVChecklistTable?
     @State private var selectedOfficeID: UUID?
     @State private var workflow: WorkflowKind = .acceptedOffer
-    @State private var titles: [String] = []
+    @State private var tasks: [OfficeTaskSpec] = []
     @State private var revision = 0
     @State private var isWorking = false
     @State private var notice: String?
@@ -54,46 +54,58 @@ struct OfficeSettingsSheet: View {
                     }
                 }
                 HStack {
-                    Text("Task order and wording").font(.headline)
+                    Text("Task order, office requirement, and notes").font(.headline)
                     Spacer()
                     Text("Revision \(revision)").font(.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
                 List {
-                    ForEach(titles.indices, id: \.self) { index in
-                        HStack(spacing: 8) {
-                            Text("\(index + 1)").monospacedDigit()
-                                .foregroundStyle(.secondary).frame(width: 24)
-                            TextField("Task description", text: $titles[index])
-                                .accessibilityLabel("Task \(index + 1)")
-                            Button {
-                                titles.swapAt(index, index - 1)
-                            } label: {
-                                Image(systemName: "arrow.up")
+                    ForEach(tasks.indices, id: \.self) { index in
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack(spacing: 8) {
+                                Text("\(index + 1)").monospacedDigit()
+                                    .foregroundStyle(.secondary).frame(width: 24)
+                                TextField("Task description", text: $tasks[index].title)
+                                    .accessibilityLabel("Task \(index + 1)")
+                                Button {
+                                    tasks.swapAt(index, index - 1)
+                                } label: {
+                                    Image(systemName: "arrow.up")
+                                }
+                                .disabled(index == 0)
+                                .help("Move task up")
+                                Button {
+                                    tasks.swapAt(index, index + 1)
+                                } label: {
+                                    Image(systemName: "arrow.down")
+                                }
+                                .disabled(index >= tasks.count - 1)
+                                .help("Move task down")
+                                Button {
+                                    tasks.remove(at: index)
+                                } label: {
+                                    Image(systemName: "minus.circle")
+                                }
+                                .disabled(tasks.count <= 1)
+                                .help("Remove task")
                             }
-                            .disabled(index == 0)
-                            .help("Move task up")
-                            Button {
-                                titles.swapAt(index, index + 1)
-                            } label: {
-                                Image(systemName: "arrow.down")
+                            HStack {
+                                Picker("Office requirement", selection: $tasks[index].requirement) {
+                                    ForEach(OfficeTaskRequirement.allCases, id: \.self) { level in
+                                        Text(level.displayName).tag(level)
+                                    }
+                                }
+                                .frame(width: 230)
+                                TextField("Notes (optional)", text: $tasks[index].notes)
+                                    .accessibilityLabel("Notes for task \(index + 1)")
                             }
-                            .disabled(index >= titles.count - 1)
-                            .help("Move task down")
-                            Button {
-                                titles.remove(at: index)
-                            } label: {
-                                Image(systemName: "minus.circle")
-                            }
-                            .disabled(titles.count <= 1)
-                            .help("Remove task")
                         }
                         .buttonStyle(.borderless)
                     }
                 }
                 HStack {
-                    Button("Add Task") { titles.append("New task") }
-                        .disabled(titles.count >= 100 || isWorking)
+                    Button("Add Task") { tasks.append(OfficeTaskSpec(title: "New task")) }
+                        .disabled(tasks.count >= 100 || isWorking)
                     Button("Import CSV") { isImportingCSV = true }
                         .disabled(isWorking)
                     Button("Import Excel") { isImportingXLSX = true }
@@ -108,7 +120,7 @@ struct OfficeSettingsSheet: View {
                     }
                     Button("Save Office Checklist") { saveTemplate() }
                         .buttonStyle(.borderedProminent)
-                        .disabled(isWorking || titles.isEmpty)
+                        .disabled(isWorking || tasks.isEmpty)
                 }
             } else {
                 ContentUnavailableView(
@@ -144,7 +156,7 @@ struct OfficeSettingsSheet: View {
         }
         .sheet(item: $csvTable) { table in
             CSVImportReviewSheet(table: table) { imported in
-                titles = imported
+                tasks = imported.map { OfficeTaskSpec(title: $0) }
                 notice = "Imported \(imported.count) tasks into this draft. Save to create a new revision."
             }
         }
@@ -186,7 +198,7 @@ struct OfficeSettingsSheet: View {
         }
         .sheet(item: $xlsxWorkbook) { workbook in
             XLSXSheetPickerSheet(workbook: workbook) { imported in
-                titles = imported
+                tasks = imported.map { OfficeTaskSpec(title: $0) }
                 notice = "Imported \(imported.count) Excel tasks into this draft. Save to create a new revision."
             }
         }
@@ -209,7 +221,7 @@ struct OfficeSettingsSheet: View {
     @MainActor
     private func loadTemplate() async {
         guard let selectedOfficeID else {
-            titles = []
+            tasks = []
             revision = 0
             notice = nil
             return
@@ -220,7 +232,7 @@ struct OfficeSettingsSheet: View {
             )
             guard template.officeID == self.selectedOfficeID,
                   template.workflow == self.workflow else { return }
-            titles = template.titles
+            tasks = template.tasks
             revision = template.version
             notice = nil
         } catch {
@@ -247,18 +259,18 @@ struct OfficeSettingsSheet: View {
     private func saveTemplate() {
         guard let selectedOfficeID else { return }
         isWorking = true
-        let submitted = titles
+        let submitted = tasks
         let submittedWorkflow = workflow
         Task {
             defer { isWorking = false }
             do {
                 let latest = try await workspace.saveOfficeTemplate(
                     officeID: selectedOfficeID, workflow: submittedWorkflow,
-                    expectedVersion: revision, titles: submitted
+                    expectedVersion: revision, tasks: submitted
                 )
                 if self.selectedOfficeID == selectedOfficeID &&
                    self.workflow == submittedWorkflow {
-                    titles = latest.titles
+                    tasks = latest.tasks
                     revision = latest.version
                     notice = "Saved revision \(latest.version). Existing transactions are unchanged."
                 }

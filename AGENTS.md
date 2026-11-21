@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Expand office task metadata and spreadsheet mappings without changing historical snapshots; harden M1 scanned OCR, cancellations and failure paths. M2/M6 release gates still incomplete. Extend M1 Vision OCR and import cancellation tests. No developer membership or paid installer for initial supervised Mac pilot.
+**Next:** PR #12 M2 office requirement/notes + additive SQLite migration passed 27 XCTest/native macOS build in GitHub Actions #56 on f5820de; verify docs-only follow-up, merge and check main CI. Then add explicit CSV/XLSX requirement/notes column mapping, and harden M1 OCR, cancellation, interrupted transaction recovery and filesystem failures. Historical snapshots must remain unchanged. No paid developer membership/installer for supervised pilot.
