@@ -31,7 +31,7 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 - [x] Listing Preparation starter checklist — 9 bundled administrative tasks, idempotent seed, CI #7
 - [x] Accepted Offer starter checklist — 12 bundled administrative tasks, restart persistence, CI #7
 - [ ] Different office profiles; configurable task order, states and requirements — named offices and task ordering CI PASS (PR #9, Actions #14); richer states/requirements still future
-- [ ] XLSX/CSV checklist import with preview and correction
+- [ ] XLSX/CSV checklist import with preview and correction — CSV title-column mapping/invalid-row preview CI PASS in PR #10 Actions #33; XLSX and richer mappings not started
 - [ ] Template version snapshots and safe updates — append-only revisions and transaction source/row copies CI PASS (PR #9, Actions #14), UI migration still future
 - [ ] Prompt-free manual operation from start to export
 

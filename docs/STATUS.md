@@ -1,15 +1,15 @@
 # Sorrelgate — Verified development status
 
-**Verified:** 2026-11-21T05:30:27.176Z (branch build #14; main unchanged)
+**Verified:** 2026-11-21T05:36:33.235Z (CSV PR #10 macOS CI #33 successful; main separate)
 **Repository:** https://github.com/Kajin-0/sorrelgate (public by owner's choice)
 **Budget:** $0 additional during the early MVP. Apple membership, signing, notarization, paid APIs and cloud hosting are DEFERRED. Codex may build locally using free Xcode on the external tester's Mac with the owner's consent.
 **No owner Mac:** GitHub Actions macOS runners verify builds and automated tests; real UI, macOS permissions, real OCR performance and on-device LLM must be validated later on the tester's Mac.
 
-## M2 office profile implementation verified in feature branch — PR #9 (draft)
-- Submitted: named office profiles; independent workflow checklists; append-only office template revisions with optimistic version checks; atomic transaction checklist copies and provenance; SwiftUI office management and office selection on transaction creation.
+## M2 CSV importer verified in PR #10; office profiles already merged
+- Merged via [PR #9](https://github.com/Kajin-0/sorrelgate/pull/9) (squash commit `8c127df`): named office profiles; independent workflow checklists; append-only office template revisions with optimistic version checks; atomic transaction checklist copies and provenance; SwiftUI office management and office selection on transaction creation.
 - New synthetic tests: office isolation, restart recovery, old/new template versions, manual-task protection, stale-version/duplicate office rejection.
 - **Verified:** [macOS GitHub Actions #14](https://github.com/Kajin-0/sorrelgate/actions/runs/44870973186) SUCCESS on `eb106533ca49bf106c84e70772b8f44cf11d13e1`: all **16 XCTest cases invoked successfully** (11 baseline + 5 office-template tests); XcodeGen generation, native SwiftUI Xcode build and unsigned artifact upload PASS.
-- Current scope deliberately excludes CSV/XLSX import and real Mac UX verification.
+- CSV import **CI-PASS** in [Actions #33](https://github.com/Kajin-0/sorrelgate/actions/runs/44871510490) on `445949d54d26b4e02e30d83794649edd09ff7b8f`: 20/20 XCTest cases (16 previous + 4 CSV), XcodeGen project and native SwiftUI app BUILD SUCCEEDED, unsigned artifact uploaded. UTF-8 BOM/quoted/newline parsing, explicit title-column preview, duplicate/missing row review and staged office draft are implemented. Initial CSV CI failure was fixed by Unicode-scalar CRLF tokenization. XLSX and real Mac UX remain unverified.
 
 ## Previously verified main CI: PASS
 - [GitHub Actions #7](https://github.com/Kajin-0/sorrelgate/actions/runs/44870027594) SUCCESS on source commit `5b419be1f9a7bce6a0402c069f55463930a52c13`.
@@ -22,14 +22,14 @@
 ## Working code and limitations
 - M0: native SwiftUI app and local SQLite transaction database; CI PASS, human UI not verified.
 - M1: Finder-selected PDF import, SHA-256 original preservation, PDFKit extraction / Vision OCR fallback, duplicate handling, preview, checklist/document links, export package. Synthetic backend tests PASS; scanned OCR accuracy, full error/cancellation and macOS interaction remain unverified.
-- M2: **IN PROGRESS; office profiles and snapshots CI-PASS on feature branch #9.** Bundled versioned California seller administrative catalog: **9 listing tasks and 12 accepted-offer tasks** auto-seeded into new transaction checklists. Existing user tasks are not overwritten. Rename/remove is transaction-scoped and does not delete documents. PDF selection is preserved through task refresh. UI compiles; human validation pending. **Named office profiles and versioned copies implemented/tested in branch; CSV/XLSX import, full task metadata and migration UX remain unimplemented.**
+- M2: **IN PROGRESS; office profiles and snapshots CI-PASS merged in PR #9.** Bundled versioned California seller administrative catalog: **9 listing tasks and 12 accepted-offer tasks** auto-seeded into new transaction checklists. Existing user tasks are not overwritten. Rename/remove is transaction-scoped and does not delete documents. PDF selection is preserved through task refresh. UI compiles; human validation pending. **Named offices and versioned copies merged, CSV title-column import verified in PR #10; XLSX import, rich task metadata and migration UX remain unimplemented.**
 - M3 recognition/validation: NOT STARTED.
 - M4 timelines/drafts: NOT STARTED.
 - M5 LLM operates typed backend: NOT STARTED (typed service foundation exists).
 - M6 commercial release: NOT STARTED. Paid Apple distribution postponed until strong MVP and owner approval.
 
 ## Next engineering tasks
-1. Complete M2 CSV checklist import with preview, explicit column mapping, validation, and unmatched rows; add tests and Mac CI gate.
+1. Implement XLSX spreadsheet import with sheet/column preview, explicit task-column mapping and rigorous row/duplicate handling; reuse CSV review approval semantics.
 2. Add CSV then XLSX import with column mapping preview. No need for external office systems in first MVP.
 3. Harden PDF importer/OCR (raster scan benchmark, cancellation, corrupt/disk-error cases, 50-PDF batch) and maintain CI green.
 4. Keep an authorized Codex-assisted local Mac build for the first supervised tester, not a paid signed app. See [free tester handoff](FREE_MAC_TESTER_HANDOFF.md).

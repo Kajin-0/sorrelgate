@@ -1,5 +1,6 @@
 import SorrelgateCore
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Office configuration is an explicit user operation, not a global rewrite of
 /// historical transactions. Existing transactions retain their checklist rows.
@@ -7,6 +8,8 @@ struct OfficeSettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var workspace: WorkspaceModel
     @State private var newOfficeName = ""
+    @State private var isImportingCSV = false
+    @State private var csvTable: CSVChecklistTable?
     @State private var selectedOfficeID: UUID?
     @State private var workflow: WorkflowKind = .acceptedOffer
     @State private var titles: [String] = []
@@ -88,6 +91,8 @@ struct OfficeSettingsSheet: View {
                 HStack {
                     Button("Add Task") { titles.append("New task") }
                         .disabled(titles.count >= 100 || isWorking)
+                    Button("Import CSV") { isImportingCSV = true }
+                        .disabled(isWorking)
                     Spacer()
                     if let notice {
                         Text(notice).font(.caption).foregroundStyle(.secondary)
@@ -106,6 +111,34 @@ struct OfficeSettingsSheet: View {
         }
         .padding(24)
         .frame(width: 840, height: 660)
+        .fileImporter(
+            isPresented: $isImportingCSV,
+            allowedContentTypes: [.commaSeparatedText, .plainText]
+        ) { result in
+            switch result {
+            case .success(let url):
+                do {
+                    let allowed = url.startAccessingSecurityScopedResource()
+                    defer { if allowed { url.stopAccessingSecurityScopedResource() } }
+                    let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+                    if let size = attributes[.size] as? NSNumber,
+                       size.intValue > CSVChecklistImporter.byteLimit {
+                        throw CSVChecklistImportError.tooLarge
+                    }
+                    csvTable = try CSVChecklistImporter.parse(Data(contentsOf: url))
+                } catch {
+                    errorMessage = error.localizedDescription
+                }
+            case .failure(let error):
+                errorMessage = error.localizedDescription
+            }
+        }
+        .sheet(item: $csvTable) { table in
+            CSVImportReviewSheet(table: table) { imported in
+                titles = imported
+                notice = "Imported (imported.count) tasks into this draft. Save to create a new revision."
+            }
+        }
         .task {
             await workspace.reloadOffices()
         }
