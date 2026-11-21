@@ -1,5 +1,21 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T05:47:04.155Z — XLSX feature passes 24 XCTest and native Mac build (CI #50)
+- **Evidence:** [macOS Actions run #50](https://github.com/Kajin-0/sorrelgate/actions/runs/44872179791) **SUCCESS** for source commit `33686e2b2bb321d92f2238bec3e89adbc18d3ee8`. `swift test --parallel` invoked **24 XCTest cases** (20 previous + 4 new real ZIP/XML XLSX tests); XcodeGen project and native SwiftUI app BUILD SUCCEEDED; unsigned ZIP artifact uploaded. Code-signing and physical UI not tested.
+- **Implementation:** Multi-sheet Excel XLSX parser with shared+inline strings, sparse rows, formula/error refusal, ZIP archive declared-size safeguards; native XLSX file/sheet picker, explicit task-title column review and unsaved office checklist draft. Workbook parsing moved to detached user-initiated task to avoid blocking SwiftUI.
+- **Resolved dependency evidence (GitHub Actions logs):** CoreXLSX 0.14.2 (Apache-2.0), XMLCoder 0.14.0 (MIT), ZIPFoundation 0.9.20 (MIT). Full notices/SBOM, threat-model evaluation and locked package revisions remain release requirements.
+- **Failure repair:** First XLSX runs #38–#45 failed from SwiftPM argument ordering; corrected and reran tests/GUI. Runs #46, #47 and #50 passed. No feature change was merged on failed evidence.
+- **Remaining:** M2 rich task fields and mapping, M1 scanned OCR/negative path testing, on-device Mac UX and notarization; release NO-GO.
+- **Next:** Complete office task metadata/migration and harden import/document reliability with measurable macOS CI.
+
+## 2026-11-21T05:42:06.767Z — XLSX import and worksheet review implementation submitted (CI PENDING)
+- **Branch/PR:** `feature/m2-xlsx-import-20261121`, [PR #11](https://github.com/Kajin-0/sorrelgate/pull/11), from main `2cca715` (20-case CSV baseline).
+- **Core:** Add pinned CoreXLSX 0.14.2 (Apache-2.0) with ZIPFoundation + transitive XMLCoder (MIT). Inspect ZIP entries (2 MiB input, 24 MiB declared expansion, 200 members), cap 20 worksheets / 2,000 data rows / 64 columns, reject formula/error cells and invalid shared strings. Parse sparse cell references and preserve Excel row numbers. Shared CSV mapping/review blocks acceptance on errors.
+- **UI:** Native XLSX picker, named worksheet selection, existing explicit task-title column mapping, review and separate manual Save for office template revision; historical transactions remain untouched.
+- **Tests:** Four new XCTest cases with real synthetic multi-sheet zipped OOXML workbook (shared/inline text, sparse rows, formula rejection, invalid/oversize), **CI PENDING**. Initial SwiftPM manifest argument-order error corrected; not yet evidence of XLSX parsing success.
+- **Unverified:** actual end-user Mac GUI, compressed-to-expanded archive adversarial fuzzing, richer field mappings, app signing/notarization. No paid services used.
+- **Next:** Mac CI gate and fixes; retain draft PR until green.
+
 ## 2026-11-21T05:36:33.235Z — CSV import and native UI verified (20/20 XCTest in macOS Actions #33)
 - **Verified:** [Actions #33](https://github.com/Kajin-0/sorrelgate/actions/runs/44871510490) completed SUCCESS on code commit `445949d54d26b4e02e30d83794649edd09ff7b8f`; macOS 26 Apple Silicon, Swift 6.3.3, Xcode 26.6. `swift test --parallel` invoked **20/20 XCTest** (16 previous, 4 new CSV); native XcodeGen/SwiftUI app BUILD SUCCEEDED and unsigned artifact uploaded.
 - **Failure/fix:** Earlier run #31 failed on Windows CRLF test fixtures because Swift Character groups CRLF into a grapheme cluster; switched tokenizer to Unicode scalars, then passed all CSV fixtures and app build in #33.
