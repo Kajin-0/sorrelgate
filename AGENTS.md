@@ -3,7 +3,8 @@
 **Updated:** 2026-11-21T05:15:20.571Z (UTC)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**State at handoff:** M2 seller starter checklist and editable task UI have been compiled/tested in [Actions #7](https://github.com/Kajin-0/sorrelgate/actions/runs/44870027594): **11 XCTest cases passed**, native SwiftUI app BUILD SUCCEEDED. Versioned 9 listing/12 accepted-offer tasks load into new transactions and manual edits are protected. No owner Mac, paid Apple membership, local AI, office profiles or XLSX import yet. **$0 additional spending is mandatory during MVP testing**; Codex can build locally on the external tester's Mac with free Xcode. `docs/STATUS.md` is authoritative.
+**M2 work in progress (unverified):** branch `feature/m2-office-profiles-20261121` adds named office profiles, append-only template revisions, transaction snapshots and a SwiftUI editor. Last VERIFIED result remains CI #7; do not claim this branch compiles before CI passes.
+**State at last verified handoff:** M2 seller starter checklist and editable task UI have been compiled/tested in [Actions #7](https://github.com/Kajin-0/sorrelgate/actions/runs/44870027594): **11 XCTest cases passed**, native SwiftUI app BUILD SUCCEEDED. Versioned 9 listing/12 accepted-offer tasks load into new transactions and manual edits are protected. No owner Mac, paid Apple membership, local AI, office profiles or XLSX import yet. **$0 additional spending is mandatory during MVP testing**; Codex can build locally on the external tester's Mac with free Xcode. `docs/STATUS.md` is authoritative.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +75,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Implement saved office profiles and editable office-specific templates, then CSV/XLSX import. Extend M1 Vision OCR and import cancellation tests. No developer membership or paid installer for initial supervised Mac pilot.
+**Next:** Verify office profile/template branch with macOS CI and repair failures, then CSV/XLSX import. Extend M1 Vision OCR and import cancellation tests. No developer membership or paid installer for initial supervised Mac pilot.
