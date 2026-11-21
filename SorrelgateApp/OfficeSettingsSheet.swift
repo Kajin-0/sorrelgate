@@ -9,6 +9,8 @@ struct OfficeSettingsSheet: View {
     @ObservedObject var workspace: WorkspaceModel
     @State private var newOfficeName = ""
     @State private var isImportingCSV = false
+    @State private var isImportingXLSX = false
+    @State private var xlsxWorkbook: XLSXChecklistWorkbook?
     @State private var csvTable: CSVChecklistTable?
     @State private var selectedOfficeID: UUID?
     @State private var workflow: WorkflowKind = .acceptedOffer
@@ -93,6 +95,8 @@ struct OfficeSettingsSheet: View {
                         .disabled(titles.count >= 100 || isWorking)
                     Button("Import CSV") { isImportingCSV = true }
                         .disabled(isWorking)
+                    Button("Import Excel") { isImportingXLSX = true }
+                        .disabled(isWorking)
                     Spacer()
                     if let notice {
                         Text(notice).font(.caption).foregroundStyle(.secondary)
@@ -136,7 +140,35 @@ struct OfficeSettingsSheet: View {
         .sheet(item: $csvTable) { table in
             CSVImportReviewSheet(table: table) { imported in
                 titles = imported
-                notice = "Imported (imported.count) tasks into this draft. Save to create a new revision."
+                notice = "Imported \(imported.count) tasks into this draft. Save to create a new revision."
+            }
+        }
+        .fileImporter(
+            isPresented: $isImportingXLSX,
+            allowedContentTypes: [UTType(filenameExtension: "xlsx") ?? .data]
+        ) { result in
+            switch result {
+            case .success(let url):
+                do {
+                    let allowed = url.startAccessingSecurityScopedResource()
+                    defer { if allowed { url.stopAccessingSecurityScopedResource() } }
+                    let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+                    if let size = attributes[.size] as? NSNumber,
+                       size.intValue > XLSXChecklistImporter.byteLimit {
+                        throw XLSXChecklistError.tooLarge
+                    }
+                    xlsxWorkbook = try XLSXChecklistImporter.parse(Data(contentsOf: url))
+                } catch {
+                    errorMessage = error.localizedDescription
+                }
+            case .failure(let error):
+                errorMessage = error.localizedDescription
+            }
+        }
+        .sheet(item: $xlsxWorkbook) { workbook in
+            XLSXSheetPickerSheet(workbook: workbook) { imported in
+                titles = imported
+                notice = "Imported \(imported.count) Excel tasks into this draft. Save to create a new revision."
             }
         }
         .task {
