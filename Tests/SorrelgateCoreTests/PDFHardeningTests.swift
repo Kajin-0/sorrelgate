@@ -248,9 +248,21 @@ final class PDFHardeningTests: XCTestCase {
             let fd = Darwin.open(pipe.path, O_WRONLY)
             guard fd >= 0 else { return -1 }
             defer { _ = Darwin.close(fd) }
-            let payload = Array(repeating: UInt8(0x50), count: 4096)
-            let written = payload.withUnsafeBytes { bytes in
-                Darwin.write(fd, bytes.baseAddress, bytes.count)
+            // Foundation's read(upToCount:) may wait to fill a 256 KiB
+            // chunk on pipes. Feed a full chunk, so the import writes a
+            // staged file, then hold the writer open on the NEXT read.
+            let payload = Array(repeating: UInt8(0x50), count: 256 * 1024)
+            let written = payload.withUnsafeBytes { bytes -> Int in
+                guard let base = bytes.baseAddress else { return -1 }
+                var offset = 0
+                while offset < bytes.count {
+                    let count = Darwin.write(
+                        fd, base.advanced(by: offset), bytes.count - offset
+                    )
+                    if count <= 0 { return -1 }
+                    offset += count
+                }
+                return offset
             }
             await closeWriter.waitUntilReleased()
             return written
@@ -274,7 +286,7 @@ final class PDFHardeningTests: XCTestCase {
         importTask.cancel()
         await closeWriter.release()
         let written = await writer.value
-        XCTAssertEqual(written, 4096, "Test must feed bytes before cancellation.")
+        XCTAssertEqual(written, 256 * 1024, "Feed a full copy chunk before cancellation.")
         XCTAssertTrue(sawCopiedBytes, "Cancellation must happen after real staged bytes.")
         do {
             _ = try await importTask.value
