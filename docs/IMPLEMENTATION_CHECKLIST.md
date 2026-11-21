@@ -37,7 +37,7 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 
 ## M3 — Intelligence
 - [ ] Document labels and unknown state
-- [ ] Core field proposals with source PDF page and confirmation state — **first vertical slice SOURCE CI PASS**, [PR #18](https://github.com/Kajin-0/sorrelgate/pull/18) Actions #101/#102 54/54 XCTest/native app: Acceptance Date explicit text label → unverified source-backed proposal → user Confirm/Reject/Unknown → SQLite reopen; transaction isolation and original hash checked. **G1 not fully closed:** additional fields, wider classification, true held-out quality and human Mac review unverified.
+- [ ] Core field proposals with source PDF page and confirmation state — **first exact Acceptance Date vertical slice MERGED PR #18**, Actions #101–#104 **PASS 54 XCTest/native Mac build**: original-backed unverified candidate → source page → explicit human Confirm/Reject/Unknown → SQLite reopen. Broader required fields/type matching, held-out quality and real Mac use still G1 open.
 - [ ] Cross-document mismatch candidates
 - [ ] Missing document checks based on selected office template
 - [ ] Duplicate and unreadable-page issues
