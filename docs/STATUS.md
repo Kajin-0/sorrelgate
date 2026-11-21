@@ -1,40 +1,40 @@
 # Sorrelgate — Current verified state
 
-**Updated after compiler failure:** 2026-11-21T05:02:40.473Z (UTC)
-**Project:** https://github.com/Kajin-0/sorrelgate
-**Phase:** M1 CI run #4 failed at Swift parsing (extra `}` in DocumentWorkspace); source fix committed and new CI pending.
-**Owner hardware:** NO Mac; use GitHub Actions macOS 26 arm64, defer physical usability to first external tester.
-**Release:** NOT READY; no signed/notarized installer or verified AI operation.
+**Last verified:** 2026-11-21T05:06:56.566Z (UTC)
+**Repository:** https://github.com/Kajin-0/sorrelgate (public by owner choice)
+**Phase:** M1 backend and SwiftUI code now built in macOS CI; still NOT a tested customer release.
+**Owner hardware:** NO Mac. Human UI and model testing deferred to the first external Mac tester.
+**Expenses:** GitHub public-repository hosted CI and Apple SDK components used so far; no paid runtime APIs or Apple Developer membership.
 
-## Evidence from GitHub Actions and compiler remediation
-- [Run #1](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670): **PASS**, native app compiled, four XCTest cases invoked (though historical output displayed a separate Swift Testing 0-case summary).
-- [Run #2](https://github.com/Kajin-0/sorrelgate/actions/runs/44867165600): **PASS**, documentation-only update.
-- [Run #3](https://github.com/Kajin-0/sorrelgate/actions/runs/44868312124): **FAIL** in `testCreateAndListTransactions`; `XCTAssertEqual(records.first, created)` fails because SQLite REAL Date precision differs by a tiny amount. The correct test now checks UUID/address/workflow exactly and Date within 0.001 seconds. **New CI must re-verify.**
+## Latest full verification: PASS
+- [GitHub Actions run #5](https://github.com/Kajin-0/sorrelgate/actions/runs/44869071688) completed **SUCCESS**, commit `da8ca53d6b984d4eb59f404163866cdbecb71cd3`.
+- Runner: Apple Silicon macOS 26; Xcode 26.6, Swift 6.3.3; XcodeGen 2.46.0 developer-only.
+- `swift test --parallel`: **9 XCTest cases executed**, exit 0. The five new PDF suite cases cover synthetic PDF original-byte SHA-256 integrity/digital-text extraction, duplicate detection, invalid PDF rejection, persisted checklist and cross-transaction link restrictions, ten distinct PDFs in a batch, and verified export copies/manifest. Existing four tests cover transaction persistence and SQL injection/empty input handling.
+- NOTE: Swift Testing may separately show a `0 tests in 0 suites` summary, distinct from the 9 XCTest case invocations. CI step exit 0.
+- Native Xcode project generation: pass; native SwiftUI `.app` `xcodebuild`: **BUILD SUCCEEDED**.
+- Archive packaging and Actions artifact upload: pass. `Sorrelgate-macOS-unsigned-debug`, artifact ID 14692309510, size 551,168 bytes; access via the linked workflow run (artifact retention 7 days). **Unsigned developer ZIP is not a normal nontechnical Mac installer.**
+- Earlier [run #3](https://github.com/Kajin-0/sorrelgate/actions/runs/44868312124) exposed a Date precision test assertion, fixed by tolerance; [run #4](https://github.com/Kajin-0/sorrelgate/actions/runs/44868984731) exposed one extraneous Swift brace, now fixed. The latest verification is green.
 
-- [Run #4](https://github.com/Kajin-0/sorrelgate/actions/runs/44868984731): **FAIL** in `swift test` Swift parsing: an extra closing brace in `DocumentSQLiteStore.insertDocument` caused cascading missing-member errors; extra brace removed in next commit, awaiting CI. Compiler failure is not a feature pass.
+## Implemented
+- SwiftUI desktop shell with transaction create/list, selecting a transaction, Finder-approved multi-PDF import, progress/cancel control, PDF viewer, checklist creation/completion/document linking, export destination picker and basic status messages.
+- Typed `SorrelgateCore` local SQLite transactions and `DocumentWorkspace` actor with separate SQLite metadata: original PDF copies stored under transaction UUID + SHA256 name, per-page PDFKit text or Vision OCR fallback (OCR failures remain unavailable), duplicate detection, immutable source, verified hash-on-export, JSON manifest and readable checklist.
+- All core functionality is local, with no cloud inference, secrets, or real customer documents in the repo.
 
-## Submitted in M1 (not verified until CI completes)
-- `DocumentWorkspace` Swift actor, local SQLite metadata tables for documents, pages, checklist tasks, SHA-256 content-addressed originals, digital-text extraction via PDFKit and Vision OCR fallback.
-- Sequential batch import with cancellation/progress, duplicate recognition and source integrity; checklist creation/completion and same-transaction document association.
-- Native import picker, PDF preview, checklist management, Finder-selected export directory and reviewed copies + SHA-256 JSON manifest/Checklist.txt.
-- Synthetic test suite includes actual generated PDF files, original-byte preservation, duplicate handling, invalid PDF rejection, checklist persistence/scope, 10-PDF batch and export.
-- No real customer documents or signing credentials committed.
-
-## Milestone gates
-| Milestone | State | Evidence |
+## Milestones and limitations
+| Milestone | State | Actual evidence / missing tests |
 |---|---|---|
-| M0 native SwiftUI/SQLite/CI | IN PROGRESS | one early successful CI build, later failure diagnosed; full regression retest pending; no physical Mac validation |
-| M1 PDF import/checklist/export | IN PROGRESS | source submitted; new CI must verify; full GUI hands-on deferred |
-| M2 office workflows/XLSX | NOT STARTED | no code |
-| M3 classification/validation | NOT STARTED | no code |
-| M4 timelines/email drafts | NOT STARTED | no code |
-| M5 guarded LLM actions | NOT STARTED | no code |
-| M6 commercial installer | NOT STARTED | no Apple signing or external beta |
+| M0 native app + transactions + CI | CI PASS, human verification pending | native build and persistence unit tests pass; interactive launch not yet tested |
+| M1 PDF/checklist/export | Core CI PASS, still IN PROGRESS | tests pass; physical UI, Finder security scope, cancellation/resume, folder intake, large-batch & OCR accuracy still need evidence |
+| M2 office presets and XLSX | NOT STARTED | starter JSON documented but not loaded into app |
+| M3 document recognition/validation | NOT STARTED | no classifier or measured accuracy |
+| M4 timelines and draft communications | NOT STARTED | no code |
+| M5 controlled LLM operation | NOT STARTED | typed service foundation exists, model not connected |
+| M6 consumer distribution | NOT STARTED | no signed/notarized installer, pilot or Apple developer membership |
 
-## Next executable step
-1. Inspect macOS Actions run on latest commit: fix Swift compiler/test failures and update verified metrics. No feature is declared passed from a design alone.
-2. After green CI, harden import/cancellation/recovery and automatic starter checklists, track remaining M1 defects.
-3. Continue until a functional first beta can be provided to an external Mac user using signed/notarized distribution; no owner-side Mac is available.
-4. Update CHANGELOG and this STATUS per substantive commit. No sensitive client data in public Git.
+## Next action — do not wait for a Mac
+1. Harden M1: non-blocking refresh/select behavior, import cancellation and integrity tests, corrupted/zero-page PDFs, OCR synthetic scan test, transaction data recovery, efficient large batches. Keep running macOS Actions on each code change.
+2. M2: load configurable office-specific seller-side starter checklists from versioned bundled resources, allow editing/reordering and Excel import.
+3. Continue M3–M5 in modular, testable increments. Physical user feedback begins with the first **signed/notarized** external Mac beta, not with an unsigned developer archive.
+4. After substantive work, update this file, CHANGELOG and DECISIONS if necessary. Do not classify a successful CI compilation as verified human usability.
 
-**Architecture:** The graphical interface and future LLM tools must use the same typed core operations. Never grant an LLM arbitrary filesystem access or unattended consequential real estate actions.
+**Public repository privacy:** Never commit client contracts, private office materials, PII, signed forms, credentials, Apple signing material, licensed blank forms or API keys. External messaging and legally consequential decisions stay human-controlled.

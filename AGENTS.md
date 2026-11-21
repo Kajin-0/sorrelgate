@@ -3,7 +3,7 @@
 **Updated:** 2026-11-20T23:19:47-05:00 (`America/New_York`)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**State at handoff:** M1 PDF import, hash-preserved local originals, PDFKit/Vision extraction, editable task linkage and export were submitted for CI verification. **Do not claim M1 passed until latest GitHub Actions build and tests are inspected.** Prior M0 CI success was followed by a failing Date equality test at run #3; that flaky test has been corrected to compare stored timestamps with tolerance. The owner has no Mac; interactive beta tests are deferred. `docs/STATUS.md` is authoritative.
+**State at handoff:** M1 core tests and native Mac compilation **PASS** in [Actions run #5](https://github.com/Kajin-0/sorrelgate/actions/runs/44869071688) (9 XCTest cases). DocumentWorkspace includes hashed immutable PDF import, PDFKit/Vision text extraction, SQLite checklists and export; SwiftUI includes file import, PDF preview, checklist, export picker. NO physical Mac; UI/Apple Intelligence, normal signed installation and full reliability gates are unverified. `docs/STATUS.md` is authoritative.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Verify the latest macOS Actions run for M1 PDF import, persistent checklist, export and OCR; diagnose and fix any failures before expanding. The previous run #3 failed due to exact Date round-trip equality and the test was corrected. No owner Mac exists; plan actual interactive acceptance testing at the first external Mac beta. See `docs/REMOTE_TEST_STRATEGY.md`. CI compilation does not prove real Mac usability or Apple Intelligence execution. For Codex use `docs/CODEX_MASTER_PROMPT.md`; for regular ChatGPT use connected GitHub tools and verify GitHub CI runs.
+**Next:** Harden M1 cancellation, source integrity, selected-document refresh and edge cases in CI; then implement M2 office-configurable checklists and import from Excel. Do not demand a Mac, Codex, or an Apple Developer payment until a useful signed beta is ready for an external user. Reference the successful M1 run #5 and keep status/change ledger current.

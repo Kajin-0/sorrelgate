@@ -2,6 +2,15 @@
 
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
+## 2026-11-21T05:06:56.566Z — M1 automated test suite and native Mac build verified successful
+- **CI:** [Run #5](https://github.com/Kajin-0/sorrelgate/actions/runs/44869071688) on `da8ca53d6b984d4eb59f404163866cdbecb71cd3` **SUCCESS**; Xcode 26.6, Swift 6.3.3, macOS 26 arm64.
+- **Verification:** `swift test --parallel` exit 0, nine XCTest cases (five synthetic-PDF scenarios plus four transaction tests); `xcodegen` generation PASS; `xcodebuild` native Mac app BUILD SUCCEEDED; archive and artifact upload successful.
+- **Artifact:** Unsigned development ZIP `Sorrelgate-macOS-unsigned-debug`, ID 14692309510, size 551,168 bytes, 7-day retention. NOT a one-click customer installer.
+- **Coverage:** Byte-for-byte SHA256 preservation, PDFKit digital text extraction, duplicate/invalid input handling, ten synthetic PDFs, persisted per-transaction checklists and restricted links, copied exports verified by hash, SQLite persistence and input validation.
+- **Not yet verified:** User-visible Mac launch and UI, Finder permissions, actual scanned-document OCR accuracy, cancellation/retry failure cases, 50-PDF batch performance, Apple Intelligence and signing/notarization. The owner has no Mac.
+- **Next:** M1 robustness fixes and M2 office-checklist configuration. No costs or Mac required until first tester beta.
+- **Commit:** Verifies preceding M1 code fix commit; this is a documentation update.
+
 ## 2026-11-21T05:03:40.139Z — Repair M1 Swift parsing failure from first CI attempt
 - **Failure evidence:** [CI run #4](https://github.com/Kajin-0/sorrelgate/actions/runs/44868984731) failed at Swift package compilation with extraneous closing brace in `DocumentSQLiteStore.insertDocument` around line 493; related missing-member errors were parser cascade.
 - **Change:** Removed precisely one extra closing brace; no change to intended SQL transaction semantics.

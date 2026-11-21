@@ -19,11 +19,11 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 ## M1 — Vertical slice
 - [ ] Create / edit / reopen transaction
 - [ ] Batch PDF import (individual selection, progress/cancel); first implementation submitted, CI pending; folder selection not done
-- [ ] Immutable original copies, SHA-256, duplicate handling — implementation submitted, CI pending
-- [ ] PDFKit text extraction, per-page Vision OCR fallback — implementation submitted, CI pending
+- [x] Immutable original copies, SHA-256, duplicate handling — synthetic file-integrity and dedupe verified in CI run #5; large-file edges pending
+- [ ] PDFKit text extraction, per-page Vision OCR fallback — PDFKit text verified in CI run #5; Vision scanned-page correctness not yet independently benchmarked
 - [ ] Original PDF page viewer — implementation submitted, human verification pending
-- [ ] Editable task checklist, document link, status persistence — implementation submitted, CI pending
-- [ ] Export basic package and manifest to selected folder — implementation submitted, CI pending
+- [ ] Editable task checklist, document link, status persistence — backend persistence/link scope tests PASS; GUI usability unverified
+- [ ] Export basic package and manifest to selected folder — backend SHA256-verified copy and manifest PASS; Finder/GUI unverified
 - [ ] Crash/restart, corrupt PDF, zero-byte PDF, duplicate PDF and hash tests
 
 ## M2 — TC workflow

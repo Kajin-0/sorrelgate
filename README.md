@@ -2,7 +2,7 @@
 
 **Mac-native, local-first AI assistant for California real estate transaction coordinators.**
 
-> **Status:** M1 document-workspace implementation submitted for GitHub Actions verification; its full compile/tests are **not yet confirmed**. Earlier M0 build passed, then a later CI run identified a flaky exact-timestamp XCTest assertion, which has been fixed. No signed, notarized, or shipping application exists. Owner has no Mac; external human testing is deferred.
+> **Status:** M1 core and native SwiftUI build verified in [GitHub Actions run #5](https://github.com/Kajin-0/sorrelgate/actions/runs/44869071688): 9 XCTest cases passed, Mac app compiled and an unsigned test artifact produced. **Not customer-ready**: no local Mac user testing, no signed/notarized installer, no LLM operation yet.
 
 Sorrelgate helps a nontechnical transaction coordinator organize signed PDFs, track office-specific tasks, identify potential missing paperwork or contradictory information, draft communications, and export a reviewable transaction package. The application is designed to be operated either through simple native Mac controls **or** through natural-language requests that invoke the same guarded backend actions.
 
