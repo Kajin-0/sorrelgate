@@ -5,6 +5,23 @@ import UniformTypeIdentifiers
 /// Office configuration is an explicit user operation, not a global rewrite of
 /// historical transactions. Existing transactions retain their checklist rows.
 struct OfficeSettingsSheet: View {
+    /// Stable identity avoids index-based bindings becoming stale after
+    /// removing or moving an office task while a text field is active.
+    private struct DraftTask: Identifiable {
+        let id: UUID
+        var task: OfficeTaskSpec
+        init(_ task: OfficeTaskSpec) {
+            self.id = UUID()
+            self.task = task
+        }
+    }
+
+    private enum Destination {
+        case close
+        case office(UUID?)
+        case workflow(WorkflowKind)
+    }
+
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var workspace: WorkspaceModel
     @State private var newOfficeName = ""
@@ -15,11 +32,18 @@ struct OfficeSettingsSheet: View {
     @State private var csvTable: CSVChecklistTable?
     @State private var selectedOfficeID: UUID?
     @State private var workflow: WorkflowKind = .acceptedOffer
-    @State private var tasks: [OfficeTaskSpec] = []
+    @State private var draftTasks: [DraftTask] = []
+    @State private var savedTasks: [OfficeTaskSpec] = []
     @State private var revision = 0
+    @State private var pendingDestination: Destination?
+    @State private var showUnsavedConfirmation = false
     @State private var isWorking = false
     @State private var notice: String?
     @State private var errorMessage: String?
+
+    private var isDirty: Bool {
+        draftTasks.map(\.task) != savedTasks
+    }
 
     private var templateKey: String {
         (selectedOfficeID?.uuidString ?? "none") + ":" + workflow.rawValue
@@ -30,7 +54,9 @@ struct OfficeSettingsSheet: View {
             HStack {
                 Text("Office Checklists").font(.title2.weight(.semibold))
                 Spacer()
-                Button("Done") { dismiss() }.keyboardShortcut(.cancelAction)
+                Button("Done") { requestNavigation(.close) }
+                    .keyboardShortcut(.cancelAction)
+                    .disabled(isWorking)
             }
             Text("Each office has its own editable checklist. Changes apply only to new transactions.")
                 .foregroundStyle(.secondary)
@@ -41,14 +67,20 @@ struct OfficeSettingsSheet: View {
                 Button("Add Office") { createOffice() }
                     .disabled(isWorking || newOfficeName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            Picker("Office", selection: $selectedOfficeID) {
+            Picker("Office", selection: Binding(
+                get: { selectedOfficeID },
+                set: { requestNavigation(.office($0)) }
+            )) {
                 Text("Choose an office").tag(nil as UUID?)
                 ForEach(workspace.offices) { office in
                     Text(office.name).tag(Optional(office.id))
                 }
             }
             if selectedOfficeID != nil {
-                Picker("Work type", selection: $workflow) {
+                Picker("Work type", selection: Binding(
+                    get: { workflow },
+                    set: { requestNavigation(.workflow($0)) }
+                )) {
                     ForEach(WorkflowKind.allCases, id: \.self) { kind in
                         Text(kind.displayName).tag(kind)
                     }
@@ -56,56 +88,66 @@ struct OfficeSettingsSheet: View {
                 HStack {
                     Text("Task order, office requirement, and notes").font(.headline)
                     Spacer()
+                    if isDirty {
+                        Label("Unsaved changes", systemImage: "pencil.circle")
+                            .foregroundStyle(.orange)
+                            .font(.callout)
+                    }
                     Text("Revision \(revision)").font(.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
                 List {
-                    ForEach(tasks.indices, id: \.self) { index in
+                    ForEach($draftTasks) { $draft in
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(spacing: 8) {
-                                Text("\(index + 1)").monospacedDigit()
-                                    .foregroundStyle(.secondary).frame(width: 24)
-                                TextField("Task description", text: $tasks[index].title)
-                                    .accessibilityLabel("Task \(index + 1)")
+                                Text("\((draftTasks.firstIndex(where: { $0.id == draft.id }) ?? 0) + 1)")
+                                    .monospacedDigit()
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 24)
+                                TextField("Task description", text: $draft.task.title)
+                                    .accessibilityLabel("Task description")
                                 Button {
-                                    tasks.swapAt(index, index - 1)
+                                    moveTask(draft.id, by: -1)
                                 } label: {
                                     Image(systemName: "arrow.up")
                                 }
-                                .disabled(index == 0)
+                                .disabled(draftTasks.first?.id == draft.id)
                                 .help("Move task up")
                                 Button {
-                                    tasks.swapAt(index, index + 1)
+                                    moveTask(draft.id, by: 1)
                                 } label: {
                                     Image(systemName: "arrow.down")
                                 }
-                                .disabled(index >= tasks.count - 1)
+                                .disabled(draftTasks.last?.id == draft.id)
                                 .help("Move task down")
                                 Button {
-                                    tasks.remove(at: index)
+                                    draftTasks.removeAll { $0.id == draft.id }
                                 } label: {
                                     Image(systemName: "minus.circle")
                                 }
-                                .disabled(tasks.count <= 1)
+                                .disabled(draftTasks.count <= 1)
                                 .help("Remove task")
                             }
                             HStack {
-                                Picker("Office requirement", selection: $tasks[index].requirement) {
+                                Picker("Office requirement", selection: $draft.task.requirement) {
                                     ForEach(OfficeTaskRequirement.allCases, id: \.self) { level in
                                         Text(level.displayName).tag(level)
                                     }
                                 }
                                 .frame(width: 230)
-                                TextField("Notes (optional)", text: $tasks[index].notes)
-                                    .accessibilityLabel("Notes for task \(index + 1)")
+                                TextField("Notes (optional)", text: $draft.task.notes)
+                                    .accessibilityLabel("Task notes")
                             }
                         }
                         .buttonStyle(.borderless)
                     }
                 }
+                .disabled(isWorking)
                 HStack {
-                    Button("Add Task") { tasks.append(OfficeTaskSpec(title: "New task")) }
-                        .disabled(tasks.count >= 100 || isWorking)
+                    Button("Add Task") {
+                        draftTasks.append(DraftTask(OfficeTaskSpec(title: "New task")))
+                    }
+                        .disabled(draftTasks.count >= 100 || isWorking)
                     Button("Import CSV") { isImportingCSV = true }
                         .disabled(isWorking)
                     Button("Import Excel") { isImportingXLSX = true }
@@ -120,7 +162,7 @@ struct OfficeSettingsSheet: View {
                     }
                     Button("Save Office Checklist") { saveTemplate() }
                         .buttonStyle(.borderedProminent)
-                        .disabled(isWorking || tasks.isEmpty)
+                        .disabled(isWorking || draftTasks.isEmpty || !isDirty)
                 }
             } else {
                 ContentUnavailableView(
@@ -132,6 +174,28 @@ struct OfficeSettingsSheet: View {
         }
         .padding(24)
         .frame(width: 840, height: 660)
+        .interactiveDismissDisabled(isDirty || isWorking)
+        .confirmationDialog(
+            "Save changes to this office checklist?",
+            isPresented: $showUnsavedConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Save and Continue") {
+                let next = pendingDestination
+                pendingDestination = nil
+                saveTemplate(afterSave: next)
+            }
+            Button("Discard Changes", role: .destructive) {
+                draftTasks = savedTasks.map(DraftTask.init)
+                if let next = pendingDestination { applyNavigation(next) }
+                pendingDestination = nil
+            }
+            Button("Keep Editing", role: .cancel) {
+                pendingDestination = nil
+            }
+        } message: {
+            Text("Your edits have not been saved. You can save them, discard them, or keep editing.")
+        }
         .fileImporter(
             isPresented: $isImportingCSV,
             allowedContentTypes: [.commaSeparatedText, .plainText]
@@ -156,8 +220,8 @@ struct OfficeSettingsSheet: View {
         }
         .sheet(item: $csvTable) { table in
             CSVImportReviewSheet(table: table) { imported in
-                tasks = imported
-                notice = "Imported \(imported.count) tasks into this draft. Save to create a new revision."
+                draftTasks = imported.map(DraftTask.init)
+                notice = "Imported \(imported.count) tasks into this draft. Save to keep them."
             }
         }
         .fileImporter(
@@ -198,8 +262,8 @@ struct OfficeSettingsSheet: View {
         }
         .sheet(item: $xlsxWorkbook) { workbook in
             XLSXSheetPickerSheet(workbook: workbook) { imported in
-                tasks = imported
-                notice = "Imported \(imported.count) Excel tasks into this draft. Save to create a new revision."
+                draftTasks = imported.map(DraftTask.init)
+                notice = "Imported \(imported.count) Excel tasks into this draft. Save to keep them."
             }
         }
         .task {
@@ -221,7 +285,8 @@ struct OfficeSettingsSheet: View {
     @MainActor
     private func loadTemplate() async {
         guard let selectedOfficeID else {
-            tasks = []
+            draftTasks = []
+            savedTasks = []
             revision = 0
             notice = nil
             return
@@ -232,7 +297,8 @@ struct OfficeSettingsSheet: View {
             )
             guard template.officeID == self.selectedOfficeID,
                   template.workflow == self.workflow else { return }
-            tasks = template.tasks
+            draftTasks = template.tasks.map(DraftTask.init)
+            savedTasks = template.tasks
             revision = template.version
             notice = nil
         } catch {
@@ -241,6 +307,10 @@ struct OfficeSettingsSheet: View {
     }
 
     private func createOffice() {
+        guard !isDirty else {
+            errorMessage = "Save or discard your checklist edits before adding another office."
+            return
+        }
         isWorking = true
         let name = newOfficeName
         Task {
@@ -256,10 +326,10 @@ struct OfficeSettingsSheet: View {
         }
     }
 
-    private func saveTemplate() {
-        guard let selectedOfficeID else { return }
+    private func saveTemplate(afterSave: Destination? = nil) {
+        guard let selectedOfficeID, !isWorking else { return }
         isWorking = true
-        let submitted = tasks
+        let submitted = draftTasks.map(\.task)
         let submittedWorkflow = workflow
         Task {
             defer { isWorking = false }
@@ -270,13 +340,42 @@ struct OfficeSettingsSheet: View {
                 )
                 if self.selectedOfficeID == selectedOfficeID &&
                    self.workflow == submittedWorkflow {
-                    tasks = latest.tasks
+                    draftTasks = latest.tasks.map(DraftTask.init)
+                    savedTasks = latest.tasks
                     revision = latest.version
-                    notice = "Saved revision \(latest.version). Existing transactions are unchanged."
+                    notice = "Office checklist saved. Existing transactions are unchanged."
+                    if let afterSave { applyNavigation(afterSave) }
                 }
             } catch {
                 errorMessage = error.localizedDescription
             }
         }
     }
+    private func moveTask(_ id: UUID, by direction: Int) {
+        guard let current = draftTasks.firstIndex(where: { $0.id == id }),
+              draftTasks.indices.contains(current + direction) else { return }
+        draftTasks.swapAt(current, current + direction)
+    }
+
+    private func requestNavigation(_ target: Destination) {
+        guard !isWorking else { return }
+        if isDirty {
+            pendingDestination = target
+            showUnsavedConfirmation = true
+        } else {
+            applyNavigation(target)
+        }
+    }
+
+    private func applyNavigation(_ destination: Destination) {
+        switch destination {
+        case .close:
+            dismiss()
+        case .office(let id):
+            selectedOfficeID = id
+        case .workflow(let kind):
+            workflow = kind
+        }
+    }
+
 }

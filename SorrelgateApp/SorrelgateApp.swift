@@ -3,7 +3,9 @@ import SwiftUI
 @main
 struct SorrelgateApp: App {
     var body: some Scene {
-        WindowGroup {
+        // One persistent transaction workspace. A second WindowGroup would
+        // create independent SQLite-backed view models for the same local data.
+        Window("Sorrelgate", id: "main") {
             MainView()
         }
         .defaultSize(width: 1060, height: 700)
