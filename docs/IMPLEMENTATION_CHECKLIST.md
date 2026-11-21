@@ -31,7 +31,7 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 - [x] Listing Preparation starter checklist — 9 bundled administrative tasks, idempotent seed, CI #7
 - [x] Accepted Offer starter checklist — 12 bundled administrative tasks, restart persistence, CI #7
 - [ ] Different office profiles; configurable task order, states and requirements — named offices and task ordering CI PASS (PR #9, Actions #14); richer states/requirements still future
-- [ ] XLSX/CSV checklist import with preview and correction — CSV title-column mapping/invalid-row preview CI PASS in PR #10 Actions #33; XLSX real workbook tests and SwiftUI CI PASS (PR #11, Actions #50, 24 tests); title-only mapping verified, richer mappings and real Mac UX still future
+- [ ] XLSX/CSV checklist import with preview and correction — PR #10 CSV and PR #11 XLSX title-column review CI PASS; **PR #13 requirement/notes explicit optional column mapping + row refusal + source provenance verified in Actions #63/#64 (33 XCTest/native Mac app PASS)**. Human Mac usability and in-app row corrections (currently correct source and reimport) are still pending, so end-to-end checklist gate remains unchecked.
 - [ ] Template version snapshots and safe updates — append-only revisions and transaction source/row copies CI PASS (PR #9, Actions #14), UI migration still future
 - [ ] Prompt-free manual operation from start to export
 

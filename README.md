@@ -2,7 +2,7 @@
 
 **Mac-native, local-first AI assistant for California real estate transaction coordinators.**
 
-> **Status:** Main CI [#61](https://github.com/Kajin-0/sorrelgate/actions/runs/44873417356) PASS (**27 XCTest + native macOS build**) after office task metadata [PR #12](https://github.com/Kajin-0/sorrelgate/pull/12) merge. Current development branch adds explicitly reviewed CSV/XLSX requirement and notes column mapping; **new branch CI PENDING**. The app is not yet customer-ready: physical Mac usability, OCR robustness, AI operation, signing and notarization remain unverified. $0 additional MVP budget.
+> **Status:** [PR #13](https://github.com/Kajin-0/sorrelgate/pull/13) merged: reviewed CSV/XLSX task description, office requirement and notes mapping; [macOS Actions #63](https://github.com/Kajin-0/sorrelgate/actions/runs/44876286333) and [#64](https://github.com/Kajin-0/sorrelgate/actions/runs/44876289970) PASS **33 XCTest + native Mac SwiftUI build**. Post-merge `main` CI pending at documentation time. The app is not yet customer-ready: physical Mac usability, OCR robustness, AI operation, signing/notarization remain unverified. **$0 additional MVP cost.**
 
 Sorrelgate helps a nontechnical transaction coordinator organize signed PDFs, track office-specific tasks, identify potential missing paperwork or contradictory information, draft communications, and export a reviewable transaction package. The application is designed to be operated either through simple native Mac controls **or** through natural-language requests that invoke the same guarded backend actions.
 

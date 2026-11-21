@@ -1,5 +1,13 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T06:39:55.323Z — PR #13 spreadsheet metadata mapping merged after 33/33 Mac XCTest
+- **Merge:** [PR #13](https://github.com/Kajin-0/sorrelgate/pull/13) squash-merged to `main` as `404ac3cd2cb19e52e4f8ed98b1b9076cdf9c39c6`.
+- **Evidence:** [macOS Actions #63](https://github.com/Kajin-0/sorrelgate/actions/runs/44876286333) and [#64](https://github.com/Kajin-0/sorrelgate/actions/runs/44876289970) both **SUCCESS** on `fa666ed07a47a2555ebe107883d5ac40ee1fef2f`; `swift test --parallel` invoked all **33/33 XCTest methods** (27 baseline + 6 new), XcodeGen and full native SwiftUI Mac build PASS. Unsigned debug artifact #64 ID 14695893650 (2,862,259 bytes, expires 2026-11-28). CI verifies compiled app and synthetic workflows only.
+- **Functional coverage:** Explicit selected CSV/XLSX task/requirement/notes mapping, strict row refusal, actual zipped XML/XLSX sparse data, and a tested office Save -> transaction snapshot chain with immutable history.
+- **Remaining:** Post-merge main CI pending at this entry; multi-DB transaction creation recovery, M1 scanned OCR/cancel/disk failure paths, full real Mac UI, M3–M6 not verified. Release NO-GO.
+- **Next:** Verify post-merge main build; repair transaction-creation interruption path before unrelated features.
+
+
 ## 2026-11-21T06:35:23.324Z — Explicit CSV/XLSX office requirement and notes review (CI PENDING)
 - **Branch:** `feature/m2-spreadsheet-metadata-20261121` based on green main `fc36634`; scoped shared importer/UI extension, no new dependencies or paid services.
 - **Core:** Add `CSVChecklistMapping(titleColumn,requirementColumn?,notesColumn?)` and `CSVChecklistReview.tasks` typed `OfficeTaskSpec`, preserving legacy `.titles` and title-only review API. Mappings must be distinct and in range. Optional fields are NEVER inferred. Requirement mappings accept Required, Optional, Unspecified, Yes/No, True/False or 1/0 (case insensitive); blank becomes Unspecified. Invalid tokens, >500-character notes, duplicate/invalid titles, row-width errors and preexisting XLSX formula issues prohibit import approval; preserve physical source line/row references. All issues shown rather than only first 50.

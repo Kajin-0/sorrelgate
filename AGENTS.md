@@ -1,9 +1,9 @@
 # AGENTS.md — Sorrelgate permanent agent handoff
 
-**Updated:** 2026-11-21T06:35:23.324Z (UTC)
+**Updated:** 2026-11-21T06:39:55.323Z (UTC)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**Latest verified:** [main Actions #61](https://github.com/Kajin-0/sorrelgate/actions/runs/44873417356) SUCCESS (27 XCTest/native SwiftUI build) after PR #12 office task requirement/notes merged. New CSV/XLSX explicit requirement+notes column mapping is implemented on `feature/m2-spreadsheet-metadata-20261121` but **CI PENDING**. Runtime stays local-only; human Mac GUI/installer/AI tests unverified. Strict $0 MVP budget.
+**Latest verified:** [PR #13](https://github.com/Kajin-0/sorrelgate/pull/13) merged to main `404ac3c` after [macOS Actions #63](https://github.com/Kajin-0/sorrelgate/actions/runs/44876286333) and [#64](https://github.com/Kajin-0/sorrelgate/actions/runs/44876289970) both SUCCESS: **33 XCTest**, XcodeGen/native Mac SwiftUI app and unsigned artifacts PASS. Explicit mapped CSV/XLSX task requirements/notes implemented; physical Mac GUI/installer/OCR/LLM unverified. Strict $0 MVP budget.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Verify M2 reviewed CSV/XLSX requirement+notes column mapping (feature `feature/m2-spreadsheet-metadata-20261121`) against macOS CI. Existing title-only import remains; optional columns must be explicitly selected; unknown requirement values/oversize notes/duplicate mappings block approval; physical CSV line and Excel row references retained; accepted tasks still enter UNSAVED office draft until separate manual Save. Preserve existing office revisions/historical transaction checklists. After CI/merge, address transaction creation crash recovery and M1 scanned OCR/cancellation/disk failures. No spend or architecture churn.
+**Next:** Verify post-merge `main` CI for PR #13 `404ac3c`; then prioritize idempotent recovery of interrupted transaction creation across `transactions.sqlite` and `documents.sqlite`, with no duplicate or rewritten checklists. M1 scanned OCR, PDF cancellation, permission/low-disk failures, and 50-PDF batch remain hardening tasks. CSV/XLSX title+optional requirement+notes mapping is implemented and verified in #63/#64, no header inference, no source mutation, no automatic template Save. Preserve historical snapshots and avoid architecture churn. No paid installer/developer membership during supervised MVP.
