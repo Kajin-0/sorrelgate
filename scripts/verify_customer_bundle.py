@@ -17,11 +17,13 @@ DENIED_BYTES = {
         rb"xcodebuild\s|xcodegen\s|swift test\s|AGENTS\.md|"
         rb"CODEX_MASTER_PROMPT|BUILD INFO\.txt)", re.I
     ),
-    "developer/CI path": re.compile(
-        rb"(?:/Users/[A-Za-z0-9_.-]+/(?:work|Developer|Projects|src|Documents)/"
-        rb"|/home/runner/|/mnt/data/|\.build/DerivedData"
-        rb"|/SorrelgateApp/|/Sources/SorrelgateCore/)", re.I
+    "absolute developer home": re.compile(
+        rb"/Users/[A-Za-z0-9_.-]+/(?:work|Developer|Projects|src|Documents)/", re.I
     ),
+    "other runner/temporary path": re.compile(rb"(?:/home/runner/|/mnt/data/)", re.I),
+    "generated build output path": re.compile(rb"\.build/DerivedData", re.I),
+    "application source-tree path": re.compile(rb"/SorrelgateApp/", re.I),
+    "domain source-tree path": re.compile(rb"/Sources/SorrelgateCore/", re.I),
     # Standalone forty-hex revisions, not the permitted 64-hex file SHA-256.
     "40-character source revision": re.compile(
         rb"(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])", re.I

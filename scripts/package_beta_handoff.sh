@@ -40,6 +40,10 @@ done < <(
     inside && $1 == "path" { print $2; inside = 0 }
   '
 )
+# Remove any nonessential DWARF/local-symbol material from the outgoing
+# unsigned Release executable; never modify the source build in DerivedData.
+strip -S -x "$executable"
+
 python3 scripts/generate_beta_fixtures.py "$bundle/Sample Documents"
 swift scripts/verify_beta_fixtures.swift "$bundle/Sample Documents"
 cp docs/TESTER_START_HERE.txt "$bundle/START HERE.txt"
