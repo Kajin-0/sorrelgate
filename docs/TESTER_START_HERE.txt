@@ -1,0 +1,29 @@
+SORRELGATE — FIRST MAC TEST
+===========================
+
+This folder includes Sorrelgate.app, sample documents and instructions.
+No account, download, coding or developer software is needed.
+
+Give this folder to Codex on your Mac. Ask it to read
+"FOR CODEX - SETUP AND TEST.txt" and assist with installation.
+You do not need to use Terminal. Approve actions only when you
+understand them and want to continue.
+
+This early beta is unsigned and not notarized by Apple. macOS may block
+the first launch. If that happens, Codex will explain the exact warning,
+and you can decide whether an app-specific exception is appropriate.
+Never disable system-wide security protections.
+
+AFTER SORRELGATE OPENS
+1. Create an Accepted Offer transaction for "123 Example Lane".
+2. Import the three PDFs from "Sample Documents".
+3. Open Review and click "Find details in PDFs".
+4. Open an original page and compare the suggested dates or prices.
+   Choose "Not sure" for one suggestion.
+5. Open Checklist and mark a task complete; inspect a PDF in Documents.
+6. Export to a folder you choose.
+7. Close and reopen Sorrelgate to confirm your changes were saved.
+
+Record the results in "TEST RESULTS.txt". Use only the included
+fictional documents; do not add any actual customer paperwork.
+Sorrelgate does not establish legal compliance or send messages.

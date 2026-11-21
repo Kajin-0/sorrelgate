@@ -1,0 +1,29 @@
+SORRELGATE — FIRST MAC TEST RESULTS
+==================================
+
+Use only fictional sample files. No actual client information.
+Mac model/chip: ______________________________
+macOS version: _______________________________
+App version: _________________________________
+
+Mark each PASS / FAIL / NOT TRIED:
+[ ] Installation without developer software: ___________
+[ ] App opened (record security warning): ______________
+[ ] Accepted Offer transaction created: ________________
+[ ] Review / Documents / Checklist usable: ____________
+[ ] Three sample PDFs imported and previewed: __________
+[ ] Source-linked dates/prices found: __________________
+[ ] Conflicting values displayed for review: ___________
+[ ] Confirm / Not sure / Reject understandable: ________
+[ ] Checklist task edited: ____________________________
+[ ] Export created original copies and checklist: ______
+[ ] Quit/restart saved the changes: ____________________
+
+What was confusing or blocked (no personal data):
+
+
+One improvement that would help:
+
+
+Final result: READY FOR MANUAL TEST / BLOCKED / PARTIAL
+Actually operated app window? YES / NO

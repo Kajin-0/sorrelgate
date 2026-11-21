@@ -1,5 +1,7 @@
 # Sorrelgate
 
+**External delivery separation (2026-11-21T17:23:12.407Z):** Never send this internal README, source links or historical CI artifacts to testers or customers. All external packages/prompt materials must be source- and development-reference-free, built in Release mode and pass `scripts/verify_customer_bundle.py` including binary checks. Historical unsigned Debug beta ZIPs are deprecated for delivery, even if text instructions were cleaned. The current target is the verified standalone source-free package; no client source access, developer tooling or code checkout on the recipient Mac. See internal handoff policy in `AGENTS.md`.
+
 **Mac-native, local-first AI assistant for California real estate transaction coordinators.**
 
 > **Status:** **Beta 0.1.1** is a supervised, **unsigned** Mac pilot package—not a signed one-click release. The native SwiftUI app and 59 XCTest tests pass on current [main CI](https://github.com/Kajin-0/sorrelgate/actions/runs/44923066766). The updated beta bundle provides fictional sample PDFs, optional CSV, quick-start and tester report; its first screen is a review-first workspace with separate Documents and Checklist views. Human Mac usability remains **UNVERIFIED**, and G1 document intelligence is incomplete; commercial release is NO-GO. See [first pilot handoff](docs/FREE_MAC_TESTER_HANDOFF.md) and [technician setup](docs/BETA_0_1_TECHNICIAN.md).

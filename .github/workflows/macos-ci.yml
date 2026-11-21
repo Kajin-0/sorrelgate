@@ -36,24 +36,27 @@ jobs:
           cat "$RUNNER_TEMP/sorrelgate-m1-degraded.txt"
       - name: Generate native Xcode project
         run: xcodegen generate --spec project.yml
-      - name: Build Mac app (unsigned, CI only)
+      - name: Test customer-bundle reference scanner
+        run: python3 scripts/test_verify_customer_bundle.py
+      - name: Build release-configuration Mac app (unsigned, CI only)
         run: |
           xcodebuild \
             -project Sorrelgate.xcodeproj \
             -scheme Sorrelgate \
-            -configuration Debug \
+            -configuration Release \
             -destination "generic/platform=macOS" \
             -derivedDataPath .build/DerivedData \
             CODE_SIGNING_ALLOWED=NO \
+            'LD_RUNPATH_SEARCH_PATHS=@executable_path/../Frameworks @loader_path/../Frameworks' \
             build
-      - name: Assemble Beta 0.1.1 handoff and verify PDFKit fixtures
+      - name: Assemble and audit source-free tester bundle
         run: |
           bash scripts/package_beta_handoff.sh \
-            .build/DerivedData/Build/Products/Debug/Sorrelgate.app
-      - name: Upload one Beta 0.1.1 assisted tester bundle (UNSIGNED)
+            .build/DerivedData/Build/Products/Release/Sorrelgate.app
+      - name: Upload one standalone source-free tester ZIP (UNSIGNED)
         uses: actions/upload-artifact@v4
         with:
-          name: Sorrelgate-Beta-0.1.1-UNSIGNED-macOS
-          path: dist/Sorrelgate-Beta-0.1.1-macOS-UNSIGNED.zip
+          name: Sorrelgate-0.1.1-Standalone-Mac-Test
+          path: dist/Sorrelgate-0.1.1-Standalone-Mac-Test.zip
           if-no-files-found: error
           retention-days: 14

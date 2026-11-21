@@ -1,5 +1,7 @@
 # Sorrelgate — free, Codex-assisted first Mac pilot
 
+**CURRENT DELIVERY POLICY (2026-11-21T17:23:12.407Z):** This document is **developer-only** and may contain historical source links for internal provenance. Do not copy it into any tester/customer ZIP or Codex prompt. The previously uploaded Beta 0.1.0/0.1.1 Debug development handoffs are obsolete for external sharing because binaries can embed build paths. Going forward, CI makes a separate **Release-configuration standalone ZIP** with `Sorrelgate.app`, fictional samples, `START HERE.txt`, `FOR CODEX - SETUP AND TEST.txt`, `TEST RESULTS.txt`, and SHA-256 manifests. The assistant only installs and tests supplied compiled files; no source hosting, accounts or developer tools. `scripts/verify_customer_bundle.py` checks all distribution bytes. CI results for this change are pending at this entry; do not distribute an unverified artifact.
+
 ## Beta 0.1.1 — first real Mac pilot
 
 One versioned, **unsigned** ZIP artifact was verified in [macOS CI #44924654096](https://github.com/Kajin-0/sorrelgate/actions/runs/44924654096) (59/59 XCTest, native build, PDFKit checks and ZIP integrity), named Sorrelgate-Beta-0.1.1-UNSIGNED-macOS. It expires December 5, 2026; if expired, regenerate using the repository workflow. It contains the native application, three fictional seven-page-total PDFs, optional task CSV, source commit, SHA-256 sample checksums, README FIRST.txt, TEST RESULTS.txt and TECHNICIAN SETUP.md.
