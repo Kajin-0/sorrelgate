@@ -156,7 +156,7 @@ struct OfficeSettingsSheet: View {
         }
         .sheet(item: $csvTable) { table in
             CSVImportReviewSheet(table: table) { imported in
-                tasks = imported.map { OfficeTaskSpec(title: $0) }
+                tasks = imported
                 notice = "Imported \(imported.count) tasks into this draft. Save to create a new revision."
             }
         }
@@ -198,7 +198,7 @@ struct OfficeSettingsSheet: View {
         }
         .sheet(item: $xlsxWorkbook) { workbook in
             XLSXSheetPickerSheet(workbook: workbook) { imported in
-                tasks = imported.map { OfficeTaskSpec(title: $0) }
+                tasks = imported
                 notice = "Imported \(imported.count) Excel tasks into this draft. Save to create a new revision."
             }
         }

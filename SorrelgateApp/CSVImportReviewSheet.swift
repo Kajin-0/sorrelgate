@@ -1,36 +1,74 @@
 import SorrelgateCore
 import SwiftUI
 
-/// Read-only CSV inspection. Applying copies approved task names into the
-/// office editor's unsaved draft; a separate Save creates the next revision.
+/// Shared CSV/XLSX review. Every column assignment is explicit. No office
+/// database mutation happens here: approval populates an unsaved editor draft.
 struct CSVImportReviewSheet: View {
     @Environment(\.dismiss) private var dismiss
     let table: CSVChecklistTable
-    let onUse: ([String]) -> Void
+    let onUse: ([OfficeTaskSpec]) -> Void
+
     @State private var titleColumn = 0
+    @State private var requirementColumn: Int?
+    @State private var notesColumn: Int?
+
+    private func labelForColumn(_ index: Int) -> String {
+        let header = table.headers[index]
+        return "\(index + 1): \(header.isEmpty ? "Column \(index + 1)" : header)"
+    }
+
+    private var mappingError: String? {
+        let mapped = [titleColumn, requirementColumn, notesColumn].compactMap { $0 }
+        if Set(mapped).count != mapped.count {
+            return "Each task field must use a different source column."
+        }
+        return nil
+    }
 
     private var reviewed: CSVChecklistReview? {
-        try? CSVChecklistImporter.review(table, titleColumn: titleColumn)
+        guard mappingError == nil else { return nil }
+        return try? CSVChecklistImporter.review(
+            table, mapping: CSVChecklistMapping(
+                titleColumn: titleColumn,
+                requirementColumn: requirementColumn,
+                notesColumn: notesColumn
+            )
+        )
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Review CSV Checklist").font(.title2.weight(.semibold))
-            Text("Choose the column containing task descriptions. No changes are saved until you review and save the office checklist.")
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Review Checklist Import").font(.title2.weight(.semibold))
+            Text("Choose columns explicitly. Optional fields are not inferred. Changes go to an unsaved office draft; a separate Save creates the revision.")
                 .foregroundStyle(.secondary)
+
             Picker("Task description column", selection: $titleColumn) {
                 ForEach(table.headers.indices, id: \.self) { index in
-                    let name = table.headers[index].isEmpty
-                        ? "Column \(index + 1)"
-                        : table.headers[index]
-                    Text("\(index + 1): \(name)").tag(index)
+                    Text(labelForColumn(index)).tag(index)
                 }
+            }
+            Picker("Office requirement column", selection: $requirementColumn) {
+                Text("Not mapped (Unspecified)").tag(nil as Int?)
+                ForEach(table.headers.indices, id: \.self) { index in
+                    Text(labelForColumn(index)).tag(Optional(index))
+                }
+            }
+            Picker("Task notes column", selection: $notesColumn) {
+                Text("Not mapped (empty notes)").tag(nil as Int?)
+                ForEach(table.headers.indices, id: \.self) { index in
+                    Text(labelForColumn(index)).tag(Optional(index))
+                }
+            }
+            Text("Accepted requirement values: Required / Optional / Unspecified or Yes / No (also True / False, 1 / 0). Blank means Unspecified. Other values block import.")
+                .font(.caption).foregroundStyle(.secondary)
+            if let mappingError {
+                Text(mappingError).foregroundStyle(.red)
             }
             if let reviewed {
                 HStack(spacing: 18) {
-                    Label("\(reviewed.titles.count) valid tasks", systemImage: "checkmark.circle")
+                    Label("\(reviewed.tasks.count) valid tasks", systemImage: "checkmark.circle")
                     if !reviewed.issues.isEmpty {
-                        Label("\(reviewed.issues.count) rows need review", systemImage: "exclamationmark.triangle")
+                        Label("\(reviewed.issues.count) issues", systemImage: "exclamationmark.triangle")
                     }
                     Spacer()
                     Text("\(table.rows.count) source rows")
@@ -38,43 +76,59 @@ struct CSVImportReviewSheet: View {
                 }
                 .font(.callout)
                 List {
-                    Section("Sample rows (first 30)") {
+                    Section("Sample source rows (first 30)") {
                         ForEach(Array(table.rows.prefix(30)), id: \.sourceLine) { row in
                             HStack(alignment: .top) {
-                                Text("Line \(row.sourceLine)").font(.caption.monospacedDigit())
-                                    .foregroundStyle(.secondary).frame(width: 80, alignment: .leading)
-                                Text(row.cells.indices.contains(titleColumn)
-                                     ? row.cells[titleColumn] : "Missing mapped column")
-                                    .textSelection(.enabled)
+                                Text("Row \(row.sourceLine)")
+                                    .font(.caption.monospacedDigit())
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 80, alignment: .leading)
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(row.cells.indices.contains(titleColumn)
+                                         ? row.cells[titleColumn] : "Missing task column")
+                                        .textSelection(.enabled)
+                                    if let column = requirementColumn,
+                                       row.cells.indices.contains(column) {
+                                        Text("Requirement: \(row.cells[column].isEmpty ? "Unspecified" : row.cells[column])")
+                                            .font(.caption).foregroundStyle(.secondary)
+                                            .textSelection(.enabled)
+                                    }
+                                    if let column = notesColumn,
+                                       row.cells.indices.contains(column) {
+                                        Text("Notes: \(row.cells[column])")
+                                            .font(.caption).foregroundStyle(.secondary)
+                                            .textSelection(.enabled)
+                                    }
+                                }
                             }
                         }
                     }
                     if !reviewed.issues.isEmpty {
-                        Section("Rows requiring correction — import blocked") {
-                            ForEach(Array(reviewed.issues.prefix(50).enumerated()), id: \.offset) { pair in
-                                Text("Line \(pair.element.sourceLine): \(pair.element.detail)")
+                        Section("All issues — import blocked until corrected") {
+                            ForEach(Array(reviewed.issues.enumerated()), id: \.offset) { pair in
+                                Text("Source row \(pair.element.sourceLine): \(pair.element.detail)")
                                     .foregroundStyle(.red)
                                     .textSelection(.enabled)
                             }
                         }
                     }
                 }
-                Text("Invalid rows are never silently discarded. Fix the CSV and import it again.")
+                Text("No invalid rows are silently omitted. Correct the source file and retry. Approving replaces the current unsaved draft, not existing transactions.")
                     .font(.caption).foregroundStyle(.secondary)
                 HStack {
                     Button("Cancel") { dismiss() }.keyboardShortcut(.cancelAction)
                     Spacer()
-                    Button("Use \(reviewed.titles.count) Reviewed Tasks") {
-                        onUse(reviewed.titles)
+                    Button("Use \(reviewed.tasks.count) Reviewed Tasks") {
+                        onUse(reviewed.tasks)
                         dismiss()
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(!reviewed.issues.isEmpty || reviewed.titles.isEmpty)
+                    .disabled(!reviewed.issues.isEmpty || reviewed.tasks.isEmpty)
                     .keyboardShortcut(.defaultAction)
                 }
             }
         }
         .padding(24)
-        .frame(width: 760, height: 630)
+        .frame(width: 800, height: 740)
     }
 }

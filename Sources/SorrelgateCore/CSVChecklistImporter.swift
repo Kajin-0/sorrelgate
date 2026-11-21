@@ -17,9 +17,24 @@ public struct CSVChecklistIssue: Sendable {
     public let detail: String
 }
 
+/// Every accepted row is a typed task. Keep the title-only readout for older callers.
 public struct CSVChecklistReview: Sendable {
-    public let titles: [String]
+    public let tasks: [OfficeTaskSpec]
     public let issues: [CSVChecklistIssue]
+    public var titles: [String] { tasks.map(\.title) }
+}
+
+/// All mappings are explicit. Absent optional mappings never infer values from headers.
+public struct CSVChecklistMapping: Equatable, Sendable {
+    public let titleColumn: Int
+    public let requirementColumn: Int?
+    public let notesColumn: Int?
+
+    public init(titleColumn: Int, requirementColumn: Int? = nil, notesColumn: Int? = nil) {
+        self.titleColumn = titleColumn
+        self.requirementColumn = requirementColumn
+        self.notesColumn = notesColumn
+    }
 }
 
 public enum CSVChecklistImportError: Error, LocalizedError {
@@ -30,6 +45,7 @@ public enum CSVChecklistImportError: Error, LocalizedError {
     case tooManyRows
     case tooManyColumns
     case invalidColumn
+    case duplicateColumns
 
     public var errorDescription: String? {
         switch self {
@@ -39,7 +55,8 @@ public enum CSVChecklistImportError: Error, LocalizedError {
         case .empty: "The CSV must contain a header row and at least one task row."
         case .tooManyRows: "This CSV contains over 2,000 rows. Split the import into smaller files."
         case .tooManyColumns: "The CSV contains over 64 columns."
-        case .invalidColumn: "Choose a valid column containing task descriptions."
+        case .invalidColumn: "Select valid columns from the selected spreadsheet."
+        case .duplicateColumns: "Map each field to a different source column."
         }
     }
 }
@@ -140,15 +157,28 @@ public enum CSVChecklistImporter {
         )
     }
 
-    /// A preview reports every invalid or unmatched row; there is deliberately
-    /// no silent truncation, guessing or selective import of the valid subset.
+    /// Title-only legacy behavior is preserved, with no header inference.
     public static func review(
         _ table: CSVChecklistTable, titleColumn: Int
     ) throws -> CSVChecklistReview {
-        guard table.headers.indices.contains(titleColumn) else {
+        try review(table, mapping: CSVChecklistMapping(titleColumn: titleColumn))
+    }
+
+    /// Review ALL rows and preserve original physical CSV line / XLSX row numbers.
+    /// The caller must not use `tasks` when `issues` is nonempty; there is no
+    /// silent partial acceptance or database mutation during review.
+    public static func review(
+        _ table: CSVChecklistTable, mapping: CSVChecklistMapping
+    ) throws -> CSVChecklistReview {
+        let mapped = [mapping.titleColumn, mapping.requirementColumn, mapping.notesColumn]
+            .compactMap { $0 }
+        guard mapped.allSatisfy({ table.headers.indices.contains($0) }) else {
             throw CSVChecklistImportError.invalidColumn
         }
-        var titles: [String] = []
+        guard Set(mapped).count == mapped.count else {
+            throw CSVChecklistImportError.duplicateColumns
+        }
+        var tasks: [OfficeTaskSpec] = []
         var issues: [CSVChecklistIssue] = table.importIssues
         var seen = Set<String>()
         for row in table.rows {
@@ -159,30 +189,60 @@ public enum CSVChecklistImporter {
                 ))
                 continue
             }
-            let title = row.cells[titleColumn].trimmingCharacters(in: .whitespacesAndNewlines)
+            var rowInvalid = false
+            let title = row.cells[mapping.titleColumn]
+                .trimmingCharacters(in: .whitespacesAndNewlines)
             if title.isEmpty || title.count > 250 || title.contains("\n") || title.contains("\r") {
                 issues.append(CSVChecklistIssue(
                     sourceLine: row.sourceLine,
                     detail: "Task description must be one nonempty line of at most 250 characters."
                 ))
-                continue
+                rowInvalid = true
+            } else {
+                let key = title.folding(
+                    options: [.caseInsensitive, .diacriticInsensitive], locale: nil
+                )
+                if !seen.insert(key).inserted {
+                    issues.append(CSVChecklistIssue(
+                        sourceLine: row.sourceLine, detail: "Duplicate task: \(title)"
+                    ))
+                    rowInvalid = true
+                }
             }
-            let key = title.folding(
-                options: [.caseInsensitive, .diacriticInsensitive], locale: nil
-            )
-            if !seen.insert(key).inserted {
+            var level: OfficeTaskRequirement = .unspecified
+            if let column = mapping.requirementColumn {
+                let value = row.cells[column]
+                    .trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                switch value {
+                case "", "unspecified": level = .unspecified
+                case "required", "yes", "true", "1": level = .required
+                case "optional", "no", "false", "0": level = .optional
+                default:
+                    issues.append(CSVChecklistIssue(
+                        sourceLine: row.sourceLine,
+                        detail: "Unrecognized office requirement '\(row.cells[column])'. Use Required, Optional, Unspecified, Yes, or No."
+                    ))
+                    rowInvalid = true
+                }
+            }
+            let notes = mapping.notesColumn.map {
+                row.cells[$0].trimmingCharacters(in: .whitespacesAndNewlines)
+            } ?? ""
+            if notes.count > 500 {
                 issues.append(CSVChecklistIssue(
-                    sourceLine: row.sourceLine, detail: "Duplicate task: \(title)"
+                    sourceLine: row.sourceLine, detail: "Task notes exceed 500 characters."
                 ))
-                continue
+                rowInvalid = true
             }
-            titles.append(title)
+            if !rowInvalid {
+                tasks.append(OfficeTaskSpec(title: title, requirement: level, notes: notes))
+            }
         }
-        if titles.count > 100 {
+        if tasks.count > 100 {
             issues.append(CSVChecklistIssue(
                 sourceLine: 0, detail: "Office templates support a maximum of 100 tasks."
             ))
         }
-        return CSVChecklistReview(titles: titles, issues: issues)
+        return CSVChecklistReview(tasks: tasks, issues: issues)
     }
 }

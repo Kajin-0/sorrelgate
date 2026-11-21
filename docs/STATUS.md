@@ -1,11 +1,11 @@
 # Sorrelgate — Verified development status
 
-**Verified:** M2 office requirement/notes **merged to main in [PR #12](https://github.com/Kajin-0/sorrelgate/pull/12)**, squash commit `990f6094caa159e095aace8895fd70f0c06b9ed9`. Feature [macOS Actions #56](https://github.com/Kajin-0/sorrelgate/actions/runs/44872995179) and final docs-branch [#58](https://github.com/Kajin-0/sorrelgate/actions/runs/44873214162): **27/27 XCTest**, native SwiftUI Mac build, unsigned artifact upload PASS. Post-merge main CI pending at documentation time.
+**Latest verified baseline:** [macOS Actions #61](https://github.com/Kajin-0/sorrelgate/actions/runs/44873417356) PASS on main `fc36634b839767d4b8ecf239ac8613d5e8b2c3ad`: **27 XCTest, native SwiftUI build and unsigned artifact PASS**. New M2 spreadsheet metadata mapping branch `feature/m2-spreadsheet-metadata-20261121` implementation submitted, new tests/native build **CI PENDING**.
 **Repository:** https://github.com/Kajin-0/sorrelgate (public by owner's choice)
 **Budget:** $0 additional during the early MVP. Apple membership, signing, notarization, paid APIs and cloud hosting are DEFERRED. Codex may build locally using free Xcode on the external tester's Mac with the owner's consent.
 **No owner Mac:** GitHub Actions macOS runners verify builds and automated tests; real UI, macOS permissions, real OCR performance and on-device LLM must be validated later on the tester's Mac.
 
-## Latest verified source build: XLSX import CI PASS and merged in PR #11
+## Verified baseline — office requirements, CSV/XLSX, and migrations through PR #12
 - Merged via [PR #9](https://github.com/Kajin-0/sorrelgate/pull/9) (squash commit `8c127df`): named office profiles; independent workflow checklists; append-only office template revisions with optimistic version checks; atomic transaction checklist copies and provenance; SwiftUI office management and office selection on transaction creation.
 - New synthetic tests: office isolation, restart recovery, old/new template versions, manual-task protection, stale-version/duplicate office rejection.
 - **Verified:** [macOS GitHub Actions #14](https://github.com/Kajin-0/sorrelgate/actions/runs/44870973186) SUCCESS on `eb106533ca49bf106c84e70772b8f44cf11d13e1`: all **16 XCTest cases invoked successfully** (11 baseline + 5 office-template tests); XcodeGen generation, native SwiftUI Xcode build and unsigned artifact upload PASS.
@@ -23,15 +23,15 @@
 ## Working code and limitations
 - M0: native SwiftUI app and local SQLite transaction database; CI PASS, human UI not verified.
 - M1: Finder-selected PDF import, SHA-256 original preservation, PDFKit extraction / Vision OCR fallback, duplicate handling, preview, checklist/document links, export package. Synthetic backend tests PASS; scanned OCR accuracy, full error/cancellation and macOS interaction remain unverified.
-- M2: **IN PROGRESS.** Office profiles (PR #9), CSV title-column import (PR #10), and reviewed XLSX sheet/title import (PR #11) merged after successful macOS source-branch CI. Bundled versioned catalog has **9 listing and 12 accepted-offer administrative tasks**. Historical transaction rows are preserved; human Mac UX remains unverified. **MERGED via PR #12:** office requirement (unspecified/required/optional), notes, additive legacy SQLite migrations, revisioned transaction task snapshots, and native editor. Three new XCTest cases; **27/27 source tests + native build PASS** in Actions #56 and #58. Actual external Mac GUI and customer data migrations remain unverified. Rich spreadsheet metadata mapping, due dates, workflow status, and migration UX remain outstanding.
+- M2: **IN PROGRESS.** Merged office profiles PR #9, CSV PR #10, XLSX PR #11, office task requirement/notes + additive SQLite migration PR #12; baseline `main` CI #61 PASS 27 XCTest. **New feature branch CI PENDING:** explicit title/requirement/notes mapping in shared CSV/XLSX review; accepted requirement tokens Required/Optional/Unspecified/Yes/No/True/False/1/0 (blank = unspecified); distinct columns, row-by-row validation, all issue display, and typed tasks staged in UNSAVED office draft; no source mutation or auto-save. Added six XCTest cases including a save/snapshot integration test and two real zipped XLSX fixtures. Human Mac GUI still unverified. Dates/task status and office migration UI remain future M2 work.
 - M3 recognition/validation: NOT STARTED.
 - M4 timelines/drafts: NOT STARTED.
 - M5 LLM operates typed backend: NOT STARTED (typed service foundation exists).
 - M6 commercial release: NOT STARTED. Paid Apple distribution postponed until strong MVP and owner approval.
 
 ## Next engineering tasks
-1. Verify latest post-merge main macOS CI and keep main green. PR #12 already merged with green source and docs-head CI.
-2. Add explicitly reviewed CSV/XLSX column mapping for office requirement/notes and negative-control fixtures. Preserve source row numbers and existing template revisions.
-3. Add idempotent recovery of transaction initialization after an interruption between the two SQLite databases; validate restart cases.
-4. Harden M1 Vision scanned-page OCR, import cancellation, corrupt/disk failures, and 50-PDF throughput with Mac CI.
-5. Continue CI-first at $0. Real Mac usability, Foundation Models execution, signing and notarization remain unverified; do not claim release readiness.
+1. Verify feature `feature/m2-spreadsheet-metadata-20261121` in GitHub Actions macOS CI. Target **33 XCTest** (27 baseline + 6 new), native SwiftUI build and unsigned artifact; fix any failures before merge. Physical Mac GUI remains unverified.
+2. After merge, add idempotent recovery of partially initialized transactions (two SQLite databases) with restart/preservation tests. Prioritize no data loss or checklist rewrite.
+3. Harden M1 PDF/Vision OCR: scanned fixtures, cancel/retry, permission/low-disk failures, 50-PDF throughput. Avoid unrelated refactors.
+4. Then task status/due date mapping UX and M3 evidence-linked document recognition. Do not claim legal compliance from imported office labels.
+5. Continue at $0 until authorized pilot. M6 release NO-GO pending user testing, security, signed/notarized distribution and later milestone gates.
