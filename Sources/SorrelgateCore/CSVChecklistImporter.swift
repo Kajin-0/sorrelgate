@@ -9,6 +9,7 @@ public struct CSVChecklistTable: Identifiable, Sendable {
     public let id: UUID
     public let headers: [String]
     public let rows: [CSVChecklistRow]
+    public let importIssues: [CSVChecklistIssue]
 }
 
 public struct CSVChecklistIssue: Sendable {
@@ -135,7 +136,7 @@ public enum CSVChecklistImporter {
             $0.trimmingCharacters(in: .whitespacesAndNewlines)
         }
         return CSVChecklistTable(
-            id: UUID(), headers: headers, rows: records
+            id: UUID(), headers: headers, rows: records, importIssues: []
         )
     }
 
@@ -148,7 +149,7 @@ public enum CSVChecklistImporter {
             throw CSVChecklistImportError.invalidColumn
         }
         var titles: [String] = []
-        var issues: [CSVChecklistIssue] = []
+        var issues: [CSVChecklistIssue] = table.importIssues
         var seen = Set<String>()
         for row in table.rows {
             if row.cells.count != table.headers.count {
