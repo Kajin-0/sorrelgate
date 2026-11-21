@@ -6,7 +6,7 @@ import SwiftUI
 struct XLSXSheetPickerSheet: View {
     @Environment(\.dismiss) private var dismiss
     let workbook: XLSXChecklistWorkbook
-    let onUse: ([String]) -> Void
+    let onUse: ([OfficeTaskSpec]) -> Void
 
     @State private var selectedID: UUID?
     @State private var reviewTable: CSVChecklistTable?
@@ -50,8 +50,8 @@ struct XLSXSheetPickerSheet: View {
             if selectedID == nil { selectedID = workbook.sheets.first?.id }
         }
         .sheet(item: $reviewTable) { table in
-            CSVImportReviewSheet(table: table) { titles in
-                onUse(titles)
+            CSVImportReviewSheet(table: table) { tasks in
+                onUse(tasks)
                 dismiss()
             }
         }

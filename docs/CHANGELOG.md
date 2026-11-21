@@ -1,5 +1,14 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T06:35:23.324Z — Explicit CSV/XLSX office requirement and notes review (CI PENDING)
+- **Branch:** `feature/m2-spreadsheet-metadata-20261121` based on green main `fc36634`; scoped shared importer/UI extension, no new dependencies or paid services.
+- **Core:** Add `CSVChecklistMapping(titleColumn,requirementColumn?,notesColumn?)` and `CSVChecklistReview.tasks` typed `OfficeTaskSpec`, preserving legacy `.titles` and title-only review API. Mappings must be distinct and in range. Optional fields are NEVER inferred. Requirement mappings accept Required, Optional, Unspecified, Yes/No, True/False or 1/0 (case insensitive); blank becomes Unspecified. Invalid tokens, >500-character notes, duplicate/invalid titles, row-width errors and preexisting XLSX formula issues prohibit import approval; preserve physical source line/row references. All issues shown rather than only first 50.
+- **GUI:** Shared SwiftUI review explicitly selects title, optional office requirement and notes columns; previews each, displays row-level errors and blocks 'Use' on any issue. Use stages typed tasks in the unsaved office draft; user must separately Save to append a revision. XLSX still requires explicit worksheet selection.
+- **New tests (NOT YET RUN):** 4 CSV tests (mixed quote/newline semantics/row numbers, invalid token+long note+duplicate negative controls, no-header-inference/duplicate mappings, reviewed task-to-office-save-to-immutable snapshot) and 2 actual zipped OOXML XLSX tests (multi-column metadata with sparse physical rows and unknown-value block). Baseline 27 XCTest; target 33 tests.
+- **Known limitations:** Human Mac UI/real office file compatibility unverified; task status/due date, Excel fuzzing, interrupted transaction initialization, real scanned OCR and paid release remain pending. Never interpret office 'Required' as legal sufficiency.
+- **Next:** Inspect exact Mac CI; repair, update STATUS with verified evidence, then merge only when green.
+
+
 ## 2026-11-21T05:59:37.188Z — M2 task requirement/notes PR #12 merged; main CI pending
 - **Merge:** [PR #12](https://github.com/Kajin-0/sorrelgate/pull/12) squash-merged to `main` as `990f6094caa159e095aace8895fd70f0c06b9ed9` after successful feature CI [#56](https://github.com/Kajin-0/sorrelgate/actions/runs/44872995179) and documentation-head CI [#58](https://github.com/Kajin-0/sorrelgate/actions/runs/44873214162).
 - **Evidence:** Both runs PASS 27/27 XCTest, XcodeGen project generation, native SwiftUI app build and unsigned artifact. This documentation-only follow-up does not claim completed post-merge main CI yet.

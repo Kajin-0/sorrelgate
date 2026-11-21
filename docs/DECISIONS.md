@@ -2,6 +2,10 @@
 
 **Policy:** Never silently reverse decisions. Append dated records with rationale, competing alternatives and outcome.
 
+## ADR-016 — 2026-11-21T06:35:23.324Z — Explicit spreadsheet metadata mapping and blocking review
+**Accepted implementation approach; CI pending:** Continue the existing bounded CSV/XLSX parser and shared review model. The user selects the task title column and may explicitly select two distinct columns for `requirement` and `notes`; do not infer semantics from headers or import optional metadata without selection. Exact documented requirement tokens Required/Optional/Unspecified/Yes/No/True/False/1/0 accepted (case-insensitive; blank=Unspecified). Invalid/ambiguous values and oversized notes are issues attributed to the original CSV line / XLSX row, not coerced or skipped. Refuse all-row acceptance until every issue is corrected; retain no automatic office save, macros, cloud transfer or historical checklist rewriting. **Tradeoff:** Applying the approved import replaces the current unsaved office editor draft; clear UI copy warns about this. Date/status/owner fields remain out of scope until separately typed and validated. Never infer legal document sufficiency from user-configured 'required' labels.
+
+
 ## ADR-015 — 2026-11-21T05:53:40.145Z — Office requirement/notes and non-destructive metadata migration
 **Accepted implementation approach; CI pending:** Office template task rows gain three-state `requirement` (unspecified/required/optional) plus notes, both copied into the existing immutable per-transaction checklist snapshot. The unspecified default is necessary because older task titles do not establish legal or office-mandated requirements. Keep prior rows intact via idempotent SQLite ADD COLUMN migrations; preserve completion/link state, optimistic template revision checks, and title-only compatibility. UI edits typed metadata, not only titles. **Tradeoff:** status/due dates, CSV/XLSX metadata column mapping, multi-database transaction creation recovery and human Mac UX remain separate; don't generalize the workflow or claim legal sufficiency.
 

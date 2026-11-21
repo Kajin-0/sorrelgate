@@ -1,9 +1,9 @@
 # AGENTS.md — Sorrelgate permanent agent handoff
 
-**Updated:** 2026-11-21T05:15:20.571Z (UTC)
+**Updated:** 2026-11-21T06:35:23.324Z (UTC)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**M2 XLSX verified (PR #11, main merge pending at this update):** [macOS Actions #50](https://github.com/Kajin-0/sorrelgate/actions/runs/44872179791) SUCCESS on `33686e2`: **24 XCTest cases** (20 baseline + 4 true XLSX ZIP/XML), XcodeGen/native Mac build and unsigned artifact PASS. XLSX importer does not run formula code; source bounded; explicit sheet and task-column review; parsed off SwiftUI main actor. Resolved CoreXLSX 0.14.2 (Apache-2.0), XMLCoder 0.14.0 and ZIPFoundation 0.9.20 (MIT). Office PR #9 and CSV PR #10 previously merged. Physical Mac/installer/AI still unverified, $0 budget.
+**Latest verified:** [main Actions #61](https://github.com/Kajin-0/sorrelgate/actions/runs/44873417356) SUCCESS (27 XCTest/native SwiftUI build) after PR #12 office task requirement/notes merged. New CSV/XLSX explicit requirement+notes column mapping is implemented on `feature/m2-spreadsheet-metadata-20261121` but **CI PENDING**. Runtime stays local-only; human Mac GUI/installer/AI tests unverified. Strict $0 MVP budget.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** PR #12 M2 office requirement/notes + additive SQLite migration MERGED to main in `990f6094`; branch CI #56/#58 passed 27 XCTest/native app. Verify post-merge main CI. Then add explicitly reviewed CSV/XLSX metadata mappings and harden M1 OCR, cancellation, interrupted transaction recovery and filesystem failures. Preserve historical task snapshots. No paid developer membership/installer for supervised pilot.
+**Next:** Verify M2 reviewed CSV/XLSX requirement+notes column mapping (feature `feature/m2-spreadsheet-metadata-20261121`) against macOS CI. Existing title-only import remains; optional columns must be explicitly selected; unknown requirement values/oversize notes/duplicate mappings block approval; physical CSV line and Excel row references retained; accepted tasks still enter UNSAVED office draft until separate manual Save. Preserve existing office revisions/historical transaction checklists. After CI/merge, address transaction creation crash recovery and M1 scanned OCR/cancellation/disk failures. No spend or architecture churn.
