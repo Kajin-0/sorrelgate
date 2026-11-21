@@ -19,6 +19,27 @@ trap 'rm -rf "$staging"' EXIT
 bundle="$staging/Sorrelgate-Standalone-Test"
 mkdir -p "$bundle/Sample Documents"
 ditto "$app" "$bundle/Sorrelgate.app"
+
+# The Xcode SwiftPM integration may inject build-machine LC_RPATH entries
+# even into an optimized Release binary. Remove ONLY absolute developer/CI
+# search paths from the copied unsigned executable, never relative framework
+# paths needed by the running app. The binary-aware scanner below is the final
+# fail-closed gate for any remaining embedded build paths.
+executable="$bundle/Sorrelgate.app/Contents/MacOS/Sorrelgate"
+while IFS= read -r rpath; do
+  [ -n "$rpath" ] || continue
+  case "$rpath" in
+    /Users/*|/home/*|/mnt/data/*)
+      echo "Removing build-only executable search path"
+      install_name_tool -delete_rpath "$rpath" "$executable"
+      ;;
+  esac
+done < <(
+  otool -l "$executable" | awk '
+    $1 == "cmd" && $2 == "LC_RPATH" { inside = 1; next }
+    inside && $1 == "path" { print $2; inside = 0 }
+  '
+)
 python3 scripts/generate_beta_fixtures.py "$bundle/Sample Documents"
 swift scripts/verify_beta_fixtures.swift "$bundle/Sample Documents"
 cp docs/TESTER_START_HERE.txt "$bundle/START HERE.txt"
