@@ -356,4 +356,74 @@ final class FieldProposalTests: XCTestCase {
         XCTAssertTrue(separate.allSatisfy { $0.status == .proposed })
         XCTAssertEqual(try Data(contentsOf: source), bytes)
     }
+
+    func testTransactionWideDiscoveryKeepsAllSourcesAndHumanDecisions() async throws {
+        let root = try directory()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let firstURL = root.appendingPathComponent("first.pdf")
+        let secondURL = root.appendingPathComponent("second.pdf")
+        let unknownURL = root.appendingPathComponent("unknown.pdf")
+        try makePDF(firstURL, lines: [
+            "Acceptance Date: 2026-11-20",
+            "Purchase Price: $650,000.00"
+        ])
+        try makePDF(secondURL, lines: [
+            "Closing Date: 2026-12-21",
+            "Purchase Price: $675,000.00"
+        ])
+        try makePDF(unknownURL, lines: ["Closing Date: TBD"])
+        let workspace = try makeWorkspace(root)
+        let firstID = UUID(), secondID = UUID()
+        guard case .imported(let first) = try await workspace.importPDF(firstURL, into: firstID),
+              case .imported(let second) = try await workspace.importPDF(secondURL, into: firstID),
+              case .imported = try await workspace.importPDF(unknownURL, into: firstID)
+        else { return XCTFail("Required sample PDFs were not imported") }
+        let proposals = try await workspace.proposeKeyFacts(in: firstID)
+        XCTAssertEqual(proposals.count, 4)
+        XCTAssertEqual(Set(proposals.map(\.documentID)), Set([first.id, second.id]))
+        XCTAssertTrue(proposals.allSatisfy { $0.status == .proposed })
+        let acceptance = try XCTUnwrap(proposals.first(where: {
+            $0.kind == .acceptanceDate
+        }))
+        let sourceURL = try await workspace.sourcePDFURL(
+            for: acceptance.id, in: firstID
+        )
+        XCTAssertEqual(try Data(contentsOf: sourceURL), try Data(contentsOf: firstURL))
+        let document = try XCTUnwrap(PDFDocument(url: sourceURL))
+        XCTAssertTrue(try XCTUnwrap(document.page(at: acceptance.pageIndex)?.string)
+            .contains(acceptance.evidence))
+        try await workspace.reviewFieldProposal(
+            acceptance.id, in: firstID, as: .confirmed
+        )
+        let again = try await workspace.proposeKeyFacts(in: firstID)
+        XCTAssertEqual(again.count, 4)
+        XCTAssertEqual(again.first(where: { $0.id == acceptance.id })?.status, .confirmed)
+        let other = try await workspace.proposeKeyFacts(in: secondID)
+        XCTAssertTrue(other.isEmpty)
+        let reopened = try makeWorkspace(root)
+        let persisted = try await reopened.fieldProposals(for: firstID)
+        XCTAssertEqual(persisted.count, 4)
+        XCTAssertEqual(persisted.first(where: { $0.id == acceptance.id })?.status, .confirmed)
+    }
+
+    func testTransactionWideDiscoveryRejectsCorruptedOriginalWithoutConfirmation() async throws {
+        let root = try directory()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let firstURL = root.appendingPathComponent("first.pdf")
+        let secondURL = root.appendingPathComponent("second.pdf")
+        try makePDF(firstURL, lines: ["Acceptance Date: 2026-11-20"])
+        try makePDF(secondURL, lines: ["Closing Date: 2026-12-21"])
+        let workspace = try makeWorkspace(root)
+        let transactionID = UUID()
+        guard case .imported = try await workspace.importPDF(firstURL, into: transactionID),
+              case .imported(let second) = try await workspace.importPDF(secondURL, into: transactionID)
+        else { return XCTFail("Expected independent imports") }
+        try Data("tampered".utf8).write(to: await workspace.storedPDFURL(for: second))
+        do {
+            _ = try await workspace.proposeKeyFacts(in: transactionID)
+            XCTFail("A damaged archived source must prevent a successful discovery receipt")
+        } catch DocumentProcessingError.corruptedOriginal {}
+        let proposals = try await workspace.fieldProposals(for: transactionID)
+        XCTAssertTrue(proposals.allSatisfy { $0.status == .proposed })
+    }
 }
