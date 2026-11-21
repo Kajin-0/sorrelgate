@@ -13,6 +13,19 @@ final class WorkspaceModel: ObservableObject {
     @Published private(set) var checklistSource: ChecklistSnapshot?
     @Published var errorMessage: String?
     @Published var noticeMessage: String?
+    enum NoticeKind {
+        case info, success, warning
+
+        var symbol: String {
+            switch self {
+            case .info: "info.circle"
+            case .success: "checkmark.circle"
+            case .warning: "exclamationmark.triangle"
+            }
+        }
+    }
+    @Published private(set) var noticeKind: NoticeKind = .info
+    @Published private(set) var isLoadingSelection = false
     @Published private(set) var isImporting = false
     @Published private(set) var isCreatingTransaction = false
     @Published private(set) var isFindingProposals = false
@@ -48,6 +61,7 @@ final class WorkspaceModel: ObservableObject {
                 service: transactionService, workspace: documents
             )
             refresh()
+            loadSelected()
             Task {
                 await reloadOffices()
                 await recoverPendingChecklists()
@@ -63,6 +77,12 @@ final class WorkspaceModel: ObservableObject {
             guard case .transactions(let values) = try service.execute(.listTransactions)
             else { return }
             transactions = values
+            if selectedTransactionID == nil,
+               let storedID = UserDefaults.standard.string(forKey: "SorrelgateSelectedTransactionID"),
+               let requested = UUID(uuidString: storedID),
+               values.contains(where: { $0.id == requested }) {
+                selectedTransactionID = requested
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -127,7 +147,11 @@ final class WorkspaceModel: ObservableObject {
             selectedTransactionID = outcome.record.id
             loadSelected()
             if let warning = outcome.warning {
-                errorMessage = warning
+                noticeMessage = warning
+                noticeKind = .warning
+            } else {
+                noticeMessage = "Transaction created."
+                noticeKind = .success
             }
             return true
         } catch {
@@ -146,6 +170,7 @@ final class WorkspaceModel: ObservableObject {
                     loadSelected()
                 }
                 noticeMessage = "Recovered \(result.completedTransactionIDs.count) transaction checklist(s) after an interrupted save."
+                noticeKind = .info
             }
             if !result.failures.isEmpty {
                 errorMessage = "Checklist recovery could not finish for \(result.failures.count) transaction(s). Existing tasks were preserved; recovery will be retried."
@@ -159,6 +184,7 @@ final class WorkspaceModel: ObservableObject {
     func loadSelected() {
         guard let workspace = documentWorkspace, let id = selectedTransactionID else {
             lastLoadedTransactionID = nil
+            isLoadingSelection = false
             documents = []
             fieldProposals = []
             tasks = []
@@ -170,6 +196,8 @@ final class WorkspaceModel: ObservableObject {
         }
         if lastLoadedTransactionID != id {
             lastLoadedTransactionID = id
+            // A status from client A must not appear on client B's paperwork.
+            noticeMessage = nil
             selectedDocumentID = nil
             previewURL = nil
             previewPageIndex = 0
@@ -178,6 +206,7 @@ final class WorkspaceModel: ObservableObject {
             tasks = []
             checklistSource = nil
         }
+        isLoadingSelection = true
         Task {
             do {
                 let loadedDocuments = try await workspace.documents(for: id)
@@ -186,6 +215,7 @@ final class WorkspaceModel: ObservableObject {
                 let snapshot = try await workspace.checklistSnapshot(for: id)
                 guard selectedTransactionID == id else { return }
                 documents = loadedDocuments
+                isLoadingSelection = false
                 tasks = loadedTasks
                 fieldProposals = loadedProposals
                 checklistSource = snapshot
@@ -199,6 +229,7 @@ final class WorkspaceModel: ObservableObject {
                 }
             } catch {
                 if selectedTransactionID == id {
+                    isLoadingSelection = false
                     errorMessage = error.localizedDescription
                 }
             }
@@ -217,6 +248,7 @@ final class WorkspaceModel: ObservableObject {
         importTask = Task {
             var failures: [String] = []
             var duplicates = 0
+            var imported = 0
             // Keep authorized Finder security-scoped URLs alive across imports.
             let accessed = urls.filter { $0.startAccessingSecurityScopedResource() }
             defer {
@@ -228,24 +260,35 @@ final class WorkspaceModel: ObservableObject {
                 if Task.isCancelled { break }
                 do {
                     let result = try await workspace.importPDF(url, into: transactionID)
-                    if case .duplicate = result { duplicates += 1 }
+                    switch result {
+                    case .imported: imported += 1
+                    case .duplicate: duplicates += 1
+                    }
                 } catch {
                     if !(error is CancellationError) {
-                        failures.append("\(url.lastPathComponent): \(error.localizedDescription)")
+                        failures.append(ImportBatchReport.failure(
+                            filename: url.lastPathComponent, reason: error.localizedDescription
+                        ))
                     }
                 }
                 importCount += 1
             }
-            if selectedTransactionID == transactionID {
-                loadSelected()
-            }
+            // A background import cannot surface a result over another client's
+            // transaction after the user has switched the sidebar selection.
+            guard selectedTransactionID == transactionID else { return }
+            loadSelected()
+            let report = ImportBatchReport(
+                imported: imported,
+                alreadyPresent: duplicates,
+                failed: failures.count,
+                cancelled: Task.isCancelled
+            )
+            noticeMessage = report.summary
+            noticeKind = !failures.isEmpty ? .warning :
+                (Task.isCancelled ? .info : .success)
             if !failures.isEmpty {
-                errorMessage = failures.prefix(4).joined(separator: "\n")
-            } else if Task.isCancelled {
-                noticeMessage = "Import cancelled. Completed documents were retained."
-            } else {
-                noticeMessage = "Processed \(importCount) PDFs" +
-                    (duplicates > 0 ? " (\(duplicates) already imported)." : ".")
+                errorMessage = report.summary + "\n\n" +
+                    ImportBatchReport.conciseFailures(failures)
             }
         }
     }
@@ -291,6 +334,7 @@ final class WorkspaceModel: ObservableObject {
                 noticeMessage = matches.isEmpty
                     ? "No explicitly labeled ISO acceptance date found. Review the PDF manually."
                     : "Found \(matches.count) source-linked candidate(s). Dates are not confirmed."
+                noticeKind = .info
             } catch {
                 if selectedTransactionID == transactionID {
                     errorMessage = error.localizedDescription
@@ -360,16 +404,22 @@ final class WorkspaceModel: ObservableObject {
                        for: transaction.id
                    ) {
                     if selectedTransactionID == transaction.id { loadSelected() }
-                    noticeMessage = "Restored the original office checklist selected at creation."
+                    if selectedTransactionID == transaction.id {
+                        noticeMessage = "Restored the original office checklist selected at creation."
+                        noticeKind = .info
+                    }
                     return
                 }
                 let count = try await workspace.seedStarterChecklist(
                     for: transaction.id, workflow: transaction.workflow
                 )
                 if selectedTransactionID == transaction.id { loadSelected() }
-                noticeMessage = count > 0
-                    ? "Loaded \(count) starter tasks. Review for your office."
-                    : "Your existing tasks were preserved."
+                if selectedTransactionID == transaction.id {
+                    noticeMessage = count > 0
+                        ? "Loaded \(count) starter tasks. Review for your office."
+                        : "Your existing tasks were preserved."
+                    noticeKind = .info
+                }
             } catch { errorMessage = error.localizedDescription }
         }
     }
@@ -427,7 +477,10 @@ final class WorkspaceModel: ObservableObject {
                     propertyAddress: transaction.propertyAddress,
                     to: folder
                 )
-                noticeMessage = "Saved transaction package to \(result.path)"
+                if selectedTransactionID == id {
+                    noticeMessage = "Saved transaction package to \(result.path)"
+                    noticeKind = .success
+                }
             } catch { errorMessage = error.localizedDescription }
         }
     }

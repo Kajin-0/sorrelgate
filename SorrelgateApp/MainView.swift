@@ -48,6 +48,7 @@ struct MainView: View {
                     } label: {
                         Label("New Transaction", systemImage: "plus")
                     }
+                    .keyboardShortcut("n", modifiers: .command)
                 }
             }
         } detail: {
@@ -55,7 +56,7 @@ struct MainView: View {
                 where: { $0.id == workspace.selectedTransactionID }
             ) {
                 transactionDetail(transaction)
-            } else {
+            } else if workspace.transactions.isEmpty {
                 ContentUnavailableView {
                     Label("Start a Transaction", systemImage: "house")
                 } description: {
@@ -64,9 +65,22 @@ struct MainView: View {
                     Button("New Transaction") { isPresentingNewTransaction = true }
                         .buttonStyle(.borderedProminent)
                 }
+            } else {
+                ContentUnavailableView {
+                    Label("Select a Transaction", systemImage: "house")
+                } description: {
+                    Text("Choose an existing transaction from the sidebar.")
+                }
             }
         }
-        .onChange(of: workspace.selectedTransactionID) { _, _ in
+        .onChange(of: workspace.selectedTransactionID) { _, id in
+            if let id {
+                UserDefaults.standard.set(
+                    id.uuidString, forKey: "SorrelgateSelectedTransactionID"
+                )
+            } else {
+                UserDefaults.standard.removeObject(forKey: "SorrelgateSelectedTransactionID")
+            }
             workspace.loadSelected()
         }
         .sheet(item: $editingTask) { item in
@@ -148,7 +162,7 @@ struct MainView: View {
                 }
             }
             if let notice = workspace.noticeMessage {
-                Label(notice, systemImage: "checkmark.circle")
+                Label(notice, systemImage: workspace.noticeKind.symbol)
                     .foregroundStyle(.secondary)
                     .font(.callout)
                     .textSelection(.enabled)
@@ -158,7 +172,10 @@ struct MainView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Documents (\(workspace.documents.count))")
                         .font(.headline)
-                    if workspace.documents.isEmpty {
+                    if workspace.isLoadingSelection {
+                        ProgressView("Loading transaction…")
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if workspace.documents.isEmpty {
                         ContentUnavailableView(
                             "No PDFs Yet",
                             systemImage: "doc.on.doc",
@@ -185,7 +202,9 @@ struct MainView: View {
                     HStack {
                         Text("Checklist").font(.headline)
                         Spacer()
-                        if workspace.tasks.isEmpty {
+                        if workspace.isLoadingSelection {
+                            ProgressView().controlSize(.small)
+                        } else if workspace.tasks.isEmpty {
                             Button("Load Starter Tasks") {
                                 workspace.loadStarterChecklist(for: transaction)
                             }
@@ -208,8 +227,9 @@ struct MainView: View {
                     }
                     List {
                         ForEach(workspace.tasks) { item in
-                            HStack {
-                                Toggle(isOn: Binding(
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Toggle(isOn: Binding(
                                     get: { item.isCompleted },
                                     set: { workspace.setTask(item, completed: $0) }
                                 )) {
@@ -241,6 +261,7 @@ struct MainView: View {
                                 Text("Linked: \(document.originalName)")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
+                            }
                             }
                         }
                     }
