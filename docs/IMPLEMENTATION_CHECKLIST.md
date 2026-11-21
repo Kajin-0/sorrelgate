@@ -5,9 +5,9 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 ## M0 — Foundation
 - [ ] Public visibility explicitly accepted by owner; verify no sensitive materials are committed before each push
 - [ ] Native macOS SwiftUI executable builds on supported Mac
-- [ ] `SorrelgateCore` module with domain services and typed action interface
+- [ ] `SorrelgateCore` module with domain services and typed action interface — initial source added; unit tests pending CI
 - [ ] SQLite migrations, transactions, restart persistence
-- [ ] macOS CI build/test, dependency lock and license audit
+- [ ] macOS CI build/test, dependency lock and license audit — workflow added; first run pending
 - [ ] Native application navigation: Transactions, Workspace, Settings
 
 ## M1 — Vertical slice

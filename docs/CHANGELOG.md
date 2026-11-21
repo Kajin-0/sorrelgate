@@ -2,6 +2,14 @@
 
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
+## 2026-11-21T04:36:43.885Z — Begin M0: native SwiftUI, SQLite persistence, macOS Actions CI
+- **Scope:** Establish a true native Mac app, independent SorrelgateCore typed actions, SQLite persistence, restart/validation tests, XcodeGen project specification and macos-26 GitHub Actions workflow.
+- **Changed files:** Package.swift, project.yml, SorrelgateApp/, Sources/SorrelgateCore/, Tests/SorrelgateCoreTests/, .github/workflows/macos-ci.yml, .gitignore, README, STATUS, AGENTS, DECISIONS and checklist.
+- **Tests at commit creation:** NOT RUN in this chat environment; GitHub CI is triggered by push and must be inspected before declaring a build success.
+- **Security:** No real documents or credentials. Only synthetic test strings. App produces no outgoing messages.
+- **Next executable step:** Inspect first Actions run, resolve actual compile/test errors, then perform Mac usability verification and finish M0.
+- **Commit:** See commit on main adding native M0 scaffold.
+
 ## 2026-11-20T23:19:47-05:00 — Public repository approved and agent handoff corrected
 - **Reason:** Owner explicitly stated public GitHub visibility is acceptable; priority is useful software and steady sales.
 - **Changes:** Removed private-repository stop gate from AGENTS.md, README, current status, Codex instructions, licensing notes, and implementation checklist; added ADR-007 superseding ADR-005; corrected malformed STATUS header; deprecated GitHub issue #8.

@@ -1,0 +1,38 @@
+name: Sorrelgate
+options:
+  bundleIdPrefix: com.sorrelgate
+  deploymentTarget:
+    macOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+packages:
+  SorrelgateCore:
+    path: .
+targets:
+  Sorrelgate:
+    type: application
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: SorrelgateApp
+    dependencies:
+      - package: SorrelgateCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sorrelgate.app
+        PRODUCT_NAME: Sorrelgate
+        GENERATE_INFOPLIST_FILE: "YES"
+        INFOPLIST_KEY_CFBundleDisplayName: Sorrelgate
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
+        SWIFT_VERSION: "6.0"
+        CODE_SIGNING_ALLOWED: "NO"
+schemes:
+  Sorrelgate:
+    build:
+      targets:
+        Sorrelgate: all
+    run:
+      config: Debug

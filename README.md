@@ -2,7 +2,7 @@
 
 **Mac-native, local-first AI assistant for California real estate transaction coordinators.**
 
-> **Status:** Requirements and implementation planning only. No shipping application, completed Mac build, field-tested accuracy, or release exists yet.
+> **Status:** M0 implementation in progress: native SwiftUI + SorrelgateCore SQLite package and GitHub Actions macOS build workflow. Source committed, automated build results not yet verified. No finished application or release.
 
 Sorrelgate helps a nontechnical transaction coordinator organize signed PDFs, track office-specific tasks, identify potential missing paperwork or contradictory information, draft communications, and export a reviewable transaction package. The application is designed to be operated either through simple native Mac controls **or** through natural-language requests that invoke the same guarded backend actions.
 
@@ -34,6 +34,12 @@ Sorrelgate helps a nontechnical transaction coordinator organize signed PDFs, tr
 ## Tracked implementation issues
 
 Milestones are tracked in [issues #1–#7](https://github.com/Kajin-0/sorrelgate/issues), each with explicit acceptance tests. [Issue #8](https://github.com/Kajin-0/sorrelgate/issues/8) was closed after the owner explicitly approved public repository visibility; it is **not a development blocker**.
+
+## Develop without Codex — ChatGPT + GitHub Actions
+
+GitHub Actions automatically runs \`swift test --parallel\` and builds the native Mac app on \`macos-26\` whenever \`main\` or a \`feature/**\` branch is pushed. See [CI](.github/workflows/macos-ci.yml) and [Actions runs](https://github.com/Kajin-0/sorrelgate/actions).
+
+The source of the native Xcode project is [\`project.yml\`](project.yml), generated with XcodeGen (MIT; developer-only). On a developer Mac: \`brew install xcodegen\`, \`xcodegen generate\`, then open \`Sorrelgate.xcodeproj\`. Customers never install developer tools. Artifacts from CI are **unsigned development builds**, not customer releases.
 
 ## First coding goal — milestone M0/M1
 

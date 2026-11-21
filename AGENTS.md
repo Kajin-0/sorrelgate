@@ -3,11 +3,11 @@
 **Updated:** 2026-11-20T23:19:47-05:00 (`America/New_York`)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**State at handoff:** Documentation scaffold only; no Mac app implemented, built, or tested. `docs/STATUS.md` is authoritative for subsequent progress.
+**State at handoff:** M0 SwiftUI/SQLite scaffold and GitHub Actions workflow committed; actual CI results must be checked in `docs/STATUS.md`. No Mac app release, PDF OCR pipeline, or AI agent yet. `docs/STATUS.md` is authoritative for subsequent progress.
 
 ## 1. Mission and constraints (read before coding)
 
-Sorrelgate is a polished, **native Mac application for highly nontechnical California real estate transaction coordinators**. The **frontend stays extremely simple**, but the backend may use advanced processing, OCR, typed domain actions, AI orchestration, testing, terminal tools and automation. Customers should never need terminal use or developer dependencies. The developer/Codex **may** use all appropriate Mac tooling. A **local-first/offline-capable, one-time-purchase commercial product with steady customer sales** is the goal. The owner explicitly accepts that this GitHub repository may remain public, including early source code. Public visibility alone does not grant an open-source license; do not attach a license to Sorrelgate application source without an explicit owner decision. Never commit secrets, customer data, private office documents or signing keys.
+Sorrelgate is a polished, **native Mac application for highly nontechnical California real estate transaction coordinators**. The **frontend stays extremely simple**, but the backend may use advanced processing, OCR, typed domain actions, AI orchestration, testing, terminal tools and automation. Customers should never need terminal use or developer dependencies. The developer (ChatGPT, Codex, or an authorized engineer) **may** use all appropriate Mac tooling. Regular ChatGPT writing GitHub files + macOS GitHub Actions is the primary development loop while Codex is unavailable. A **local-first/offline-capable, one-time-purchase commercial product with steady customer sales** is the goal. The owner explicitly accepts that this GitHub repository may remain public, including early source code. Public visibility alone does not grant an open-source license; do not attach a license to Sorrelgate application source without an explicit owner decision. Never commit secrets, customer data, private office documents or signing keys.
 
 Target primary customer: an independent **seller-side** California TC working with several real estate offices. Support two initial workflows: **Prepare a House for Sale** and **Accepted Offer — Seller Side**. Different offices use different task requirements, submission addresses, templates, labels, and platforms such as Glide, DocuSign, Disclosures.io/Homewise. Configure, don't hard-code, those differences.
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Start M0** on an authorized Mac without any repository-visibility gate: set up SwiftUI app + SorrelgateCore package + SQLite persistence and unit tests. Then M1 end-to-end import/preview/export vertical slice. For a new Codex agent, use `docs/CODEX_MASTER_PROMPT.md`.
+**Next:** Inspect the latest GitHub Actions run (macos-26) for the M0 native SwiftUI/SQLite scaffold; repair actual errors, then validate on a physical Mac. Do not claim a successful Mac app from source files alone. After M0 is verified, begin the M1 import/preview/export vertical slice. For Codex use `docs/CODEX_MASTER_PROMPT.md`; for regular ChatGPT use connected GitHub tools and verify GitHub CI runs.

@@ -1,0 +1,53 @@
+name: macOS Build and Core Tests
+
+on:
+  push:
+    branches: ["main", "feature/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    name: Swift tests and native app build
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: |
+          sw_vers
+          uname -m
+          xcodebuild -version
+          swift --version
+      - name: Install developer-only Xcode project generator
+        run: brew install xcodegen
+      - name: Build and run SorrelgateCore tests
+        run: swift test --parallel
+      - name: Generate native Xcode project
+        run: xcodegen generate --spec project.yml
+      - name: Build Mac app (unsigned, CI only)
+        run: |
+          xcodebuild \
+            -project Sorrelgate.xcodeproj \
+            -scheme Sorrelgate \
+            -configuration Debug \
+            -destination "generic/platform=macOS" \
+            -derivedDataPath .build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+      - name: Package unsigned test build
+        run: |
+          mkdir -p dist
+          ditto -c -k --keepParent \
+            .build/DerivedData/Build/Products/Debug/Sorrelgate.app \
+            dist/Sorrelgate-unsigned-macos.zip
+      - name: Upload unsigned test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sorrelgate-macOS-unsigned-debug
+          path: dist/Sorrelgate-unsigned-macos.zip
+          if-no-files-found: error
+          retention-days: 7

@@ -22,3 +22,6 @@
 
 ## ADR-006 — 2026-11-20T23:08:11-05:00 — Build order
 **Accepted:** First deliver actual M0/M1 end-to-end Mac vertical slice. No premature multi-provider agent abstractions, integration work or rewrites without measured need. Maintain agent-ready architecture from first code.
+
+## ADR-008 — 2026-11-21T04:36:43.885Z — ChatGPT + GitHub Actions as primary implementation loop
+**Accepted:** Regular ChatGPT via connected GitHub writes implementation files; a public-repository GitHub Actions workflow runs Swift package tests and native Xcode builds on macOS 26 Apple-silicon runners. Codex is optional. XcodeGen (MIT, development-only) generates the native Xcode project from a readable project.yml; users never install XcodeGen. App uses SwiftUI and a local SorrelgateCore Swift package with SQLite3 (system library). Build output is unsigned test-only until commercial signing/notarization. **Tradeoff:** CI proves compilation and unit tests, not interactive usability or supported Foundation Models runtime; real Mac smoke tests remain required.

@@ -33,3 +33,9 @@ logs/
 *.db
 *.backup
 *.log
+
+# XcodeGen output and CI build products
+Sorrelgate.xcodeproj/
+.build/
+dist/
+.DS_Store
