@@ -1,6 +1,15 @@
 import Foundation
 import SorrelgateCore
 
+/// A source-page sheet is opened only after the domain layer has verified
+/// transaction ownership, original SHA-256, and page bounds.
+struct SourceDocumentPreview: Identifiable {
+    let id = UUID()
+    let url: URL
+    let pageIndex: Int
+    let documentName: String
+}
+
 @MainActor
 final class WorkspaceModel: ObservableObject {
     @Published private(set) var transactions: [TransactionRecord] = []
@@ -32,6 +41,7 @@ final class WorkspaceModel: ObservableObject {
     @Published private(set) var importCount = 0
     @Published private(set) var importTotal = 0
     @Published var previewURL: URL?
+    @Published var sourcePreview: SourceDocumentPreview?
     @Published private(set) var previewPageIndex = 0
     @Published private(set) var previewNavigationID = UUID()
 
@@ -183,6 +193,7 @@ final class WorkspaceModel: ObservableObject {
 
     func loadSelected() {
         guard let workspace = documentWorkspace, let id = selectedTransactionID else {
+            sourcePreview = nil
             lastLoadedTransactionID = nil
             isLoadingSelection = false
             documents = []
@@ -195,6 +206,7 @@ final class WorkspaceModel: ObservableObject {
             return
         }
         if lastLoadedTransactionID != id {
+            sourcePreview = nil
             lastLoadedTransactionID = id
             // A status from client A must not appear on client B's paperwork.
             noticeMessage = nil
@@ -316,24 +328,23 @@ final class WorkspaceModel: ObservableObject {
         }
     }
 
-    func findKeyFactsInSelectedDocument() {
+    /// One bounded, transaction-scoped call scans the already-imported PDFs.
+    /// Every result is still proposed until the human reviews its source.
+    func findKeyFactsInTransaction() {
         guard let workspace = documentWorkspace,
               let transactionID = selectedTransactionID,
-              let documentID = selectedDocumentID,
-              !isFindingProposals else { return }
+              !isFindingProposals && !isImporting && !isLoadingSelection else { return }
         isFindingProposals = true
         noticeMessage = nil
         Task {
             defer { isFindingProposals = false }
             do {
-                let matches = try await workspace.proposeKeyFacts(
-                    from: documentID, in: transactionID
-                )
+                let matches = try await workspace.proposeKeyFacts(in: transactionID)
                 guard selectedTransactionID == transactionID else { return }
                 loadSelected()
                 noticeMessage = matches.isEmpty
-                    ? "No explicitly labeled acceptance/closing date or purchase price found. Review the PDF manually."
-                    : "Found \(matches.count) source-linked candidate(s). All require human review."
+                    ? "No labeled dates or prices found. Check the documents yourself."
+                    : "\(matches.count) details suggested. Check each original before confirming."
                 noticeKind = .info
             } catch {
                 if selectedTransactionID == transactionID {
@@ -356,6 +367,11 @@ final class WorkspaceModel: ObservableObject {
                 previewPageIndex = proposal.pageIndex
                 previewNavigationID = UUID()
                 previewURL = url
+                sourcePreview = SourceDocumentPreview(
+                    url: url,
+                    pageIndex: proposal.pageIndex,
+                    documentName: documents.first(where: { $0.id == proposal.documentID })?.originalName ?? "Original PDF"
+                )
             } catch {
                 if selectedTransactionID == proposal.transactionID {
                     errorMessage = error.localizedDescription

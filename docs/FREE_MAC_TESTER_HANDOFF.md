@@ -1,12 +1,12 @@
 # Sorrelgate — free, Codex-assisted first Mac pilot
 
-## Beta 0.1.0 — first real Mac pilot
+## Beta 0.1.1 — first real Mac pilot
 
-One versioned, **unsigned** ZIP artifact was verified in [macOS CI #44924654096](https://github.com/Kajin-0/sorrelgate/actions/runs/44924654096) (59/59 XCTest, native build, PDFKit checks and ZIP integrity), named Sorrelgate-Beta-0.1.0-UNSIGNED-macOS. It expires December 5, 2026; if expired, regenerate using the repository workflow. It contains the native application, three fictional seven-page-total PDFs, optional task CSV, source commit, SHA-256 sample checksums, README FIRST.txt, TEST RESULTS.txt and TECHNICIAN SETUP.md.
+One versioned, **unsigned** ZIP artifact was verified in [macOS CI #44924654096](https://github.com/Kajin-0/sorrelgate/actions/runs/44924654096) (59/59 XCTest, native build, PDFKit checks and ZIP integrity), named Sorrelgate-Beta-0.1.1-UNSIGNED-macOS. It expires December 5, 2026; if expired, regenerate using the repository workflow. It contains the native application, three fictional seven-page-total PDFs, optional task CSV, source commit, SHA-256 sample checksums, README FIRST.txt, TEST RESULTS.txt and TECHNICIAN SETUP.md.
 
 **For a nontechnical tester:** No terminal commands are required of you. With your permission, an authorized Codex/technician must set up the app on your Mac. Read README FIRST.txt and complete TEST RESULTS.txt with fabricated PDFs only. Do not disable any Mac security protections.
 
-**For the technician:** Follow [Beta 0.1.0 technical instructions](BETA_0_1_TECHNICIAN.md); check out the exact source revision from BUILD INFO.txt, use free Xcode/XcodeGen, compile and open Sorrelgate locally rather than pretending a downloaded unsigned ZIP is a notarized installer.
+**For the technician:** Follow [Beta 0.1.1 technical instructions](BETA_0_1_TECHNICIAN.md); check out the exact source revision from BUILD INFO.txt, use free Xcode/XcodeGen, compile and open Sorrelgate locally rather than pretending a downloaded unsigned ZIP is a notarized installer.
 
 **Human pilot stopping point:** A real eligible user completes create/checklist/import/preview/evidence-review/export/reopen on an Apple-silicon macOS 26+ Mac. A CI result cannot establish usability; do not add speculative features to delay this test.
 

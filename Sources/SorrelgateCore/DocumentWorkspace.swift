@@ -253,6 +253,20 @@ public actor DocumentWorkspace {
         )
     }
 
+    /// One user/agent-ready, transaction-scoped read-only discovery entry point.
+    /// It proposes candidates in every already-imported PDF. It never confirms
+    /// dates/amounts, edits originals, changes checklist statuses or accesses
+    /// arbitrary paths. Future agent callers must pass the same authorization
+    /// checks as GUI callers before reaching this method.
+    @discardableResult
+    public func proposeKeyFacts(in transactionID: UUID) throws -> [FieldProposal] {
+        for document in try store.documents(transactionID: transactionID) {
+            try Task<Never, Never>.checkCancellation()
+            _ = try proposeKeyFacts(from: document.id, in: transactionID)
+        }
+        return try store.fieldProposals(transactionID: transactionID)
+    }
+
     private func discoverFields(
         from documentID: UUID, in transactionID: UUID,
         allowedKinds: Set<FieldProposalKind>

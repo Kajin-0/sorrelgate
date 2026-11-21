@@ -8,7 +8,6 @@ struct MainView: View {
     @State private var isPresentingNewTransaction = false
     @State private var isPresentingPDFPicker = false
     @State private var isPresentingOffices = false
-    @State private var newTaskTitle = ""
     @State private var editingTask: ChecklistItem?
 
     var body: some View {
@@ -39,7 +38,7 @@ struct MainView: View {
                     Button {
                         isPresentingOffices = true
                     } label: {
-                        Label("Offices", systemImage: "building.2")
+                        Label("Office checklists", systemImage: "building.2")
                     }
                 }
                 ToolbarItem {
@@ -90,6 +89,33 @@ struct MainView: View {
                 onRemove: { workspace.removeTask(item) }
             )
         }
+        .sheet(item: $workspace.sourcePreview) { source in
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Original document").font(.headline)
+                        Text("\(source.documentName) · page \(source.pageIndex + 1)")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                    Spacer()
+                    Button("Done") { workspace.sourcePreview = nil }
+                        .keyboardShortcut(.cancelAction)
+                }
+                PDFPreview(
+                    fileURL: source.url,
+                    pageIndex: source.pageIndex,
+                    navigationToken: source.id
+                )
+                .accessibilityLabel("Source PDF, page \(source.pageIndex + 1)")
+                Text("Compare this page with the suggested value before deciding.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(20)
+            .frame(minWidth: 670, minHeight: 540)
+        }
         .sheet(isPresented: $isPresentingNewTransaction) {
             NewTransactionSheet(offices: workspace.offices) { address, workflow, officeID in
                 await workspace.create(address: address, workflow: workflow, officeID: officeID)
@@ -122,263 +148,15 @@ struct MainView: View {
     }
 
     private func transactionDetail(_ transaction: TransactionRecord) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(transaction.propertyAddress)
-                        .font(.title.weight(.semibold))
-                        .textSelection(.enabled)
-                    Text(transaction.workflow.displayName)
-                        .foregroundStyle(.secondary)
-                    if let source = workspace.checklistSource,
-                       source.transactionID == transaction.id {
-                        Text("Checklist: \(source.officeName) · revision \(source.templateVersion)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                Spacer()
-                Button {
-                    isPresentingPDFPicker = true
-                } label: {
-                    Label("Import PDFs", systemImage: "plus")
-                }
-                .disabled(workspace.isImporting)
-                Button {
-                    chooseExportFolder()
-                } label: {
-                    Label("Export Package", systemImage: "square.and.arrow.up")
-                }
-                .disabled(workspace.isImporting)
-            }
-            if workspace.isImporting {
-                HStack {
-                    ProgressView(value: Double(workspace.importCount),
-                                 total: Double(max(workspace.importTotal, 1)))
-                        .frame(maxWidth: 260)
-                    Text("\(workspace.importCount) / \(workspace.importTotal)")
-                        .font(.caption.monospacedDigit())
-                    Button("Cancel Import") { workspace.cancelImport() }
-                }
-            }
-            if let notice = workspace.noticeMessage {
-                Label(notice, systemImage: workspace.noticeKind.symbol)
-                    .foregroundStyle(.secondary)
-                    .font(.callout)
-                    .textSelection(.enabled)
-            }
-            Divider()
-            HSplitView {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Documents (\(workspace.documents.count))")
-                        .font(.headline)
-                    if workspace.isLoadingSelection {
-                        ProgressView("Loading transaction…")
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else if workspace.documents.isEmpty {
-                        ContentUnavailableView(
-                            "No PDFs Yet",
-                            systemImage: "doc.on.doc",
-                            description: Text("Import the documents you've received for this transaction.")
-                        )
-                    } else {
-                        List(selection: $workspace.selectedDocumentID) {
-                            ForEach(workspace.documents) { document in
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(document.originalName).lineLimit(2)
-                                    Text("\(document.pageCount) page(s) · Saved locally")
-                                        .font(.caption).foregroundStyle(.secondary)
-                                }
-                                .tag(document.id)
-                            }
-                        }
-                        .onChange(of: workspace.selectedDocumentID) { _, id in
-                            workspace.selectDocument(
-                                workspace.documents.first { $0.id == id }
-                            )
-                        }
-                    }
-                    Divider()
-                    HStack {
-                        Text("Checklist").font(.headline)
-                        Spacer()
-                        if workspace.isLoadingSelection {
-                            ProgressView().controlSize(.small)
-                        } else if workspace.tasks.isEmpty {
-                            Button("Load Starter Tasks") {
-                                workspace.loadStarterChecklist(for: transaction)
-                            }
-                        } else {
-                            Text("\(workspace.tasks.filter(\.isCompleted).count) of \(workspace.tasks.count)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    HStack {
-                        TextField("Add a task", text: $newTaskTitle)
-                            .onSubmit { addTask() }
-                        Button {
-                            addTask()
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                        }
-                        .disabled(newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                        .accessibilityLabel("Add checklist task")
-                    }
-                    List {
-                        ForEach(workspace.tasks) { item in
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Toggle(isOn: Binding(
-                                    get: { item.isCompleted },
-                                    set: { workspace.setTask(item, completed: $0) }
-                                )) {
-                                    Text(item.title)
-                                }
-                                Menu {
-                                    Button("No linked document") {
-                                        workspace.linkTask(item, to: nil)
-                                    }
-                                    ForEach(workspace.documents) { document in
-                                        Button(document.originalName) {
-                                            workspace.linkTask(item, to: document.id)
-                                        }
-                                    }
-                                } label: {
-                                    Image(systemName: "link")
-                                }
-                                .help("Link a PDF to this task")
-                                Button {
-                                    editingTask = item
-                                } label: {
-                                    Image(systemName: "ellipsis.circle")
-                                }
-                                .buttonStyle(.borderless)
-                                .help("Rename or remove this task")
-                            }
-                            if let linkedID = item.linkedDocumentID,
-                               let document = workspace.documents.first(where: { $0.id == linkedID }) {
-                                Text("Linked: \(document.originalName)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            }
-                        }
-                    }
-                }
-                .frame(minWidth: 310, idealWidth: 390)
-
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Document Preview")
-                        .font(.headline)
-                    if let url = workspace.previewURL {
-                        PDFPreview(
-                            fileURL: url,
-                            pageIndex: workspace.previewPageIndex,
-                            navigationToken: workspace.previewNavigationID
-                        )
-                        .accessibilityLabel("Selected PDF document preview")
-                    } else {
-                        ContentUnavailableView(
-                            "Select a Document",
-                            systemImage: "doc.text.magnifyingglass",
-                            description: Text("Choose a PDF to inspect its original pages.")
-                        )
-                    }
-                    Divider()
-                    HStack {
-                        Text("Key Facts Review").font(.headline)
-                        Spacer()
-                        Button("Find in Selected PDF") {
-                            workspace.findKeyFactsInSelectedDocument()
-                        }
-                        .disabled(
-                            workspace.selectedDocumentID == nil ||
-                            workspace.isImporting ||
-                            workspace.isFindingProposals
-                        )
-                    }
-                    if workspace.fieldProposals.isEmpty {
-                        Text("Select a PDF to find explicitly labeled acceptance dates, closing dates and purchase prices. Missing or ambiguous values are not guessed.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ScrollView {
-                            LazyVStack(alignment: .leading, spacing: 12) {
-                                ForEach(workspace.fieldProposals) { proposal in
-                                    VStack(alignment: .leading, spacing: 5) {
-                                        Text("\(proposal.kind.displayName): \(proposal.value)")
-                                            .font(.subheadline.weight(.semibold))
-                                            .textSelection(.enabled)
-                                        Text("Source: \(workspace.documents.first(where: { $0.id == proposal.documentID })?.originalName ?? "Original PDF") · page \(proposal.pageIndex + 1)")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                        Text(proposal.evidence)
-                                            .font(.caption.monospaced())
-                                            .foregroundStyle(.secondary)
-                                            .textSelection(.enabled)
-                                        if proposal.status != .rejected &&
-                                            workspace.fieldProposals.contains(where: {
-                                                $0.id != proposal.id &&
-                                                $0.kind == proposal.kind &&
-                                                $0.value != proposal.value &&
-                                                $0.status != .rejected
-                                            }) {
-                                            Label(
-                                                "Competing \(proposal.kind.displayName.lowercased()) values. Review each original page.",
-                                                systemImage: "exclamationmark.triangle"
-                                            )
-                                            .font(.caption)
-                                            .foregroundStyle(.orange)
-                                        }
-                                        HStack {
-                                            Button("View original page") {
-                                                workspace.showProposalSource(proposal)
-                                            }
-                                            .accessibilityLabel(
-                                                "Open original PDF page \(proposal.pageIndex + 1)"
-                                            )
-                                            Text(proposal.status == .proposed
-                                                 ? "Unverified"
-                                                 : proposal.status.rawValue.capitalized)
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                            Spacer()
-                                            Menu("Review") {
-                                                Button("Confirm as reviewed") {
-                                                    workspace.reviewProposal(proposal, as: .confirmed)
-                                                }
-                                                Button("Reject") {
-                                                    workspace.reviewProposal(proposal, as: .rejected)
-                                                }
-                                                Button("Unknown") {
-                                                    workspace.reviewProposal(proposal, as: .unknown)
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .padding(8)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(.quaternary.opacity(0.35))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                }
-                            }
-                        }
-                        .frame(maxHeight: 220)
-                    }
-                }
-                .frame(minWidth: 320, maxWidth: .infinity)
-            }
-        }
-        .padding(20)
-        .frame(minWidth: 760, minHeight: 520)
-    }
-
-    private func addTask() {
-        let title = newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !title.isEmpty else { return }
-        workspace.addTask(title)
-        newTaskTitle = ""
+        TransactionWorkspaceView(
+            transaction: transaction,
+            workspace: workspace,
+            onImport: { isPresentingPDFPicker = true },
+            onExport: { chooseExportFolder() },
+            onEditTask: { editingTask = $0 },
+            onLoadStarter: { workspace.loadStarterChecklist(for: transaction) }
+        )
+        .id(transaction.id)
     }
 
     private func chooseExportFolder() {
