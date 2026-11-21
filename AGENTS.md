@@ -1,9 +1,9 @@
 # AGENTS.md — Sorrelgate permanent agent handoff
 
-**Updated:** 2026-11-21T06:39:55.323Z (UTC)
+**Updated:** 2026-11-21T06:50:55.923Z (UTC)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**Latest verified:** [PR #13](https://github.com/Kajin-0/sorrelgate/pull/13) merged to main `404ac3c` after [macOS Actions #63](https://github.com/Kajin-0/sorrelgate/actions/runs/44876286333) and [#64](https://github.com/Kajin-0/sorrelgate/actions/runs/44876289970) both SUCCESS: **33 XCTest**, XcodeGen/native Mac SwiftUI app and unsigned artifacts PASS. Explicit mapped CSV/XLSX task requirements/notes implemented; physical Mac GUI/installer/OCR/LLM unverified. Strict $0 MVP budget.
+**Latest verified baseline:** [main Actions #66](https://github.com/Kajin-0/sorrelgate/actions/runs/44876628233) SUCCESS on `39abac2` (33 XCTest + native SwiftUI Mac build). **New branch:** `feature/m2-crash-safe-initialization-20261121` adds frozen checklist creation intents and crash replay across transaction/document SQLite files, six synthetic interruption tests, and native async Create flow. New macOS CI is **PENDING**. No physical Mac, OCR accuracy, agent execution or commercial release validation. $0 additional MVP cost.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Verify post-merge `main` CI for PR #13 `404ac3c`; then prioritize idempotent recovery of interrupted transaction creation across `transactions.sqlite` and `documents.sqlite`, with no duplicate or rewritten checklists. M1 scanned OCR, PDF cancellation, permission/low-disk failures, and 50-PDF batch remain hardening tasks. CSV/XLSX title+optional requirement+notes mapping is implemented and verified in #63/#64, no header inference, no source mutation, no automatic template Save. Preserve historical snapshots and avoid architecture churn. No paid installer/developer membership during supervised MVP.
+**Next:** Verify `feature/m2-crash-safe-initialization-20261121` macOS CI: target **39 XCTest** (33 baseline + 6 transaction recovery cases), XcodeGen/native Mac build and unsigned artifact. Merge only after tests pass. New transaction creation atomically commits transaction + immutable `ChecklistSeedPlan` in `transactions.sqlite`; `documents.sqlite` applies the frozen plan and source in one local transaction. Reopen retries pending intents, verifies provenance then acknowledges; never overwrite manual tasks or re-seed old snapshots. Older transactions created before the intent table do NOT have reconstructible office/version context and are left for manual starter selection. After this slice, harden Vision scanned OCR, PDF cancellation/low disk and 50-PDF batch; no spending/architectural churn.

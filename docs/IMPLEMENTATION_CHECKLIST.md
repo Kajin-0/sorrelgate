@@ -6,7 +6,7 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 - [ ] Public visibility explicitly accepted by owner; verify no sensitive materials are committed before each push
 - [x] Native macOS SwiftUI executable builds on supported Mac — verified macos-26 arm64 GitHub Actions run #1; user-visible launch still to test
 - [x] `SorrelgateCore` module with domain services and typed action interface — initial typed create/list actions tested in CI
-- [ ] SQLite migrations, transactions, restart persistence
+- [ ] SQLite migrations, transactions, restart persistence — new durable creation-intent/replay protocol and six synthetic crash-boundary tests on `feature/m2-crash-safe-initialization-20261121`, CI **PENDING**. Real Mac restart/low-disk failure testing and legacy backup/restore validation remain release gates.
 - [ ] macOS CI build/test, dependency lock and license audit — **CI build/tests verified**; dependency/license audit not yet complete
 - [ ] Native application navigation: Transactions, Workspace, Settings
 

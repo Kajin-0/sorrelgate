@@ -8,7 +8,7 @@ public struct OfficeProfile: Identifiable, Equatable, Sendable {
 }
 
 /// Office rules are user-supplied settings, not legal determinations.
-public enum OfficeTaskRequirement: String, CaseIterable, Sendable {
+public enum OfficeTaskRequirement: String, CaseIterable, Codable, Sendable {
     case unspecified
     case required
     case optional
@@ -20,7 +20,7 @@ public enum OfficeTaskRequirement: String, CaseIterable, Sendable {
         }
     }
 }
-public struct OfficeTaskSpec: Equatable, Sendable {
+public struct OfficeTaskSpec: Equatable, Codable, Sendable {
     public var title: String
     public var requirement: OfficeTaskRequirement
     public var notes: String
@@ -39,6 +39,27 @@ public struct OfficeChecklistTemplate: Equatable, Sendable {
     public var titles: [String] { tasks.map(\.title) }
 }
 
+/// Durable, immutable description of the checklist selected when a transaction
+/// is created. Recovery never consults a later office template revision.
+public struct ChecklistSeedPlan: Codable, Equatable, Sendable {
+    public let officeID: UUID?
+    public let officeName: String
+    public let workflow: WorkflowKind
+    public let templateVersion: Int
+    public let tasks: [OfficeTaskSpec]
+
+    public init(
+        officeID: UUID?, officeName: String, workflow: WorkflowKind,
+        templateVersion: Int, tasks: [OfficeTaskSpec]
+    ) {
+        self.officeID = officeID
+        self.officeName = officeName
+        self.workflow = workflow
+        self.templateVersion = templateVersion
+        self.tasks = tasks
+    }
+}
+
 public struct ChecklistSnapshot: Equatable, Sendable {
     public let transactionID: UUID
     public let officeID: UUID?
@@ -54,6 +75,7 @@ public enum OfficeTemplateError: Error, LocalizedError {
     case invalidTasks
     case staleTemplate
     case invalidStoredData
+    case seedConflict
 
     public var errorDescription: String? {
         switch self {
@@ -63,6 +85,7 @@ public enum OfficeTemplateError: Error, LocalizedError {
         case .invalidTasks: "Use 1–100 unique task titles (up to 250 characters) and notes (up to 500 characters)."
         case .staleTemplate: "The office checklist changed elsewhere. Reload before saving."
         case .invalidStoredData: "An office checklist record could not be read."
+        case .seedConflict: "Existing checklist data conflicts with the recorded creation plan. No tasks were changed."
         }
     }
 }
@@ -266,49 +289,63 @@ final class OfficeTemplateStore {
         }
     }
 
-    /// Preserve an immutable source/identity record and task copies atomically.
-    /// Never touch manually created rows or a previously initialized transaction.
+    /// Capture the exact current template before persisting transaction creation.
+    /// For an office, both revision and individual task metadata are frozen.
+    func prepareSeed(workflow: WorkflowKind, officeID: UUID?) throws -> ChecklistSeedPlan {
+        if let officeID {
+            guard let office = try offices().first(where: { $0.id == officeID }) else {
+                throw OfficeTemplateError.missingOffice
+            }
+            let current = try template(officeID: officeID, workflow: workflow)
+            return ChecklistSeedPlan(
+                officeID: officeID, officeName: office.name, workflow: workflow,
+                templateVersion: current.version, tasks: current.tasks
+            )
+        }
+        return ChecklistSeedPlan(
+            officeID: nil, officeName: "Built-in starter", workflow: workflow,
+            templateVersion: 1,
+            tasks: try StarterChecklist.titles(for: workflow).map {
+                OfficeTaskSpec(title: $0)
+            }
+        )
+    }
+
+    /// Backward-compatible explicit starter loader for legacy records and manual
+    /// workflows; never replaces any prior source or task. New transaction creation
+    /// instead uses seedPreparedTransaction to replay the durable creation plan.
     @discardableResult
     func seedTransaction(
         _ transactionID: UUID, workflow: WorkflowKind, officeID: UUID?
     ) throws -> Int {
+        if try hasTasksOrSource(transactionID) { return 0 }
+        return try seedPreparedTransaction(
+            transactionID, plan: prepareSeed(workflow: workflow, officeID: officeID)
+        )
+    }
+
+    /// Idempotent document-side commit. The caller acknowledges the durable
+    /// transaction-side intent ONLY after verifying source identity.
+    @discardableResult
+    func seedPreparedTransaction(
+        _ transactionID: UUID, plan: ChecklistSeedPlan
+    ) throws -> Int {
+        guard plan.templateVersion > 0, !plan.officeName.isEmpty,
+              (1...100).contains(plan.tasks.count),
+              try validatedTasks(plan.tasks) == plan.tasks
+        else { throw OfficeTemplateError.invalidStoredData }
         try execute("BEGIN IMMEDIATE TRANSACTION;")
         do {
-            let count = try statement("""
-                SELECT COUNT(*) FROM checklist_tasks WHERE transaction_id=?;
-                """) { query in
-                    try bind(transactionID.uuidString, at: 1, to: query)
-                    guard sqlite3_step(query) == SQLITE_ROW else { throw error }
-                    return Int(sqlite3_column_int(query, 0))
-                }
-            let previous = try snapshot(transactionID: transactionID)
-            if count != 0 || previous != nil {
+            // Both checks run under the same SQLite write lock as the inserts.
+            if try hasTasksOrSource(transactionID) {
                 try execute("COMMIT;")
                 return 0
-            }
-            let tasks: [OfficeTaskSpec]
-            let version: Int
-            let officeName: String
-            if let officeID {
-                guard let office = try offices().first(where: { $0.id == officeID }) else {
-                    throw OfficeTemplateError.missingOffice
-                }
-                let source = try template(officeID: officeID, workflow: workflow)
-                tasks = source.tasks
-                version = source.version
-                officeName = office.name
-            } else {
-                tasks = try StarterChecklist.titles(for: workflow).map {
-                    OfficeTaskSpec(title: $0)
-                }
-                version = 1
-                officeName = "Built-in starter"
             }
             try statement("""
                 INSERT INTO checklist_tasks(id,transaction_id,title,requirement,notes)
                 VALUES (?,?,?,?,?);
                 """) { query in
-                    for task in tasks {
+                    for task in plan.tasks {
                         sqlite3_reset(query)
                         sqlite3_clear_bindings(query)
                         try bind(UUID().uuidString, at: 1, to: query)
@@ -325,23 +362,34 @@ final class OfficeTemplateStore {
                 VALUES (?,?,?,?,?,?);
                 """) { query in
                     try bind(transactionID.uuidString, at: 1, to: query)
-                    if let officeID {
+                    if let officeID = plan.officeID {
                         try bind(officeID.uuidString, at: 2, to: query)
                     } else {
                         sqlite3_bind_null(query, 2)
                     }
-                    try bind(officeName, at: 3, to: query)
-                    try bind(workflow.rawValue, at: 4, to: query)
-                    sqlite3_bind_int(query, 5, Int32(version))
+                    try bind(plan.officeName, at: 3, to: query)
+                    try bind(plan.workflow.rawValue, at: 4, to: query)
+                    sqlite3_bind_int(query, 5, Int32(plan.templateVersion))
                     sqlite3_bind_double(query, 6, Date().timeIntervalSince1970)
                     try done(query)
                 }
             try execute("COMMIT;")
-            return tasks.count
+            return plan.tasks.count
         } catch {
             try? execute("ROLLBACK;")
             throw error
         }
+    }
+
+    private func hasTasksOrSource(_ transactionID: UUID) throws -> Bool {
+        let count = try statement("""
+            SELECT COUNT(*) FROM checklist_tasks WHERE transaction_id=?;
+            """) { query -> Int in
+                try bind(transactionID.uuidString, at: 1, to: query)
+                guard sqlite3_step(query) == SQLITE_ROW else { throw error }
+                return Int(sqlite3_column_int(query, 0))
+            }
+        return count != 0 || (try snapshot(transactionID: transactionID)) != nil
     }
 
     func snapshot(transactionID: UUID) throws -> ChecklistSnapshot? {

@@ -78,9 +78,7 @@ struct MainView: View {
         }
         .sheet(isPresented: $isPresentingNewTransaction) {
             NewTransactionSheet(offices: workspace.offices) { address, workflow, officeID in
-                if workspace.create(address: address, workflow: workflow, officeID: officeID) {
-                    isPresentingNewTransaction = false
-                }
+                await workspace.create(address: address, workflow: workflow, officeID: officeID)
             }
         }
         .sheet(isPresented: $isPresentingOffices) {
@@ -296,8 +294,9 @@ private struct NewTransactionSheet: View {
     @State private var address = ""
     @State private var workflow: WorkflowKind = .acceptedOffer
     @State private var officeID: UUID?
+    @State private var isCreating = false
     let offices: [OfficeProfile]
-    let onCreate: (String, WorkflowKind, UUID?) -> Void
+    let onCreate: (String, WorkflowKind, UUID?) async -> Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -322,11 +321,29 @@ private struct NewTransactionSheet: View {
             Spacer(minLength: 8)
             HStack {
                 Spacer()
-                Button("Cancel") { dismiss() }.keyboardShortcut(.cancelAction)
-                Button("Create Transaction") { onCreate(address, workflow, officeID) }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(address.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    .keyboardShortcut(.defaultAction)
+                Button("Cancel") { dismiss() }
+                    .disabled(isCreating)
+                    .keyboardShortcut(.cancelAction)
+                if isCreating {
+                    ProgressView().controlSize(.small)
+                        .accessibilityLabel("Saving transaction")
+                }
+                Button("Create Transaction") {
+                    guard !isCreating else { return }
+                    isCreating = true
+                    Task {
+                        defer { isCreating = false }
+                        if await onCreate(address, workflow, officeID) {
+                            dismiss()
+                        }
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(
+                    isCreating ||
+                    address.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                )
+                .keyboardShortcut(.defaultAction)
             }
         }
         .padding(28)

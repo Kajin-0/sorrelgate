@@ -13,12 +13,14 @@ final class WorkspaceModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var noticeMessage: String?
     @Published private(set) var isImporting = false
+    @Published private(set) var isCreatingTransaction = false
     @Published private(set) var importCount = 0
     @Published private(set) var importTotal = 0
     @Published var previewURL: URL?
 
     private var service: SorrelgateService?
     private var documentWorkspace: DocumentWorkspace?
+    private var initializationCoordinator: TransactionInitializationCoordinator?
     private var importTask: Task<Void, Never>?
     private var lastLoadedTransactionID: UUID?
 
@@ -27,17 +29,25 @@ final class WorkspaceModel: ObservableObject {
             let directory = FileManager.default.urls(
                 for: .applicationSupportDirectory, in: .userDomainMask
             )[0].appendingPathComponent("Sorrelgate", isDirectory: true)
-            service = SorrelgateService(
+            let transactionService = SorrelgateService(
                 store: try SQLiteTransactionStore(
                     fileURL: directory.appendingPathComponent("transactions.sqlite")
                 )
             )
-            documentWorkspace = try DocumentWorkspace(
+            let documents = try DocumentWorkspace(
                 databaseURL: directory.appendingPathComponent("documents.sqlite"),
                 documentsRoot: directory.appendingPathComponent("originals", isDirectory: true)
             )
+            service = transactionService
+            documentWorkspace = documents
+            initializationCoordinator = TransactionInitializationCoordinator(
+                service: transactionService, workspace: documents
+            )
             refresh()
-            Task { await reloadOffices() }
+            Task {
+                await reloadOffices()
+                await recoverPendingChecklists()
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -98,35 +108,47 @@ final class WorkspaceModel: ObservableObject {
 
     func create(
         address: String, workflow: WorkflowKind, officeID: UUID? = nil
-    ) -> Bool {
-        guard let service else {
-            errorMessage = "The local database is unavailable."
+    ) async -> Bool {
+        guard !isCreatingTransaction, let initializationCoordinator else {
+            errorMessage = "The transaction workspace is unavailable or already creating."
             return false
         }
+        isCreatingTransaction = true
+        defer { isCreatingTransaction = false }
         do {
-            guard case .created(let transaction) = try service.execute(
-                .createTransaction(propertyAddress: address, workflow: workflow)
-            ) else { return false }
+            let outcome = try await initializationCoordinator.create(
+                propertyAddress: address, workflow: workflow, officeID: officeID
+            )
             refresh()
-            selectedTransactionID = transaction.id
+            selectedTransactionID = outcome.record.id
             loadSelected()
-            if let documentWorkspace {
-                Task {
-                    do {
-                        _ = try await documentWorkspace.seedStarterChecklist(
-                            for: transaction.id, workflow: workflow, officeID: officeID
-                        )
-                        if selectedTransactionID == transaction.id { loadSelected() }
-                    } catch {
-                        errorMessage = "Transaction saved, but starter tasks failed to load: " +
-                            error.localizedDescription
-                    }
-                }
+            if let warning = outcome.warning {
+                errorMessage = warning
             }
             return true
         } catch {
             errorMessage = error.localizedDescription
             return false
+        }
+    }
+
+    func recoverPendingChecklists() async {
+        guard let initializationCoordinator else { return }
+        do {
+            let result = try await initializationCoordinator.recoverPending()
+            if !result.completedTransactionIDs.isEmpty {
+                if let selectedTransactionID,
+                   result.completedTransactionIDs.contains(selectedTransactionID) {
+                    loadSelected()
+                }
+                noticeMessage = "Recovered \(result.completedTransactionIDs.count) transaction checklist(s) after an interrupted save."
+            }
+            if !result.failures.isEmpty {
+                errorMessage = "Checklist recovery could not finish for \(result.failures.count) transaction(s). Existing tasks were preserved; recovery will be retried."
+            }
+        } catch {
+            errorMessage = "Checklist recovery could not be checked: " +
+                error.localizedDescription
         }
     }
 
@@ -249,6 +271,16 @@ final class WorkspaceModel: ObservableObject {
         guard let workspace = documentWorkspace else { return }
         Task {
             do {
+                // A saved office-specific creation intent takes precedence over
+                // manual built-in tasks, even after a crash or fast UI navigation.
+                if let initializationCoordinator,
+                   try await initializationCoordinator.completePendingChecklist(
+                       for: transaction.id
+                   ) {
+                    if selectedTransactionID == transaction.id { loadSelected() }
+                    noticeMessage = "Restored the original office checklist selected at creation."
+                    return
+                }
                 let count = try await workspace.seedStarterChecklist(
                     for: transaction.id, workflow: transaction.workflow
                 )
