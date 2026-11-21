@@ -1,5 +1,11 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T16:27:07.135Z — Beta 0.1.0 one-bundle assisted pilot, CI PENDING
+- **Goal:** Unblock the first real nontechnical Mac pilot without broad feature work. G1 remains the product gate; packaging is a bounded external evidence dependency.
+- **Implementation:** Native marketing version 0.1.0/build 1; synthetic generator for 3 real PDFs / 7 pages and optional CSV; macOS Apple PDFKit source verification; SHA-256 sample manifest; one ZIP with unsigned app, plain-text README FIRST, TEST RESULTS, technician setup, pinned source SHA; archive ZIP CRC validation. Replace old unsigned debug CI artifact with one 14-day-retained Beta 0.1.0 bundle. Update README, handoff and release docs.
+- **Verification now:** **NOT RUN** for this PR; baseline main macOS Actions #44923066766 PASS 59 XCTest and native app. Require new blocking fixture, version, archive, 59-test and native build checks before merge.
+- **Limitations:** No Apple Developer signing/notarization or subscription, no real customer data, no customer one-click install, no human usability/real OCR accuracy claim. Stop further changes after green CI and arrange one real authorized Mac test.
+
 ## 2026-11-21T16:09:43.207Z — G1 key-fact PR #20 merged, no automatic next PR
 - **Merge:** [PR #20](https://github.com/Kajin-0/sorrelgate/pull/20) squash `e9ab62030719fb1322c60c3da9130ebac1898587` into main. Source macOS CI [#44922381805](https://github.com/Kajin-0/sorrelgate/actions/runs/44922381805) and [#44922386928](https://github.com/Kajin-0/sorrelgate/actions/runs/44922386928), exact docs-head [#44922706336](https://github.com/Kajin-0/sorrelgate/actions/runs/44922706336) all **SUCCESS 59/59 XCTest/native build/unsigned artifact**. A separate docs-head run was still in progress at this entry.
 - **Disposition:** G1 bounded key-fact expansion implemented, source-verified and merged. Original PDF/hash import unchanged; no user data, cloud, dependencies or spending. No human UI, licensed forms or production-quality field accuracy tested. **G1 still open** and commercially **NO-GO**. Stop this parser increment; next evidence-based work must advance document types/checklist match or independently measured real-workflow outcomes, not synthetic parser churn. Main CI on merged source pending at writing.

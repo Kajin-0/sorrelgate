@@ -1,5 +1,15 @@
 # Sorrelgate — free, Codex-assisted first Mac pilot
 
+## Beta 0.1.0 — first real Mac pilot
+
+One versioned, **unsigned** ZIP artifact is prepared by [macOS GitHub Actions](https://github.com/Kajin-0/sorrelgate/actions), named Sorrelgate-Beta-0.1.0-UNSIGNED-macOS. It contains the native application, three fictional seven-page-total PDFs, optional task CSV, source commit, SHA-256 sample checksums, README FIRST.txt, TEST RESULTS.txt and TECHNICIAN SETUP.md.
+
+**For a nontechnical tester:** No terminal commands are required of you. With your permission, an authorized Codex/technician must set up the app on your Mac. Read README FIRST.txt and complete TEST RESULTS.txt with fabricated PDFs only. Do not disable any Mac security protections.
+
+**For the technician:** Follow [Beta 0.1.0 technical instructions](BETA_0_1_TECHNICIAN.md); check out the exact source revision from BUILD INFO.txt, use free Xcode/XcodeGen, compile and open Sorrelgate locally rather than pretending a downloaded unsigned ZIP is a notarized installer.
+
+**Human pilot stopping point:** A real eligible user completes create/checklist/import/preview/evidence-review/export/reopen on an Apple-silicon macOS 26+ Mac. A CI result cannot establish usability; do not add speculative features to delay this test.
+
 **Purpose:** Install and run a development build on the actual TC's Mac without paying Apple, using Codex or another authorized technical assistant to handle terminal/developer setup. This is **not** the final one-click customer installation experience.
 
 ## Requirements and boundaries

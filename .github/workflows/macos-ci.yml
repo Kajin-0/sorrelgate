@@ -46,16 +46,14 @@ jobs:
             -derivedDataPath .build/DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             build
-      - name: Package unsigned test build
+      - name: Assemble Beta 0.1.0 handoff and verify PDFKit fixtures
         run: |
-          mkdir -p dist
-          ditto -c -k --keepParent \
-            .build/DerivedData/Build/Products/Debug/Sorrelgate.app \
-            dist/Sorrelgate-unsigned-macos.zip
-      - name: Upload unsigned test build
+          bash scripts/package_beta_handoff.sh \
+            .build/DerivedData/Build/Products/Debug/Sorrelgate.app
+      - name: Upload one Beta 0.1.0 assisted tester bundle (UNSIGNED)
         uses: actions/upload-artifact@v4
         with:
-          name: Sorrelgate-macOS-unsigned-debug
-          path: dist/Sorrelgate-unsigned-macos.zip
+          name: Sorrelgate-Beta-0.1.0-UNSIGNED-macOS
+          path: dist/Sorrelgate-Beta-0.1.0-macOS-UNSIGNED.zip
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 14
