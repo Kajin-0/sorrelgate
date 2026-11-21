@@ -2,6 +2,8 @@
 
 **Source:** Owner-supplied independent static SwiftUI review. Assessed against GitHub `main` at `2bcdbca1f4a78653b5e2b0b6d4cb46cdd03bcb03`. This is a **source-level audit**; no physical Mac interaction, VoiceOver, visual screenshot, Finder/sandbox behavior, or half-screen tiling has been demonstrated.
 
+**Merge closeout (2026-11-21T15:36:20.336Z):** PR #19 squash-merged into main as `66592dc958eaee2df9c5244ad21c7467940a13bc` after the owner delegated final PR review to ChatGPT. All four feature-head macOS CI runs #108–#111 passed 57/57 XCTest, native SwiftUI Mac build and unsigned artifact. No physical GUI validation; remaining deferred audit items retain their existing classifications. The one-time exception is closed; no automatic PR B or C.
+
 **Decision:** One narrow **P1 correctness/usability exception** to the [Delivery Contract](DELIVERY_CONTRACT.md), expiring at close of this pull request. Keep **G1** the active product gate, stop at the defect remediation verified by macOS CI. Do not interpret the imported auditor's larger PR B/C prompt as automatic authorization for broad UI redesign. All code changes are UI/view-model except one additive pure import-report composition type and unit tests.
 
 | Audit ID | Source verification | This PR disposition | Rationale / remaining evidence |
