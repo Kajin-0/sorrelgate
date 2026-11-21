@@ -1,5 +1,8 @@
 # Review-first interface audit — 2026-11-21T16:48:58.922Z
 
+**Source CI closeout (2026-11-21T16:55:06.587Z):** [PR #22](https://github.com/Kajin-0/sorrelgate/pull/22) squash `e39eaaf11028f806d69dd383af58c21ec1b1cdb7` merged. Both exact-head macOS CI runs [#44926629270](https://github.com/Kajin-0/sorrelgate/actions/runs/44926629270) / [#44926647364](https://github.com/Kajin-0/sorrelgate/actions/runs/44926647364) **PASS 61 XCTest/native build/Beta 0.1.1 artifact**. This does not certify actual screen appearance, keyboard use, accessibility or nontechnical user navigation.
+
+
 **Method:** Static inspection of the complete native SwiftUI workflow (main window,
 new transaction, office checklist editor, spreadsheet import sheets, task editor
 and PDF preview) together with the backend action/persistence path. This is a
