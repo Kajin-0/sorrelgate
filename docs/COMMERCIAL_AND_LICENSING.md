@@ -16,6 +16,8 @@ The repository's planning documents do not themselves grant any open-source perm
 
 ## M2 third-party parser inventory (2026-11-21T05:42:06.767Z; verification of build pending)
 - CoreXLSX 0.14.2 — Apache-2.0, https://github.com/CoreOffice/CoreXLSX/blob/0.14.2/LICENSE.md.
-- XMLCoder (resolved from CoreXLSX's 0.14.x requirement) — MIT, https://github.com/CoreOffice/XMLCoder; exact resolved version and notices must be frozen in Package.resolved.
-- ZIPFoundation (0.9.x, resolved by SwiftPM) — MIT, https://github.com/weichsel/ZIPFoundation; exact resolved version and license/NOTICE must be reviewed before commercial distribution.
+- XMLCoder **0.14.0 resolved in Actions #50** (CoreXLSX's 0.14.x requirement) — MIT, https://github.com/CoreOffice/XMLCoder; notices and lockfile still needed.
+- ZIPFoundation **0.9.20 resolved in Actions #50** — MIT, https://github.com/weichsel/ZIPFoundation; exact revision/NOTICE must be reviewed before commercial distribution.
 - The importer is entirely local and read-only; no cloud/paid API. This preliminary inventory is NOT the final SBOM/transitive audit.
+
+- **CI verification 2026-11-21T05:47:04.155Z:** GitHub Actions #50 resolved versions shown above and successfully built native app. These preliminary SPDX observations do not replace final source/revision/license notice SBOM audit.
