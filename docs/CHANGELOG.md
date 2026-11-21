@@ -2,6 +2,14 @@
 
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
+## 2026-11-20T23:19:47-05:00 — Public repository approved and agent handoff corrected
+- **Reason:** Owner explicitly stated public GitHub visibility is acceptable; priority is useful software and steady sales.
+- **Changes:** Removed private-repository stop gate from AGENTS.md, README, current status, Codex instructions, licensing notes, and implementation checklist; added ADR-007 superseding ADR-005; corrected malformed STATUS header; deprecated GitHub issue #8.
+- **Verified:** GitHub main contained 20 documented files including AGENTS, product specification, change log, current status, and workflows; milestone issues #1–#7 exist.
+- **Tests:** Documentation consistency and repository presence review; **native Mac build, OCR and AI execution NOT RUN**.
+- **Security constraint:** Public repository does not permit public client contracts, credentials, licensed blank forms, private office material or signing keys.
+- **Next:** Codex begins M0 on authorized Mac; no visibility requirement.
+
 ## 2026-11-21T04:11:41.409Z — Verified GitHub bootstrap and opened milestone issues
 - **Scope:** Opened GitHub issues #1–#7 (M0–M6) and #8 (make repository private before adding proprietary source); updated README and current status with links.
 - **Verification:** Confirmed 20 repository files, exact required handoff paths, 21 starter tasks in JSON, and GitHub main branch writes. Reviewed AGENTS.md and STATUS.md remotely.

@@ -3,7 +3,7 @@
 Use as a release gate ledger; check boxes only when implementation **and actual tests** pass.
 
 ## M0 — Foundation
-- [ ] Repository visibility private before proprietary application code; no sensitive materials committed
+- [ ] Public visibility explicitly accepted by owner; verify no sensitive materials are committed before each push
 - [ ] Native macOS SwiftUI executable builds on supported Mac
 - [ ] `SorrelgateCore` module with domain services and typed action interface
 - [ ] SQLite migrations, transactions, restart persistence

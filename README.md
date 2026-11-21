@@ -33,7 +33,7 @@ Sorrelgate helps a nontechnical transaction coordinator organize signed PDFs, tr
 
 ## Tracked implementation issues
 
-Milestones are tracked in [issues #1–#7](https://github.com/Kajin-0/sorrelgate/issues), each with explicit acceptance tests. [Issue #8](https://github.com/Kajin-0/sorrelgate/issues/8) is the **private-repository gate** before committing proprietary application code.
+Milestones are tracked in [issues #1–#7](https://github.com/Kajin-0/sorrelgate/issues), each with explicit acceptance tests. [Issue #8](https://github.com/Kajin-0/sorrelgate/issues/8) was closed after the owner explicitly approved public repository visibility; it is **not a development blocker**.
 
 ## First coding goal — milestone M0/M1
 
@@ -41,7 +41,7 @@ Create a real transaction, import a mixed batch of PDFs, preserve original hashe
 
 ## Repository and privacy
 
-As observed 2026-11-20T23:08:11-05:00, this GitHub repository was **public and empty** before documentation initialization. **Change to private before committing proprietary source code or other sensitive IP.** Never commit real client contracts, personal/financial information, signatures, office credentials, blank copyrighted real estate forms, or developer signing keys. Documentation is not a grant of an open-source license to future Sorrelgate code. Third-party dependencies may be Apache 2.0, MIT, BSD, or similarly audited commercially permissive licenses; Apple system frameworks remain subject to Apple terms.
+This repository is **public by deliberate owner choice**. Do **not** stop coding or request a visibility change. Public GitHub content is visible to others; do not commit real client contracts, personal/financial information, signatures, office credentials, blank copyrighted real estate forms, signing keys, or anything that must remain confidential. No open-source license for Sorrelgate's own application code has been granted merely by publishing it. License, support, distribution and commercial terms still require deliberate decisions. Third-party dependencies may be Apache 2.0, MIT, BSD or similarly audited commercially permissive licenses; Apple system frameworks remain subject to Apple terms.
 
 ## Maintainers / agent handoff
 

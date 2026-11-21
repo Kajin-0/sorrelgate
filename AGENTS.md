@@ -1,13 +1,13 @@
 # AGENTS.md — Sorrelgate permanent agent handoff
 
-**Updated:** 2026-11-20T23:08:11-05:00 (`America/New_York`)
+**Updated:** 2026-11-20T23:19:47-05:00 (`America/New_York`)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
 **State at handoff:** Documentation scaffold only; no Mac app implemented, built, or tested. `docs/STATUS.md` is authoritative for subsequent progress.
 
 ## 1. Mission and constraints (read before coding)
 
-Sorrelgate is a polished, **native Mac application for highly nontechnical California real estate transaction coordinators**. The **frontend stays extremely simple**, but the backend may use advanced processing, OCR, typed domain actions, AI orchestration, testing, terminal tools and automation. Customers should never need terminal use or developer dependencies. The developer/Codex **may** use all appropriate Mac tooling. A **local-first/offline-capable, one-time-purchase commercial product** is the goal; the application source is intended to remain proprietary.
+Sorrelgate is a polished, **native Mac application for highly nontechnical California real estate transaction coordinators**. The **frontend stays extremely simple**, but the backend may use advanced processing, OCR, typed domain actions, AI orchestration, testing, terminal tools and automation. Customers should never need terminal use or developer dependencies. The developer/Codex **may** use all appropriate Mac tooling. A **local-first/offline-capable, one-time-purchase commercial product with steady customer sales** is the goal. The owner explicitly accepts that this GitHub repository may remain public, including early source code. Public visibility alone does not grant an open-source license; do not attach a license to Sorrelgate application source without an explicit owner decision. Never commit secrets, customer data, private office documents or signing keys.
 
 Target primary customer: an independent **seller-side** California TC working with several real estate offices. Support two initial workflows: **Prepare a House for Sale** and **Accepted Offer — Seller Side**. Different offices use different task requirements, submission addresses, templates, labels, and platforms such as Glide, DocuSign, Disclosures.io/Homewise. Configure, don't hard-code, those differences.
 
@@ -50,7 +50,7 @@ When returning after a long gap, inspect real repository files, git status/histo
 ## 5. Start-of-work protocol
 
 1. Check actual branch, working tree, recent commits, and current `docs/STATUS.md`.
-2. **Check repository visibility:** originally public. Before adding proprietary source, make private in GitHub settings; if unable, STOP pushing proprietary code and report the blocker. Documentation may live publicly, but not confidential customer material.
+2. **Repository visibility is not a blocker:** public GitHub is an explicit owner choice (2026-11-20). Continue normal development and commits without requiring private visibility. Do not publish secrets, personal information, customer documents, proprietary third-party forms, or any confidential material; review every committed artifact and test fixture.
 3. Verify macOS, Xcode, Swift and Apple Foundation Models availability on the actual developer Mac. Never claim a successful native build without running Xcode on macOS.
 4. Pick exactly one small, measurable milestone slice. Specify desired behavior, tests, negative controls, and files to touch.
 5. Implement, run the tests, record commands, exit codes and environment versions. Use synthetic documents only in tests.
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Start M0** on an authorized Mac after verifying this repository is private: set up SwiftUI app + SorrelgateCore package + SQLite persistence and unit tests. Then M1 end-to-end import/preview/export vertical slice. For a new Codex agent, use `docs/CODEX_MASTER_PROMPT.md`.
+**Start M0** on an authorized Mac without any repository-visibility gate: set up SwiftUI app + SorrelgateCore package + SQLite persistence and unit tests. Then M1 end-to-end import/preview/export vertical slice. For a new Codex agent, use `docs/CODEX_MASTER_PROMPT.md`.

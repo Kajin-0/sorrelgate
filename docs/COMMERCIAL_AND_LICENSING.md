@@ -9,6 +9,6 @@
 - Generate and review an SBOM and all applicable NOTICE/license documents. Never bundle customer documents, certificates, keys, or credentials.
 - Directly distributed Mac app needs a Developer ID signed hardened runtime, notarization and stapled DMG. Apple Developer Program/signing costs are not included in the zero third-party runtime license target.
 - Before charging: specify user-license scope, support window, security patches, optional paid major upgrades, transfers, refunds, activation and privacy terms.
-- GitHub repository was **public at documentation kickoff**. Change to private *before* proprietary source is committed. Visibility != copyright licensing; publishing source publicly makes it accessible despite absence of an OSI license.
+- **Owner decision (2026-11-20):** GitHub may remain PUBLIC; this is not a block to source development or paid distribution. Public GitHub exposes code for reading/copying; do not assume secrecy or protection from imitation. Publishing code without an explicit open-source license does not grant ordinary open-source permissions. Do not add an open-source license to Sorrelgate application code without explicit owner approval. Never publish client data, credentials, private office material, signing certificates or licensed blank forms.
 
 The repository's planning documents do not themselves grant any open-source permission over future proprietary application code.

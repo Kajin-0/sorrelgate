@@ -33,13 +33,13 @@ After passing this gate, advance sequentially through M2–M6 from the specifica
 - Respect proprietary product intent: audited Apache 2.0/MIT/BSD/public-domain dependencies are acceptable; reject GPL/AGPL dependencies from shipped product. Verify full transitive licenses and model weights.
 - Preserve all original bytes. Use immutable copies, safe export naming, no silent overwrite or deletion.
 - Prefer Apple frameworks (SwiftUI, PDFKit, Vision, Foundation Models, CryptoKit, Keychain), Swift Concurrency, CoreXLSX for xlsx import and native SQLite. Minimize external runtime dependencies.
-- Use a private repo. Do not publish private code, credentials, or documents.
+- The owner explicitly approves keeping `Kajin-0/sorrelgate` PUBLIC. Do not request private visibility or block development on visibility. Never commit confidential client data, office secrets, credentials, signing keys or restricted forms. Public repository visibility does not itself grant Sorrelgate source an open-source license.
 
 ## Working mode
 
 For each milestone:
 1. Write a short execution plan, current scope, and acceptance tests; explain any meaningful tradeoff.
-2. Implement focused, testable code on a dedicated Git branch. Check that the repository is private before adding proprietary source. Commit logically; keep working tree clean.
+2. Implement focused, testable code on a dedicated Git branch. Public GitHub is acceptable; sanitize all fixtures, logs and commits. Commit logically; keep working tree clean.
 3. Run actual `xcodebuild` / Swift tests on the Mac, and functional smoke tests with synthetic PDFs. Include exact commands and exit status in your report. Never claim a Mac build or signing succeeded unless it was actually performed.
 4. Test negative and failure cases. Verify original hashes and clean-restart persistence.
 5. Update `docs/CHANGELOG.md` with a timestamp, `docs/STATUS.md` with verified evidence and next action, and `docs/DECISIONS.md` if architecture changes; then provide a concise summary with actual test results.
