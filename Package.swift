@@ -23,7 +23,10 @@ let package = Package(
         ),
         .testTarget(
             name: "SorrelgateCoreTests",
-            dependencies: ["SorrelgateCore"]
+            dependencies: [
+                "SorrelgateCore",
+                .product(name: "ZIPFoundation", package: "ZIPFoundation")
+            ]
         )
     ]
 )
