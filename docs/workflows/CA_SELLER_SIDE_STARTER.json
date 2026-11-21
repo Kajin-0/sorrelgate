@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "description": "Editable administrative starter workflows only, not a legal checklist or licensed C.A.R. forms library.",
+  "workflows": [
+    {
+      "key": "seller_listing_preparation",
+      "name": "Prepare a House for Sale",
+      "jurisdiction": "California",
+      "tasks": [
+        {
+          "key": "L01",
+          "name": "Receive signed listing agreement",
+          "document_label": "Listing agreement",
+          "requires_human_review": true
+        },
+        {
+          "key": "L02",
+          "name": "Send listing paperwork and new listing form to office",
+          "requires_human_review": false
+        },
+        {
+          "key": "L03",
+          "name": "Check office document requirements",
+          "requires_human_review": true
+        },
+        {
+          "key": "L04",
+          "name": "Set up seller questionnaires in Glide",
+          "external_system": "Glide"
+        },
+        {
+          "key": "L05",
+          "name": "Send questionnaires to seller",
+          "external_system": "Email"
+        },
+        {
+          "key": "L06",
+          "name": "Prepare signature requests in DocuSign",
+          "external_system": "DocuSign"
+        },
+        {
+          "key": "L07",
+          "name": "Collect and review signed documents",
+          "requires_human_review": true
+        },
+        {
+          "key": "L08",
+          "name": "Create disclosure packet in Disclosures.io or Homewise",
+          "external_system": "Disclosures.io / Homewise"
+        },
+        {
+          "key": "L09",
+          "name": "Mark listing preparation complete",
+          "requires_human_review": true
+        }
+      ]
+    },
+    {
+      "key": "seller_accepted_offer",
+      "name": "Accepted Offer — Seller Side",
+      "jurisdiction": "California",
+      "tasks": [
+        {
+          "key": "A01",
+          "name": "Receive accepted purchase agreement",
+          "document_label": "Purchase agreement"
+        },
+        {
+          "key": "A02",
+          "name": "Review agreement signatures",
+          "requires_human_review": true
+        },
+        {
+          "key": "A03",
+          "name": "Send accepted-offer paperwork to office",
+          "requires_human_review": false
+        },
+        {
+          "key": "A04",
+          "name": "Confirm critical transaction details and dates",
+          "requires_human_review": true
+        },
+        {
+          "key": "A05",
+          "name": "Create and review transaction timeline",
+          "requires_human_review": true
+        },
+        {
+          "key": "A06",
+          "name": "Draft introduction to buyer side and escrow",
+          "requires_human_review": true
+        },
+        {
+          "key": "A07",
+          "name": "Share approved disclosure packet link",
+          "requires_human_review": true
+        },
+        {
+          "key": "A08",
+          "name": "Collect and check buyer-signed disclosures",
+          "requires_human_review": true
+        },
+        {
+          "key": "A09",
+          "name": "Collect buyer agent's visual inspection document",
+          "document_label": "Buyer agent visual inspection"
+        },
+        {
+          "key": "A10",
+          "name": "Prepare signed-document package for office",
+          "requires_human_review": true
+        },
+        {
+          "key": "A11",
+          "name": "Draft escrow demand / referral instruction worksheet",
+          "requires_human_review": true
+        },
+        {
+          "key": "A12",
+          "name": "Review outstanding tasks and archive internally",
+          "requires_human_review": true
+        }
+      ]
+    }
+  ],
+  "project": "Sorrelgate",
+  "status": "Administrative starter; not a validated legal compliance list"
+}
