@@ -389,7 +389,8 @@ final class OfficeTemplateStore {
                 guard sqlite3_step(query) == SQLITE_ROW else { throw error }
                 return Int(sqlite3_column_int(query, 0))
             }
-        return count != 0 || (try snapshot(transactionID: transactionID)) != nil
+        if count != 0 { return true }
+        return try snapshot(transactionID: transactionID) != nil
     }
 
     func snapshot(transactionID: UUID) throws -> ChecklistSnapshot? {
