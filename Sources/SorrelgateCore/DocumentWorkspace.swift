@@ -249,6 +249,7 @@ public actor DocumentWorkspace {
             throw DocumentProcessingError.invalidPDF(sourceURL.lastPathComponent)
         }
         guard pdf.pageCount > 0 else { throw DocumentProcessingError.noPages }
+        try Task<Never, Never>.checkCancellation()
 
         if let existing = try store.findDocument(
             transactionID: transactionID, sha256: sha
@@ -275,6 +276,9 @@ public actor DocumentWorkspace {
                 // Image-only pages: attempt on-device Vision OCR. OCR failure
                 // leaves a reviewable page, not a falsely successful extraction.
                 let recognized = Self.recognizeText(page: page)
+                // Vision's synchronous request may have taken time; discard
+                // uncommitted results if the owning import was cancelled.
+                try Task<Never, Never>.checkCancellation()
                 pages.append(DocumentPageText(
                     pageIndex: index,
                     text: recognized,
@@ -303,6 +307,9 @@ public actor DocumentWorkspace {
             createdAt: Date()
         )
         do {
+            // Cancellation in the window after the file move must also roll
+            // back the newly installed original, before SQLite is changed.
+            try Task<Never, Never>.checkCancellation()
             try store.insertDocument(doc, pages: pages)
         } catch {
             if moved { try? FileManager.default.removeItem(at: destination) }
@@ -412,9 +419,11 @@ public actor DocumentWorkspace {
         while let data = try input.read(upToCount: 256 * 1024), !data.isEmpty {
             try Task<Never, Never>.checkCancellation()
             try output.write(contentsOf: data)
+            try Task<Never, Never>.checkCancellation()
             hash.update(data: data)
         }
         try output.synchronize()
+        try Task<Never, Never>.checkCancellation()
         return hash.finalize().map { String(format: "%02x", $0) }.joined()
     }
 

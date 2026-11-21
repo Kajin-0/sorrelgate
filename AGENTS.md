@@ -1,9 +1,9 @@
 # AGENTS.md — Sorrelgate permanent agent handoff
 
-**Updated:** 2026-11-21T07:00:36.788Z (UTC)
+**Updated:** 2026-11-21T07:36:41.448Z (UTC)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**Latest verified:** [PR #14](https://github.com/Kajin-0/sorrelgate/pull/14) crash-safe checklist creation and restart replay **MERGED** to `main` as `4037eb86de729f80c27251ccb2cccaeeda5528a1`. [macOS CI #72](https://github.com/Kajin-0/sorrelgate/actions/runs/44877714802), [#73](https://github.com/Kajin-0/sorrelgate/actions/runs/44877718244), and final docs-head [#74](https://github.com/Kajin-0/sorrelgate/actions/runs/44877944051) all **PASS 39 XCTest, native SwiftUI Mac build and artifact upload**. Post-merge main CI pending at entry time; physical Mac GUI/relaunch and disk fault injection not yet verified. $0 additional MVP cost.
+**Latest verified main:** [macOS Actions #77](https://github.com/Kajin-0/sorrelgate/actions/runs/44878217155) SUCCESS at `37b909a2`: **39 XCTest/native SwiftUI app build**. **Current feature (CI PENDING):** `feature/m1-pdf-reliability-20261121` adds genuine raster-only PDF/Vision OCR tests, a 50-PDF mixed batch benchmark with hash and source-byte closure, deterministic cancel/retry, missing/blocked storage and SQLite fault/rollback, destination corruption protection, plus a cancellation check immediately before database persistence. Target **46 XCTest**; no new dependencies. Actual external Mac, field-scanned OCR validation and true ENOSPC remains unverified. $0 additional cost.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** PR #14 frozen office checklist creation and durable replay MERGED (`4037eb8`). Branch CI #72/#73/#74 success **39 XCTest + native app**; verify latest post-merge main CI. New transaction creation atomically saves transaction+exact `ChecklistSeedPlan` in `transactions.sqlite`; separate `documents.sqlite` seeding creates task rows/provenance, then verifies/acknowledges. Restart replays unacknowledged plans; never replace manual tasks or use a newer office revision. Older no-intent transactions cannot reconstruct prior office; manual starter loading remains. **Next engineering milestone:** M1 scanned Vision OCR and cancellation/disk-failure hardening; then 50-PDF batch benchmarking. No $ spending, LLM/external human Mac still unverified.
+**Next:** Verify `feature/m1-pdf-reliability-20261121` M1 PDF reliability macOS CI with **46 expected XCTest** (39 baseline + 7 new), native SwiftUI Mac build and unsigned artifact; inspect true Vision OCR token recall for synthetic raster-only PDFs and actual 50-document throughput metrics from CI logs. New tests use only generated harmless PDFs, never customer files. Reject source mutation/corrupt stored originals; make cancellation cleanup and SQLite rollback explicit. Do not interpret a synthetic OCR recall as real field-scanned accuracy; actual disk-full ENOSPC, granted/denied Finder bookmarks, process kill during I/O and human UX still need dedicated testing. Merge only green CI; then remaining M1 fault/scan robustness. No new spending or architecture churn.

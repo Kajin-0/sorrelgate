@@ -26,6 +26,12 @@ jobs:
         run: brew install xcodegen
       - name: Build and run SorrelgateCore tests
         run: swift test --parallel
+      - name: Record actual Vision OCR and mixed-PDF benchmark measurements
+        run: |
+          test -s "$RUNNER_TEMP/sorrelgate-m1-ocr.txt"
+          test -s "$RUNNER_TEMP/sorrelgate-m1-batch.txt"
+          cat "$RUNNER_TEMP/sorrelgate-m1-ocr.txt"
+          cat "$RUNNER_TEMP/sorrelgate-m1-batch.txt"
       - name: Generate native Xcode project
         run: xcodegen generate --spec project.yml
       - name: Build Mac app (unsigned, CI only)
