@@ -5,10 +5,11 @@
 **Budget:** $0 additional during the early MVP. Apple membership, signing, notarization, paid APIs and cloud hosting are DEFERRED. Codex may build locally using free Xcode on the external tester's Mac with the owner's consent.
 **No owner Mac:** GitHub Actions macOS runners verify builds and automated tests; real UI, macOS permissions, real OCR performance and on-device LLM must be validated later on the tester's Mac.
 
-## M2 CSV importer verified in PR #10; office profiles already merged
+## M2 XLSX import (PR #11, verification PENDING); CSV and office profiles merged
 - Merged via [PR #9](https://github.com/Kajin-0/sorrelgate/pull/9) (squash commit `8c127df`): named office profiles; independent workflow checklists; append-only office template revisions with optimistic version checks; atomic transaction checklist copies and provenance; SwiftUI office management and office selection on transaction creation.
 - New synthetic tests: office isolation, restart recovery, old/new template versions, manual-task protection, stale-version/duplicate office rejection.
 - **Verified:** [macOS GitHub Actions #14](https://github.com/Kajin-0/sorrelgate/actions/runs/44870973186) SUCCESS on `eb106533ca49bf106c84e70772b8f44cf11d13e1`: all **16 XCTest cases invoked successfully** (11 baseline + 5 office-template tests); XcodeGen generation, native SwiftUI Xcode build and unsigned artifact upload PASS.
+- **XLSX import submitted, NOT YET VERIFIED** in [PR #11](https://github.com/Kajin-0/sorrelgate/pull/11): CoreXLSX 0.14.2, ZIP entry bounded parse, multi-sheet selector, sparse Excel row mapping, explicit task-column review, formula/error-cell rejection, staged unsaved office draft; 4 synthetic ZIP-based XLSX tests. Native build and regression test CI pending. Do not merge before green CI.
 - CSV import **CI-PASS** in [Actions #33](https://github.com/Kajin-0/sorrelgate/actions/runs/44871510490) on `445949d54d26b4e02e30d83794649edd09ff7b8f`: 20/20 XCTest cases (16 previous + 4 CSV), XcodeGen project and native SwiftUI app BUILD SUCCEEDED, unsigned artifact uploaded. UTF-8 BOM/quoted/newline parsing, explicit title-column preview, duplicate/missing row review and staged office draft are implemented. Initial CSV CI failure was fixed by Unicode-scalar CRLF tokenization. XLSX and real Mac UX remain unverified.
 
 ## Previously verified main CI: PASS
@@ -29,7 +30,7 @@
 - M6 commercial release: NOT STARTED. Paid Apple distribution postponed until strong MVP and owner approval.
 
 ## Next engineering tasks
-1. Implement XLSX spreadsheet import with sheet/column preview, explicit task-column mapping and rigorous row/duplicate handling; reuse CSV review approval semantics.
+1. Verify PR #11 XLSX dependency resolution, multi-sheet fixture parsing and SwiftUI macOS build; repair compiler/test failures. Then harden M1 OCR, import cancellation and failure paths.
 2. Add CSV then XLSX import with column mapping preview. No need for external office systems in first MVP.
 3. Harden PDF importer/OCR (raster scan benchmark, cancellation, corrupt/disk-error cases, 50-PDF batch) and maintain CI green.
 4. Keep an authorized Codex-assisted local Mac build for the first supervised tester, not a paid signed app. See [free tester handoff](FREE_MAC_TESTER_HANDOFF.md).
