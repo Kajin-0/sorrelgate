@@ -21,7 +21,7 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 - [ ] Create / edit / reopen transaction
 - [ ] Batch PDF import (individual selection, progress/cancel); first implementation submitted, CI pending; folder selection not done
 - [x] Immutable original copies, SHA-256, duplicate handling — synthetic file-integrity and dedupe verified in CI run #5; large-file edges pending
-- [ ] PDFKit text extraction, per-page Vision OCR fallback — PDFKit digital text passed earlier; raster-only PDF with real Vision **7/7 terms verified** and 50 synthetic mixed PDFs in PR #15, Actions #83 PASS **46 XCTest/native app**; real field-scanned, multipage accuracy and human usability remain open.
+- [ ] PDFKit text extraction, per-page Vision OCR fallback — baseline synthetic Vision OCR verified PR #15 CI #86; 5-page degradation/blank abstention tests added `feature/m1-degraded-ocr-io-faults-20261121` **CI PENDING**; actual field-scan generalization and human Mac unverified.
 - [ ] Original PDF page viewer — implementation submitted, human verification pending
 - [ ] Editable task checklist, document link, status persistence — backend persistence/link scope tests PASS; GUI usability unverified
 - [ ] Export basic package and manifest to selected folder — backend SHA256-verified copy and manifest PASS; Finder/GUI unverified
