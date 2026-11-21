@@ -30,9 +30,9 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 ## M2 — TC workflow
 - [x] Listing Preparation starter checklist — 9 bundled administrative tasks, idempotent seed, CI #7
 - [x] Accepted Offer starter checklist — 12 bundled administrative tasks, restart persistence, CI #7
-- [ ] Different office profiles; configurable task order, states and requirements
+- [ ] Different office profiles; configurable task order, states and requirements — initial named office + task ordering code on feature branch; CI pending; statuses/requirements still future
 - [ ] XLSX/CSV checklist import with preview and correction
-- [ ] Template version snapshots and safe updates
+- [ ] Template version snapshots and safe updates — initial append-only revisions and transaction source/row copies on feature branch; CI pending
 - [ ] Prompt-free manual operation from start to export
 
 ## M3 — Intelligence
