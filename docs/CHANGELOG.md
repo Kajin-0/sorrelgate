@@ -1,5 +1,10 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T22:44:42.440Z — PR #24 VERIFIED and MERGED: G1 atomic batch proposals
+- Merged `5a6d4f9f5eeb007e90afa2888eea8e3285a4e08e` after both exact-source CI [#44957980112](https://github.com/Kajin-0/sorrelgate/actions/runs/44957980112) and [#44957995198](https://github.com/Kajin-0/sorrelgate/actions/runs/44957995198) SUCCESS: 62/62 XCTest, 7 package-sanitizer tests, optimized native Mac build, PDFKit fixture checks, source-free ZIP audit.
+- SQL batch transaction prevents a failed later PDF hash check/cancellation/DB error leaving newly proposed dates or amounts from earlier PDFs; existing human-confirmed proposals remain unchanged. Two regression assertions cover clean failure, reopened state and previously confirmed values. No UI/schema changes. Real Mac pilot still not performed; current tester build intentionally unchanged.
+- Next gate work: capture pilot feedback, fix actual P0/P1; G1 field/document-type qualification needs a credible authorized held-out real sample, not more unvalidated synthetic claims. No new paid tooling.
+
 ## 2026-11-21T22:40:36.792Z — G1 atomic multi-PDF candidate discovery (CI PENDING)
 - Found a specific transactional-consistency defect in the existing Review > Find details in PDFs operation: with valid first PDF and corrupted later PDF, the domain method returned a failure but had already persisted newly proposed facts from earlier PDFs. Although proposals were unconfirmed, a failed batch could leave a misleading partial review queue.
 - Changed only `Sources/SorrelgateCore/DocumentWorkspace.swift`: run batch discovery in a single SQLite `BEGIN IMMEDIATE` / `COMMIT` with `ROLLBACK` on integrity error, cancellation or write failure; leave existing confirmed/rejected/unknown records untouched. No change to standalone per-PDF discovery, original PDFs, signatures, model behavior or end-user UI.

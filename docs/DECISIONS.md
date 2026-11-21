@@ -2,6 +2,8 @@
 
 **Policy:** Never silently reverse decisions. Append dated records with rationale, competing alternatives and outcome.
 
+**ADR-027 closure (2026-11-21T22:44:42.440Z):** [PR #24](https://github.com/Kajin-0/sorrelgate/pull/24) merged after 2 exact-head CI SUCCESS, 62 XCTest. The permanent default for `proposeKeyFacts(in:)` is atomic new-candidate insertion across already imported PDFs. No change to individual-PDF discovery or to user review choices. No real Mac launch claim.
+
 ## ADR-027 — 2026-11-21T22:40:36.792Z — Failed batch discovery must not leave new partial candidate state
 **Decision (G1, CI PENDING):** Wrap transaction-scoped proposed-fact discovery across already imported PDFs in one SQLite transaction with rollback on later source-integrity failure, cancellation or SQLite error. This repairs an observed code-path defect: the prior loop inserted proposals document-by-document and could fail after partially inserting. Preserve all previously persisted human decisions and keep per-document discovery intact. **Rejected:** global parser refactor, UI changes during the Mac pilot, preemptively extending the field vocabulary, automatic confirmation, agent framework, swallowing errors. **Tradeoff:** holds the document SQLite write transaction while iterating over already extracted page text and file hashes, but there are no `await` suspension points and the bounded operation provides precise failure semantics; measure only if real workload flags contention. This is one bounded active-G1 corrective step.
 
