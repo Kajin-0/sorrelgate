@@ -71,7 +71,11 @@ struct TransactionWorkspaceView: View {
 
             HStack(spacing: 12) {
                 Text("\(workspace.documents.count) PDFs")
-                Text("\(needsAttention.count) details to review")
+                if workspace.fieldProposals.isEmpty {
+                    Text("No suggestions yet")
+                } else {
+                    Text("\(needsAttention.count) awaiting review")
+                }
                 Text("\(completedTaskCount) of \(workspace.tasks.count) tasks done")
             }
             .font(.caption)
