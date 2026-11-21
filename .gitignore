@@ -1,0 +1,35 @@
+# macOS / Xcode
+.DS_Store
+*.xcuserstate
+xcuserdata/
+DerivedData/
+build/
+.swiftpm/
+.build/
+*.app/
+*.dmg
+*.xcarchive/
+# Credentials / certificates
+.env
+.env.*
+*.p8
+*.p12
+*.pem
+*.key
+*.cer
+*.mobileprovision
+Secrets/
+.private/
+# Sensitive user data and runtime state
+CustomerData/
+PrivateData/
+TransactionFiles/
+local_data/
+exports/
+logs/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+*.backup
+*.log
