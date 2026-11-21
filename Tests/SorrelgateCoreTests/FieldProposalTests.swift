@@ -424,6 +424,52 @@ final class FieldProposalTests: XCTestCase {
             XCTFail("A damaged archived source must prevent a successful discovery receipt")
         } catch DocumentProcessingError.corruptedOriginal {}
         let proposals = try await workspace.fieldProposals(for: transactionID)
-        XCTAssertTrue(proposals.allSatisfy { $0.status == .proposed })
+        XCTAssertTrue(proposals.isEmpty,
+            "A late corrupted PDF must roll back all new candidates in this batch")
+        let reopened = try makeWorkspace(root)
+        let reopenedProposals = try await reopened.fieldProposals(for: transactionID)
+        XCTAssertTrue(reopenedProposals.isEmpty)
+    }
+
+    func testBatchFailurePreservesPreviouslyConfirmedProposalWithoutPartialNewOnes() async throws {
+        let root = try directory()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let firstURL = root.appendingPathComponent("first.pdf")
+        let secondURL = root.appendingPathComponent("second.pdf")
+        let thirdURL = root.appendingPathComponent("third.pdf")
+        try makePDF(firstURL, lines: ["Acceptance Date: 2026-11-20"])
+        try makePDF(secondURL, lines: ["Closing Date: 2026-12-21"])
+        try makePDF(thirdURL, lines: ["Purchase Price: $650,000.00"])
+        let workspace = try makeWorkspace(root)
+        let transactionID = UUID()
+        guard case .imported(let first) = try await workspace.importPDF(
+            firstURL, into: transactionID
+        ), case .imported = try await workspace.importPDF(
+            secondURL, into: transactionID
+        ), case .imported(let third) = try await workspace.importPDF(
+            thirdURL, into: transactionID
+        ) else { return XCTFail("Required synthetic PDFs were not imported") }
+
+        let old = try await workspace.proposeKeyFacts(from: first.id, in: transactionID)
+        XCTAssertEqual(old.count, 1)
+        let confirmed = try XCTUnwrap(old.first)
+        try await workspace.reviewFieldProposal(
+            confirmed.id, in: transactionID, as: .confirmed
+        )
+
+        // A later corrupted source must not commit new proposals from the
+        // valid second source or change a previously reviewed first source.
+        try Data("tampered".utf8).write(to: await workspace.storedPDFURL(for: third))
+        do {
+            _ = try await workspace.proposeKeyFacts(in: transactionID)
+            XCTFail("Expected corrupted original to abort the whole discovery")
+        } catch DocumentProcessingError.corruptedOriginal {}
+
+        let reopened = try makeWorkspace(root)
+        let after = try await reopened.fieldProposals(for: transactionID)
+        XCTAssertEqual(after.count, 1)
+        XCTAssertEqual(after.first?.id, confirmed.id)
+        XCTAssertEqual(after.first?.status, .confirmed)
+        XCTAssertEqual(after.first?.value, "2026-11-20")
     }
 }

@@ -260,11 +260,25 @@ public actor DocumentWorkspace {
     /// checks as GUI callers before reaching this method.
     @discardableResult
     public func proposeKeyFacts(in transactionID: UUID) throws -> [FieldProposal] {
-        for document in try store.documents(transactionID: transactionID) {
+        // The entire multi-PDF discovery is one SQLite operation. If a later
+        // source fails SHA validation, cancellation occurs or SQLite rejects
+        // an insert, do not leave earlier new proposals visible after a failed
+        // review. Previous human decisions must remain unchanged.
+        let documents = try store.documents(transactionID: transactionID)
+        try store.beginProposalBatch()
+        do {
+            for document in documents {
+                try Task<Never, Never>.checkCancellation()
+                _ = try proposeKeyFacts(from: document.id, in: transactionID)
+            }
+            let proposals = try store.fieldProposals(transactionID: transactionID)
             try Task<Never, Never>.checkCancellation()
-            _ = try proposeKeyFacts(from: document.id, in: transactionID)
+            try store.commitProposalBatch()
+            return proposals
+        } catch {
+            try? store.rollbackProposalBatch()
+            throw error
         }
-        return try store.fieldProposals(transactionID: transactionID)
     }
 
     private func discoverFields(
@@ -885,6 +899,12 @@ private final class DocumentSQLiteStore {
             }
         }
     }
+
+    // Called exclusively from DocumentWorkspace's actor, without suspension.
+    // A batch rollback removes only that batch's uncommitted discoveries.
+    func beginProposalBatch() throws { try execute("BEGIN IMMEDIATE TRANSACTION;") }
+    func commitProposalBatch() throws { try execute("COMMIT;") }
+    func rollbackProposalBatch() throws { try execute("ROLLBACK;") }
 
     /// SQL enforces the existence and ownership of the document and page.
     /// Idempotence leaves any prior human-confirmed/rejected/unknown state intact.
