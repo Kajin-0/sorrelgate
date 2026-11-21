@@ -47,7 +47,10 @@ public enum XLSXChecklistImporter {
 
     public static func parse(_ data: Data) throws -> XLSXChecklistWorkbook {
         guard data.count <= byteLimit else { throw XLSXChecklistError.tooLarge }
-        guard let archive = Archive(data: data, accessMode: .read) else {
+        let archive: Archive
+        do {
+            archive = try Archive(data: data, accessMode: .read)
+        } catch {
             throw XLSXChecklistError.unreadable
         }
 
