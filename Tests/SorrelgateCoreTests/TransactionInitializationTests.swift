@@ -102,7 +102,8 @@ final class TransactionInitializationTests: XCTestCase {
         XCTAssertEqual(snapshot?.templateVersion, 2)
         let repeatReport = try await coordinator.recoverPending()
         XCTAssertTrue(repeatReport.completedTransactionIDs.isEmpty)
-        XCTAssertEqual(try await workspace2.checklist(for: ids[0]), rows)
+        let repeatedRows = try await workspace2.checklist(for: ids[0])
+        XCTAssertEqual(repeatedRows, rows)
     }
 
     func testCrashAfterDocumentCommitBeforeAcknowledgementNeverRewritesEdits() async throws {
@@ -170,7 +171,8 @@ final class TransactionInitializationTests: XCTestCase {
         XCTAssertEqual(try pendingIDs(service), [conflicting])
         let rows = try await workspace.checklist(for: conflicting)
         XCTAssertEqual(rows.map(\.id), [manual.id])
-        XCTAssertNil(try await workspace.checklistSnapshot(for: conflicting))
+        let conflictingSource = try await workspace.checklistSnapshot(for: conflicting)
+        XCTAssertNil(conflictingSource)
         let normalRows = try await workspace.checklist(for: normal)
         XCTAssertEqual(normalRows.count, 12)
         let second = try await coordinator.recoverPending()
@@ -204,11 +206,10 @@ final class TransactionInitializationTests: XCTestCase {
         XCTAssertNil(created.warning)
         XCTAssertEqual(created.record.propertyAddress, "123 Example")
         XCTAssertEqual(try pendingIDs(service), [])
-        XCTAssertEqual(try await workspace.checklist(for: created.record.id).count, 12)
-        XCTAssertEqual(
-            try await workspace.checklistSnapshot(for: created.record.id)?.officeName,
-            "Built-in starter"
-        )
+        let createdTasks = try await workspace.checklist(for: created.record.id)
+        XCTAssertEqual(createdTasks.count, 12)
+        let createdSource = try await workspace.checklistSnapshot(for: created.record.id)
+        XCTAssertEqual(createdSource?.officeName, "Built-in starter")
     }
 
     func testLegacyTransactionsWithoutIntentsAreNotReinterpreted() async throws {
@@ -225,12 +226,15 @@ final class TransactionInitializationTests: XCTestCase {
         let report = try await coordinator.recoverPending()
         XCTAssertTrue(report.completedTransactionIDs.isEmpty)
         XCTAssertTrue(report.failures.isEmpty)
-        XCTAssertNil(try await workspace.checklistSnapshot(for: legacy.id))
-        XCTAssertTrue(try await workspace.checklist(for: legacy.id).isEmpty)
+        let legacySource = try await workspace.checklistSnapshot(for: legacy.id)
+        let legacyTasks = try await workspace.checklist(for: legacy.id)
+        XCTAssertNil(legacySource)
+        XCTAssertTrue(legacyTasks.isEmpty)
         // Legacy/manual loader still works, and is never auto-attributed to an office.
-        XCTAssertEqual(try await workspace.seedStarterChecklist(
+        let seededLegacyCount = try await workspace.seedStarterChecklist(
             for: legacy.id, workflow: .acceptedOffer
-        ), 12)
+        )
+        XCTAssertEqual(seededLegacyCount, 12)
     }
 
     func testAtomicInsertRejectsDuplicateAndDoesNotCreatePartialIntent() async throws {
