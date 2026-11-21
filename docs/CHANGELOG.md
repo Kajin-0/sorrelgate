@@ -1,5 +1,13 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T05:32:20.683Z — M2 CSV parser, column review and native import interface (CI PENDING)
+- **Branch:** `feature/m2-csv-import-20261121`, scoped extension following merged office-profile PR #9 (`8c127df`).
+- **Core:** UTF-8 CSV parser with BOM support, quoted commas/embedded newlines, escape handling, 2 MiB/2,000 row/64 column limits and non-silent errors; explicit mapped title column, full invalid/duplicate row review, no silent partial import.
+- **GUI:** User-selected local CSV picker with security-scoped grant, read-only preview, mapped-column choice, blocking invalid rows; approved titles copied into unsaved office template draft. Saving still requires explicit action and creates a versioned revision; existing transactions unaffected.
+- **Tests:** Four synthetic CSV XCTest cases added (quotes/BOM, multiline, duplicate/mismatch, oversize/malformed/encoding). **NOT RUN at commit creation**; macOS SwiftUI compilation/CI must be inspected.
+- **Next:** Fix CI if needed, close CSV gate, then XLSX import. No additional paid runtime service.
+
+
 ## 2026-11-21T05:30:27.176Z — M2 office profiles and snapshot CI verified
 - **Evidence:** [macOS Actions #14](https://github.com/Kajin-0/sorrelgate/actions/runs/44870973186) SUCCESS for source commit `eb106533ca49bf106c84e70772b8f44cf11d13e1` on macOS 26.7.2 Apple Silicon, Xcode 26.6, Swift 6.3.3.
 - **Tests:** `swift test --parallel` ran **16/16 XCTest cases** successfully (11 prior + 5 new), separate Swift Testing harness has 0 native Swift Testing cases. XcodeGen generated project; native SwiftUI app `xcodebuild ... CODE_SIGNING_ALLOWED=NO build` PASS; artifact uploaded. No actual Mac GUI test.

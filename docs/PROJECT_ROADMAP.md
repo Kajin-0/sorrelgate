@@ -1,6 +1,6 @@
 # Sorrelgate — Staged implementation roadmap
 
-**Status:** M0/M1 core CI green. M2 named office profiles, independent versioned checklist templates, snapshot metadata and native editor pass 16 XCTest cases plus Mac build in [PR #9 Actions #14](https://github.com/Kajin-0/sorrelgate/actions/runs/44870973186); main still on 11-test baseline. Excel/CSV import and human beta remain pending. Owner lacks a local Mac, so interactive validation is deferred to external beta. See [remote testing](REMOTE_TEST_STRATEGY.md). Detailed tasks are in [Implementation Checklist](IMPLEMENTATION_CHECKLIST.md).
+**Status:** M0/M1 core CI green. M2 named office profiles, independent versioned checklist templates, snapshot metadata and native editor pass 16 XCTest cases plus Mac build in [PR #9 Actions #14](https://github.com/Kajin-0/sorrelgate/actions/runs/44870973186), now merged to main (`8c127df`). CSV title-column importer is submitted on a separate feature branch (CI pending); Excel import and human beta remain pending. Owner lacks a local Mac, so interactive validation is deferred to external beta. See [remote testing](REMOTE_TEST_STRATEGY.md). Detailed tasks are in [Implementation Checklist](IMPLEMENTATION_CHECKLIST.md).
 
 | Milestone | Deliverable | Required exit evidence |
 |---|---|---|

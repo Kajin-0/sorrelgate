@@ -3,7 +3,7 @@
 **Updated:** 2026-11-21T05:15:20.571Z (UTC)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**M2 verified in feature branch:** PR #9 (`feature/m2-office-profiles-20261121`), GitHub Actions [#14](https://github.com/Kajin-0/sorrelgate/actions/runs/44870973186) PASSED: 16 XCTest cases (11 baseline + 5 new), native SwiftUI app build and unsigned artifact PASS. Named offices, versioned seller templates and transaction snapshot provenance implemented; CSV/XLSX still missing. Main remains at prior 11-test baseline; PR is draft. Physical Mac GUI not tested.
+**M2 office profiles MERGED:** [PR #9](https://github.com/Kajin-0/sorrelgate/pull/9) squash commit `8c127df`. GitHub Actions [#14](https://github.com/Kajin-0/sorrelgate/actions/runs/44870973186) PASSED: 16 XCTest (11 baseline + 5 office), native SwiftUI build. **CSV extension on branch `feature/m2-csv-import-20261121` is NOT YET CI-VERIFIED:** local CSV parsing, mapped preview, staged draft plus 4 new tests; XLSX missing. No physical Mac GUI test.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Implement CSV checklist import with preview and explicit column mapping, then XLSX; continue Mac CI. M2 is incomplete until those gates pass. Extend M1 Vision OCR and import cancellation tests. No developer membership or paid installer for initial supervised Mac pilot.
+**Next:** Verify CSV branch in Mac CI and repair failures, then implement XLSX via the same mapping/review contract. M2 remains incomplete. Extend M1 Vision OCR and import cancellation tests. No developer membership or paid installer for initial supervised Mac pilot.
