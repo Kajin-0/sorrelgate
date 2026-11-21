@@ -1,5 +1,14 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T05:27:44.886Z — M2 office profile/template slice submitted; CI verification pending
+- **Branch:** `feature/m2-office-profiles-20261121` (do not merge until macOS Swift/Xcode CI green).
+- **Core:** New OfficeTemplateStore in the existing document SQLite file: case-insensitively unique named offices, independent listing/accepted-offer workflow versions, immutable revision rows, optimistic edit conflicts, atomic per-transaction task snapshot/provenance, legacy/manual checklist no-overwrite.
+- **GUI:** New Office Settings sheet with task editing and ordering; new-transaction office selector; workspace displays source revision.
+- **Tests added:** Five synthetic XCTest cases covering office isolation, snapshot versioning/reopen, manual task preservation, duplicate/stale/invalid rejection, starter provenance and editing durability.
+- **Tests:** NOT RUN for this new feature at documentation time; GitHub Actions must be inspected before claiming success.
+- **Next:** Repair any compilation/test failures, verify native build, then CSV column-mapping and importer.
+
+
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
 ## 2026-11-21T05:18:08.321Z — 11 Mac tests green; versioned seller checklists and edit UI verified
