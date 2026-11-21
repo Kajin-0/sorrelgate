@@ -1,5 +1,12 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T15:03:27.041Z — PR #18 G1 first source-linked human review source CI verified; merge pending
+- [macOS Actions #101](https://github.com/Kajin-0/sorrelgate/actions/runs/44916706166) and [#102](https://github.com/Kajin-0/sorrelgate/actions/runs/44916709858) **both SUCCESS** on feature code `ade611dd71eda55d013b984a5284a24b45f9d1ce`: **54/54 XCTest** (51 prior + 3 new) and native SwiftUI app build, with unsigned artifact packaging/upload success.
+- Three real PDFKit/SQLite tests: exact acceptance-date on second page of a three-page synthetic PDF bound to source SHA/document/transaction and actual PDFKit page text; two-transaction scope denial for discovery/review/source and independence across reopen; explicit Confirm/Reject/Unknown persists and rediscovery preserves decision; prose/TBD/impossible calendar dates produce **zero guessed candidates**; deliberate archived-original byte corruption blocks source navigation and any confirmation.
+- Domain persists a separate proposed-vs-human-decided state and the original citation, with transaction scope and SQLite document/page foreign keys. Native page navigation is implemented and compiled, but **human UI behavior not independently tested**. This is the first G1 **engineering slice only**; no held-out document-type classifier/field precision, actual field scans, model call or legal validation.
+- No new dependency/spending. PR #18 merge pending at log time.
+
+
 ## 2026-11-21T14:58:16.158Z — G1 first source-backed field proposal → human review → reopen (CI PENDING)
 - **Gate:** [Delivery Contract](DELIVERY_CONTRACT.md) G1; single complete vertical slice on branch `feature/g1-evidence-review-vertical-slice-20261121` (target **54 XCTest** from 51 baseline). **Not tested on macOS yet; merge only green.**
 - **Domain / SQLite:** Added `FieldProposal` with source document SHA-256, transaction ID, document ID, zero-based page index, exact supporting extracted line, fixed acceptance-date kind and `proposed/confirmed/rejected/unknown` states. Additive SQLite table, unique proposal identity and foreign-key page ownership; re-discovery preserves human decisions, cross-transaction review/open is denied. Rehash original PDF before discovery, review or source navigation.
