@@ -247,18 +247,89 @@ struct MainView: View {
                 }
                 .frame(minWidth: 310, idealWidth: 390)
 
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text("Document Preview")
                         .font(.headline)
                     if let url = workspace.previewURL {
-                        PDFPreview(fileURL: url)
-                            .accessibilityLabel("Selected PDF document preview")
+                        PDFPreview(
+                            fileURL: url,
+                            pageIndex: workspace.previewPageIndex,
+                            navigationToken: workspace.previewNavigationID
+                        )
+                        .accessibilityLabel("Selected PDF document preview")
                     } else {
                         ContentUnavailableView(
                             "Select a Document",
                             systemImage: "doc.text.magnifyingglass",
                             description: Text("Choose a PDF to inspect its original pages.")
                         )
+                    }
+                    Divider()
+                    HStack {
+                        Text("Acceptance Date Review").font(.headline)
+                        Spacer()
+                        Button("Find in Selected PDF") {
+                            workspace.findAcceptanceDatesInSelectedDocument()
+                        }
+                        .disabled(
+                            workspace.selectedDocumentID == nil ||
+                            workspace.isImporting ||
+                            workspace.isFindingProposals
+                        )
+                    }
+                    if workspace.fieldProposals.isEmpty {
+                        Text("Select a PDF, then find explicitly labeled dates. Any result needs your review; an absent date is not inferred.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ScrollView {
+                            LazyVStack(alignment: .leading, spacing: 12) {
+                                ForEach(workspace.fieldProposals) { proposal in
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        Text("\(proposal.kind.displayName): \(proposal.value)")
+                                            .font(.subheadline.weight(.semibold))
+                                            .textSelection(.enabled)
+                                        Text("Source: \(workspace.documents.first(where: { $0.id == proposal.documentID })?.originalName ?? "Original PDF") · page \(proposal.pageIndex + 1)")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                        Text(proposal.evidence)
+                                            .font(.caption.monospaced())
+                                            .foregroundStyle(.secondary)
+                                            .textSelection(.enabled)
+                                        HStack {
+                                            Button("View original page") {
+                                                workspace.showProposalSource(proposal)
+                                            }
+                                            .accessibilityLabel(
+                                                "Open original PDF page \(proposal.pageIndex + 1)"
+                                            )
+                                            Text(proposal.status == .proposed
+                                                 ? "Unverified"
+                                                 : proposal.status.rawValue.capitalized)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                            Spacer()
+                                            Menu("Review") {
+                                                Button("Confirm as reviewed") {
+                                                    workspace.reviewProposal(proposal, as: .confirmed)
+                                                }
+                                                Button("Reject") {
+                                                    workspace.reviewProposal(proposal, as: .rejected)
+                                                }
+                                                Button("Unknown") {
+                                                    workspace.reviewProposal(proposal, as: .unknown)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .padding(8)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(.quaternary.opacity(0.35))
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
+                            }
+                        }
+                        .frame(maxHeight: 220)
                     }
                 }
                 .frame(minWidth: 320, maxWidth: .infinity)

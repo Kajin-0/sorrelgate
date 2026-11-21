@@ -1,5 +1,7 @@
 # Sorrelgate — Verified development status
 
+**Current G1 feature slice (CI PENDING):** `feature/g1-evidence-review-vertical-slice-20261121` adds source-linked **Acceptance date** candidate review from actual PDFKit extracted text and local SQLite. A strict `Acceptance Date: YYYY-MM-DD` labeled line creates only an **unverified** candidate with immutable document ID/transaction, SHA-256 and zero-based page reference; no confirmation until explicit user action. Native PDF preview jumps to the cited page; Confirm/Reject/Unknown and transaction-safe reopening persist. Three new synthetic PDF tests (target **54 XCTest**) cover source provenance, cross-transaction authorization, idempotence, invalid/unknown values, corrupt original refusal and reopen. **No new macOS test evidence yet**; PR CI must pass before any merge. The field recognizer is deliberately narrow, not broad classification or extraction. No new AI, OCR engine or paid service.
+
 **Execution scope locked (2026-11-21):** [Delivery Contract](DELIVERY_CONTRACT.md) defines five measurable product gates. Active **G1 — evidence-backed review (M3)**, following 51-test [main CI #97](https://github.com/Kajin-0/sorrelgate/actions/runs/44910712360) success at `704e39c93947261305145dd5f944833df2c4a78a`. G2–G5 are future gates; no agent or full accepted-offer transaction capability should be claimed yet. This is a planning/documentation-only change: **no new runtime tests were executed** as evidence for additional product capabilities.
 
 

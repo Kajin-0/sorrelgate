@@ -1,5 +1,14 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T14:58:16.158Z — G1 first source-backed field proposal → human review → reopen (CI PENDING)
+- **Gate:** [Delivery Contract](DELIVERY_CONTRACT.md) G1; single complete vertical slice on branch `feature/g1-evidence-review-vertical-slice-20261121` (target **54 XCTest** from 51 baseline). **Not tested on macOS yet; merge only green.**
+- **Domain / SQLite:** Added `FieldProposal` with source document SHA-256, transaction ID, document ID, zero-based page index, exact supporting extracted line, fixed acceptance-date kind and `proposed/confirmed/rejected/unknown` states. Additive SQLite table, unique proposal identity and foreign-key page ownership; re-discovery preserves human decisions, cross-transaction review/open is denied. Rehash original PDF before discovery, review or source navigation.
+- **Extraction:** Only fully explicit `Acceptance Date: YYYY-MM-DD` line, validated Gregorian calendar date, from existing PDFKit/Vision text. Missing, free-form or impossible dates **abstain**. No model, legal-deadline calculation, automatic verified state, or general recognition claim.
+- **macOS UI:** Manual `Find in Selected PDF`, evidence snippet, source PDF filename + human page number, actual PDFKit page jump, explicit user review menu and durable UI refresh; no speculative view architecture.
+- **Tests:** Three new real synthetic PDFKit/SQLite tests verify multipage source and immutable bytes/hash, two-transaction isolation, idempotent confirmed status, persisted Unknown/Rejected/reopen, abstention on invalid dates and corrupted-source refusal. Native build and test still **PENDING**.
+- **Limits:** G1 held-out field accuracy/coverage and full workflow remain open; no authorized real estate document corpus, human Mac tester, storage recovery/agent action testing. No new dependency or cost.
+
+
 ## 2026-11-21T14:29:48.465Z — Outcome-gated product contract; stop synthetic microhardening churn
 - **Scope:** New [docs/DELIVERY_CONTRACT.md](DELIVERY_CONTRACT.md) defines one Accepted Offer north-star workflow and five measurable gates: G1 evidence-backed review, G2 human-reviewed deliverables, G3 recovery/security, G4 permissioned agent, G5 external Mac pilot/commercial release.
 - **Current evidence:** [main Actions #97](https://github.com/Kajin-0/sorrelgate/actions/runs/44910712360) success at `704e39c93947261305145dd5f944833df2c4a78a`: 51 XCTest/native SwiftUI build. This change is **planning/documentation only**; it makes **no new product capability claims** and has **no new runtime tests**.

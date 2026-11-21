@@ -37,7 +37,7 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 
 ## M3 — Intelligence
 - [ ] Document labels and unknown state
-- [ ] Core field proposals with source PDF page and confirmation state
+- [ ] Core field proposals with source PDF page and confirmation state — first **Acceptance Date** exact-label, unconfirmed proposal → source original page → explicit human Confirm/Reject/Unknown → SQLite reopen path implemented on G1 branch, **CI pending**. Additional fields and held-out accuracy/coverage remain unverified.
 - [ ] Cross-document mismatch candidates
 - [ ] Missing document checks based on selected office template
 - [ ] Duplicate and unreadable-page issues
