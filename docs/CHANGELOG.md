@@ -1,5 +1,22 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T05:30:27.176Z — M2 office profiles and snapshot CI verified
+- **Evidence:** [macOS Actions #14](https://github.com/Kajin-0/sorrelgate/actions/runs/44870973186) SUCCESS for source commit `eb106533ca49bf106c84e70772b8f44cf11d13e1` on macOS 26.7.2 Apple Silicon, Xcode 26.6, Swift 6.3.3.
+- **Tests:** `swift test --parallel` ran **16/16 XCTest cases** successfully (11 prior + 5 new), separate Swift Testing harness has 0 native Swift Testing cases. XcodeGen generated project; native SwiftUI app `xcodebuild ... CODE_SIGNING_ALLOWED=NO build` PASS; artifact uploaded. No actual Mac GUI test.
+- **Scope:** PR #9 draft; named independent offices, append-only seller checklists and transaction-bound source revisions, task editor and office selector are compiled and backend-tested.
+- **Remaining:** CSV/XLSX importer, richer task requirements/states, migration UX and real-user Mac interaction; $0 additional cost maintained.
+- **Next:** CSV with column mapping and preview, then XLSX; continue scoped Mac CI and release NO-GO.
+
+
+## 2026-11-21T05:27:44.886Z — M2 office profile/template slice submitted; CI verification pending
+- **Branch:** `feature/m2-office-profiles-20261121` (do not merge until macOS Swift/Xcode CI green).
+- **Core:** New OfficeTemplateStore in the existing document SQLite file: case-insensitively unique named offices, independent listing/accepted-offer workflow versions, immutable revision rows, optimistic edit conflicts, atomic per-transaction task snapshot/provenance, legacy/manual checklist no-overwrite.
+- **GUI:** New Office Settings sheet with task editing and ordering; new-transaction office selector; workspace displays source revision.
+- **Tests added:** Five synthetic XCTest cases covering office isolation, snapshot versioning/reopen, manual task preservation, duplicate/stale/invalid rejection, starter provenance and editing durability.
+- **Tests:** NOT RUN for this new feature at documentation time; GitHub Actions must be inspected before claiming success.
+- **Next:** Repair any compilation/test failures, verify native build, then CSV column-mapping and importer.
+
+
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
 ## 2026-11-21T05:18:08.321Z — 11 Mac tests green; versioned seller checklists and edit UI verified

@@ -8,6 +8,8 @@ final class WorkspaceModel: ObservableObject {
     @Published var selectedDocumentID: UUID?
     @Published private(set) var documents: [ImportedDocument] = []
     @Published private(set) var tasks: [ChecklistItem] = []
+    @Published private(set) var offices: [OfficeProfile] = []
+    @Published private(set) var checklistSource: ChecklistSnapshot?
     @Published var errorMessage: String?
     @Published var noticeMessage: String?
     @Published private(set) var isImporting = false
@@ -35,6 +37,7 @@ final class WorkspaceModel: ObservableObject {
                 documentsRoot: directory.appendingPathComponent("originals", isDirectory: true)
             )
             refresh()
+            Task { await reloadOffices() }
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -51,7 +54,51 @@ final class WorkspaceModel: ObservableObject {
         }
     }
 
-    func create(address: String, workflow: WorkflowKind) -> Bool {
+    func reloadOffices() async {
+        guard let documentWorkspace else { return }
+        do {
+            offices = try await documentWorkspace.offices()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func createOffice(named name: String) async throws -> OfficeProfile {
+        guard let documentWorkspace else {
+            throw DocumentProcessingError.database("Workspace unavailable")
+        }
+        let office = try await documentWorkspace.createOffice(named: name)
+        offices = try await documentWorkspace.offices()
+        return office
+    }
+
+    func loadOfficeTemplate(
+        officeID: UUID, workflow: WorkflowKind
+    ) async throws -> OfficeChecklistTemplate {
+        guard let documentWorkspace else {
+            throw DocumentProcessingError.database("Workspace unavailable")
+        }
+        return try await documentWorkspace.officeTemplate(
+            officeID: officeID, workflow: workflow
+        )
+    }
+
+    func saveOfficeTemplate(
+        officeID: UUID, workflow: WorkflowKind,
+        expectedVersion: Int, titles: [String]
+    ) async throws -> OfficeChecklistTemplate {
+        guard let documentWorkspace else {
+            throw DocumentProcessingError.database("Workspace unavailable")
+        }
+        return try await documentWorkspace.saveOfficeTemplate(
+            officeID: officeID, workflow: workflow,
+            expectedVersion: expectedVersion, titles: titles
+        )
+    }
+
+    func create(
+        address: String, workflow: WorkflowKind, officeID: UUID? = nil
+    ) -> Bool {
         guard let service else {
             errorMessage = "The local database is unavailable."
             return false
@@ -67,7 +114,7 @@ final class WorkspaceModel: ObservableObject {
                 Task {
                     do {
                         _ = try await documentWorkspace.seedStarterChecklist(
-                            for: transaction.id, workflow: workflow
+                            for: transaction.id, workflow: workflow, officeID: officeID
                         )
                         if selectedTransactionID == transaction.id { loadSelected() }
                     } catch {
@@ -88,6 +135,7 @@ final class WorkspaceModel: ObservableObject {
             lastLoadedTransactionID = nil
             documents = []
             tasks = []
+            checklistSource = nil
             selectedDocumentID = nil
             previewURL = nil
             return
@@ -98,14 +146,17 @@ final class WorkspaceModel: ObservableObject {
             previewURL = nil
             documents = []
             tasks = []
+            checklistSource = nil
         }
         Task {
             do {
                 let loadedDocuments = try await workspace.documents(for: id)
                 let loadedTasks = try await workspace.checklist(for: id)
+                let snapshot = try await workspace.checklistSnapshot(for: id)
                 guard selectedTransactionID == id else { return }
                 documents = loadedDocuments
                 tasks = loadedTasks
+                checklistSource = snapshot
                 if let selectedDocumentID,
                    let selected = loadedDocuments.first(where: { $0.id == selectedDocumentID }) {
                     previewURL = await workspace.storedPDFURL(for: selected)

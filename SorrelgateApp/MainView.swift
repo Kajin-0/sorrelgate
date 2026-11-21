@@ -7,6 +7,7 @@ struct MainView: View {
     @StateObject private var workspace = WorkspaceModel()
     @State private var isPresentingNewTransaction = false
     @State private var isPresentingPDFPicker = false
+    @State private var isPresentingOffices = false
     @State private var newTaskTitle = ""
     @State private var editingTask: ChecklistItem?
 
@@ -34,6 +35,13 @@ struct MainView: View {
             .navigationTitle("Sorrelgate")
             .navigationSplitViewColumnWidth(min: 235, ideal: 295)
             .toolbar {
+                ToolbarItem {
+                    Button {
+                        isPresentingOffices = true
+                    } label: {
+                        Label("Offices", systemImage: "building.2")
+                    }
+                }
                 ToolbarItem {
                     Button {
                         isPresentingNewTransaction = true
@@ -69,11 +77,14 @@ struct MainView: View {
             )
         }
         .sheet(isPresented: $isPresentingNewTransaction) {
-            NewTransactionSheet { address, workflow in
-                if workspace.create(address: address, workflow: workflow) {
+            NewTransactionSheet(offices: workspace.offices) { address, workflow, officeID in
+                if workspace.create(address: address, workflow: workflow, officeID: officeID) {
                     isPresentingNewTransaction = false
                 }
             }
+        }
+        .sheet(isPresented: $isPresentingOffices) {
+            OfficeSettingsSheet(workspace: workspace)
         }
         .fileImporter(
             isPresented: $isPresentingPDFPicker,
@@ -107,6 +118,12 @@ struct MainView: View {
                         .textSelection(.enabled)
                     Text(transaction.workflow.displayName)
                         .foregroundStyle(.secondary)
+                    if let source = workspace.checklistSource,
+                       source.transactionID == transaction.id {
+                        Text("Checklist: \(source.officeName) · revision \(source.templateVersion)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 Spacer()
                 Button {
@@ -278,7 +295,9 @@ private struct NewTransactionSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var address = ""
     @State private var workflow: WorkflowKind = .acceptedOffer
-    let onCreate: (String, WorkflowKind) -> Void
+    @State private var officeID: UUID?
+    let offices: [OfficeProfile]
+    let onCreate: (String, WorkflowKind, UUID?) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -291,17 +310,26 @@ private struct NewTransactionSheet: View {
                     Text(kind.displayName).tag(kind)
                 }
             }
+            Picker("Office checklist", selection: $officeID) {
+                Text("Built-in starter").tag(nil as UUID?)
+                ForEach(offices) { office in
+                    Text(office.name).tag(Optional(office.id))
+                }
+            }
+            Text("Selected office tasks are copied into this transaction.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
             Spacer(minLength: 8)
             HStack {
                 Spacer()
                 Button("Cancel") { dismiss() }.keyboardShortcut(.cancelAction)
-                Button("Create Transaction") { onCreate(address, workflow) }
+                Button("Create Transaction") { onCreate(address, workflow, officeID) }
                     .buttonStyle(.borderedProminent)
                     .disabled(address.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     .keyboardShortcut(.defaultAction)
             }
         }
         .padding(28)
-        .frame(width: 475, height: 245)
+        .frame(width: 475, height: 295)
     }
 }

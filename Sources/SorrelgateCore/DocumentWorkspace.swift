@@ -79,6 +79,7 @@ public struct ChecklistItem: Identifiable, Equatable, Sendable {
 /// must use this same permission-controlled domain API, not private SQL.
 public actor DocumentWorkspace {
     private let store: DocumentSQLiteStore
+    private let officeTemplates: OfficeTemplateStore
     private let documentsRoot: URL
 
     public init(databaseURL: URL, documentsRoot: URL) throws {
@@ -87,6 +88,7 @@ public actor DocumentWorkspace {
         )
         self.documentsRoot = documentsRoot
         self.store = try DocumentSQLiteStore(fileURL: databaseURL)
+        self.officeTemplates = try OfficeTemplateStore(databaseURL: databaseURL)
     }
 
     public func documents(for transactionID: UUID) throws -> [ImportedDocument] {
@@ -120,15 +122,44 @@ public actor DocumentWorkspace {
         return item
     }
 
-    /// Atomic first-use setup. A coordinator's existing tasks are never replaced.
+    /// Creates immutable checklist rows and provenance as one SQLite transaction.
+    /// Existing manual tasks and previously seeded transactions are never overwritten.
     @discardableResult
     public func seedStarterChecklist(
-        for transactionID: UUID, workflow: WorkflowKind
+        for transactionID: UUID, workflow: WorkflowKind, officeID: UUID? = nil
     ) throws -> Int {
-        try store.seedTasksIfEmpty(
-            transactionID: transactionID,
-            titles: StarterChecklist.titles(for: workflow)
+        try officeTemplates.seedTransaction(
+            transactionID, workflow: workflow, officeID: officeID
         )
+    }
+
+    public func offices() throws -> [OfficeProfile] {
+        try officeTemplates.offices()
+    }
+
+    public func createOffice(named name: String) throws -> OfficeProfile {
+        try officeTemplates.createOffice(named: name)
+    }
+
+    public func officeTemplate(
+        officeID: UUID, workflow: WorkflowKind
+    ) throws -> OfficeChecklistTemplate {
+        try officeTemplates.template(officeID: officeID, workflow: workflow)
+    }
+
+    @discardableResult
+    public func saveOfficeTemplate(
+        officeID: UUID, workflow: WorkflowKind,
+        expectedVersion: Int, titles: [String]
+    ) throws -> OfficeChecklistTemplate {
+        try officeTemplates.saveTemplate(
+            officeID: officeID, workflow: workflow,
+            expectedVersion: expectedVersion, titles: titles
+        )
+    }
+
+    public func checklistSnapshot(for transactionID: UUID) throws -> ChecklistSnapshot? {
+        try officeTemplates.snapshot(transactionID: transactionID)
     }
 
     public func renameTask(_ taskID: UUID, in transactionID: UUID, to title: String) throws {
