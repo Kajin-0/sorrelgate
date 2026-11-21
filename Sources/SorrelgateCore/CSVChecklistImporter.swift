@@ -54,7 +54,8 @@ public enum CSVChecklistImporter {
             throw CSVChecklistImportError.unsupportedEncoding
         }
         if text.first == "\u{FEFF}" { text.removeFirst() }
-        let chars = Array(text)
+        // Unicode scalars keep CR and LF distinct; Swift Character can group CRLF.
+        let chars = Array(text.unicodeScalars)
         var records: [CSVChecklistRow] = []
         var fields: [String] = []
         var field = ""
@@ -94,7 +95,7 @@ public enum CSVChecklistImporter {
                         closedQuote = true
                     }
                 } else {
-                    field.append(char)
+                    field.unicodeScalars.append(char)
                     if char == "\n" || (char == "\r" &&
                         (cursor + 1 == chars.count || chars[cursor + 1] != "\n")) {
                         line += 1
@@ -120,7 +121,7 @@ public enum CSVChecklistImporter {
                     throw CSVChecklistImportError.malformed(line)
                 }
             } else {
-                field.append(char)
+                field.unicodeScalars.append(char)
                 atFieldStart = false
             }
             cursor += 1
