@@ -1,5 +1,7 @@
 # Sorrelgate — free, Codex-assisted first Mac pilot
 
+**Sanitized distribution VERIFIED (2026-11-21T17:37:12.627Z):** [PR #23](https://github.com/Kajin-0/sorrelgate/pull/23) merged, exact-head macOS runs #44930449639 and #44930455830 succeeded. Share only the **standalone compiled Release app ZIP**; previous developer/Debug ZIPs, this internal document and source links are not for testers. The standalone has no source files, no repository/developer identifiers, only plain local setup instructions and sample data. The recipient must not be directed at source hosting. The app is UNSIGNED; macOS may require informed per-app approval and real on-device testing remains pending.
+
 **CURRENT DELIVERY POLICY (2026-11-21T17:23:12.407Z):** This document is **developer-only** and may contain historical source links for internal provenance. Do not copy it into any tester/customer ZIP or Codex prompt. The previously uploaded Beta 0.1.0/0.1.1 Debug development handoffs are obsolete for external sharing because binaries can embed build paths. Going forward, CI makes a separate **Release-configuration standalone ZIP** with `Sorrelgate.app`, fictional samples, `START HERE.txt`, `FOR CODEX - SETUP AND TEST.txt`, `TEST RESULTS.txt`, and SHA-256 manifests. The assistant only installs and tests supplied compiled files; no source hosting, accounts or developer tools. `scripts/verify_customer_bundle.py` checks all distribution bytes. CI results for this change are pending at this entry; do not distribute an unverified artifact.
 
 ## Beta 0.1.1 — first real Mac pilot
