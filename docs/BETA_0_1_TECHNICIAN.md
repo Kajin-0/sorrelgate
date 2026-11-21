@@ -1,4 +1,4 @@
-# Sorrelgate Beta 0.1.0 — Mac technician / Codex setup
+# Sorrelgate Beta 0.1.1 — Mac technician / Codex setup
 
 **Goal:** Conduct the first free supervised usability test on an authorized
 Apple-silicon Mac running macOS 26+. This ZIP contains an UNSIGNED .app,
@@ -15,7 +15,7 @@ remove quarantine to bypass checks, or use real client data.
    first-run setup. Install free XcodeGen if needed and authorized. No
    paid Apple Developer membership or cloud API key is required.
 3. Clone https://github.com/Kajin-0/sorrelgate. Check out the *exact*
-   commit from BUILD INFO.txt for reproducible Beta 0.1.0 testing rather
+   commit from BUILD INFO.txt for reproducible Beta 0.1.1 testing rather
    than silently building a moving main branch.
 4. From the repository root run:
 
@@ -38,9 +38,11 @@ remove quarantine to bypass checks, or use real client data.
 ## Observe the human, not just the compiler
 
 Let the tester follow README FIRST.txt; record each PASS/FAIL in
-TEST RESULTS.txt. Watch whether they can create a transaction, understand
-the checklist, import PDFs, inspect original pages, mark proposals
-Confirm/Reject/Unknown, export a package, quit, and reopen. Offer
+TEST RESULTS.txt. Observe the three simple sections (Review, Documents,
+Checklist). Watch whether they can create a transaction, import PDFs,
+find labeled details across the transaction with one action, view the
+original page, decide Confirm/Not sure/Reject, export, quit and reopen.
+Do not coach them on navigation unless they become blocked. Offer
 assistance only if they are blocked.
 
 Verify source files and exports retain the sample SHA-256 digests as

@@ -11,7 +11,7 @@ if [ "$(uname -s)" != "Darwin" ]; then
   exit 2
 fi
 app="$1"
-version="0.1.0"
+version="0.1.1"
 /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$app/Contents/Info.plist" | grep -Fx "$version"
 test -f "$app/Contents/MacOS/Sorrelgate"
 mkdir -p dist

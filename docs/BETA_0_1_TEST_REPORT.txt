@@ -1,4 +1,4 @@
-SORRELGATE BETA 0.1.0 - TEST RESULTS
+SORRELGATE BETA 0.1.1 - TEST RESULTS
 ====================================
 
 Use only synthetic data. Do not report confidential names, addresses,
@@ -17,8 +17,8 @@ Mark PASS, FAIL or NOT TRIED next to each checkpoint:
 [ ] Starter checklist visible and editable: _______
 [ ] Three sample PDFs imported: ___________________
 [ ] PDF preview displayed the expected pages: _____
-[ ] Source-linked date and price review worked: ___
-[ ] Deliberate competing values were visible: _____
+[ ] Review > Find details in PDFs worked: ________
+[ ] Different prices/dates were visibly flagged: __
 [ ] Export contained PDF copies and manifest: _____
 [ ] Quit/reopen preserved transaction and tasks: ___
 

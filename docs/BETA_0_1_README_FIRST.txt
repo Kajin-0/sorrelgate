@@ -1,4 +1,4 @@
-SORRELGATE BETA 0.1.0 - READ ME FIRST
+SORRELGATE BETA 0.1.1 - READ ME FIRST
 =====================================
 
 This is a supervised early Mac test, not a finished product. All included
@@ -20,10 +20,10 @@ WHAT TO DO AFTER SORRELGATE OPENS
 2. Inspect the starter checklist and mark one item complete.
 3. Import all three PDFs from the "Sample Documents" folder.
 4. Select a PDF, inspect its original pages, and link it to a checklist item.
-5. In the first PDF, use "Find in Selected PDF" under Key Facts Review.
-   Open the source page for the date and price; mark one proposal Unknown.
-6. In the second PDF, discover the deliberately different purchase price
-   and closing date. These are differences to review, not legal findings.
+5. Open Review and choose "Find details in PDFs" once for all three PDFs.
+   View the original page for a date and price. Mark one value Not sure.
+6. Note the different proposed purchase prices and closing dates from
+   the second PDF. These are differences to check, not legal findings.
 7. Export the transaction into a folder you choose.
 8. Quit and reopen Sorrelgate; confirm the transaction, PDFs and tasks remain.
 

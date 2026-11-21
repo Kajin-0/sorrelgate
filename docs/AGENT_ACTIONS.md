@@ -1,6 +1,31 @@
 # Sorrelgate — LLM tool execution contract
 
-**Design only; actions are not implemented.** GUI and LLM must invoke the **same** typed, tested `SorrelgateCore.ActionDispatcher` operations.
+**Future controller design only; no LLM agent is implemented.** The app already has typed core services used by its GUI. A future LLM must invoke those same services only through an independent, policy-enforcing dispatcher and authoritative receipts.
+
+## Operator-first interface contract (implementation boundary)
+
+The native app is primarily an **exception review and approval console**:
+show the selected transaction, actionable proposed facts, original-page links,
+and clear Confirm / Not sure / Reject controls. Ordinary document browsing
+and checklist editing belong in separate, simple modes. A user need not
+operate a developer terminal, learn an internal tool schema, or inspect logs
+to accomplish basic review.
+
+The heavy work belongs in typed core operations, **not** UI automation:
+current `DocumentWorkspace.proposeKeyFacts(in:)` discovers bounded,
+source-linked candidates across all imported files in one transaction, while
+`reviewFieldProposal` preserves human decisions and rechecks original
+hashes. The UI calls the same domain methods. Those are **not** a deployed
+LLM agent or an authorization system. A future model controller must
+independently authorize a transaction-scoped typed action, validate inputs,
+enforce approvals and persist authoritative receipts. Untrusted PDFs must
+never supply operational instructions. No model, prompt, or external Codex
+script may bypass these checks by calling SQLite or editing the app's files.
+
+**Never conflate:** Codex as an authorized *developer/installer* is not the
+end-user on-device LLM operator. G4 agent tool registration, approval
+tokens, receipt logging and live-model tests remain **NOT IMPLEMENTED**.
+The manual UI must still work without an eligible model or network.
 
 ## Request/receipt invariant
 
