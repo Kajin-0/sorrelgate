@@ -25,7 +25,13 @@ final class SorrelgateCoreTests: XCTestCase {
             return XCTFail("Expected transaction list")
         }
         XCTAssertEqual(records.count, 1)
-        XCTAssertEqual(records.first, created)
+        XCTAssertEqual(records.first?.id, created.id)
+        XCTAssertEqual(records.first?.propertyAddress, created.propertyAddress)
+        XCTAssertEqual(records.first?.workflow, created.workflow)
+        XCTAssertEqual(
+            records.first?.createdAt.timeIntervalSince1970 ?? 0,
+            created.createdAt.timeIntervalSince1970, accuracy: 0.001
+        )
     }
 
     func testRecordsSurviveStoreReopen() throws {

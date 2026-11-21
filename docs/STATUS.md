@@ -1,47 +1,38 @@
 # Sorrelgate — Current verified state
 
-**Last verified:** 2026-11-21T04:39:17.086Z (UTC)
-**Phase:** M0 CI verified; owner has NO Mac; interactive external tester validation deferred. Work proceeds to M1 using CI.
-**Repository:** https://github.com/Kajin-0/sorrelgate (public by owner's choice)
-**Release:** NOT READY. Unsigned CI development build only; no notarized installer or real-world TC pilot. Signed distribution will be necessary for normal low-friction use by a nontechnical Mac tester.
+**Updated:** 2026-11-21T05:02:40.473Z (UTC)
+**Project:** https://github.com/Kajin-0/sorrelgate
+**Phase:** M0/M1 engineering, CI verification pending for newly submitted M1.
+**Owner hardware:** NO Mac; use GitHub Actions macOS 26 arm64, defer physical usability to first external tester.
+**Release:** NOT READY; no signed/notarized installer or verified AI operation.
 
-## Verified CI results
-- [GitHub Actions run #1](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670): **SUCCESS**, on commit \`36a0639b949dc8017ab428e063f31d38dd4cae94\`.
-- Environment: macos-26-arm64 runner; **Apple Silicon arm64**; **Xcode 26.6**; **Swift 6.3.3**.
-- \`brew install xcodegen\`: success; XcodeGen 2.46.0 (developer-only MIT tool).
-- \`swift test --parallel\`: exit 0; **four XCTest cases invoked** (create/list, reopen persistence, missing-address rejection, SQL string stored as data). The separate Swift Testing harness reported **0 Swift Testing cases**; that line must not be mistaken for zero XCTest invocations.
-- \`xcodegen generate --spec project.yml\`: exit 0; generated native project.
-- \`xcodebuild -project Sorrelgate.xcodeproj -scheme Sorrelgate -configuration Debug -destination "generic/platform=macOS" -derivedDataPath .build/DerivedData CODE_SIGNING_ALLOWED=NO build\`: **BUILD SUCCEEDED**.
-- \`ditto\` packaging and \`actions/upload-artifact@v4\`: success. [Unsigned development build](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670), 216,314-byte archive, artifact ID 14692755902; expires 2026-11-28.
-- These are **CI build and test** results; there has been **no physical user-interface smoke test**.
+## Evidence from GitHub Actions before current M1 change
+- [Run #1](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670): **PASS**, native app compiled, four XCTest cases invoked (though historical output displayed a separate Swift Testing 0-case summary).
+- [Run #2](https://github.com/Kajin-0/sorrelgate/actions/runs/44867165600): **PASS**, documentation-only update.
+- [Run #3](https://github.com/Kajin-0/sorrelgate/actions/runs/44868312124): **FAIL** in `testCreateAndListTransactions`; `XCTAssertEqual(records.first, created)` fails because SQLite REAL Date precision differs by a tiny amount. The correct test now checks UUID/address/workflow exactly and Date within 0.001 seconds. **New CI must re-verify.**
 
-## Implemented
-- Native SwiftUI transaction list, create-transaction sheet, selected detail, Settings.
-- \`SorrelgateCore\` Swift package with typed create/list actions, input validation and local SQLite persistence.
-- Core automated test cases and \`macos-26\` GitHub Actions pipeline.
-- Project handoff protocol and change tracking available to regular ChatGPT and Codex.
+## Submitted in M1 (not verified until CI completes)
+- `DocumentWorkspace` Swift actor, local SQLite metadata tables for documents, pages, checklist tasks, SHA-256 content-addressed originals, digital-text extraction via PDFKit and Vision OCR fallback.
+- Sequential batch import with cancellation/progress, duplicate recognition and source integrity; checklist creation/completion and same-transaction document association.
+- Native import picker, PDF preview, checklist management, Finder-selected export directory and reviewed copies + SHA-256 JSON manifest/Checklist.txt.
+- Synthetic test suite includes actual generated PDF files, original-byte preservation, duplicate handling, invalid PDF rejection, checklist persistence/scope, 10-PDF batch and export.
+- No real customer documents or signing credentials committed.
 
 ## Milestone gates
 | Milestone | State | Evidence |
 |---|---|---|
-| M0 Native Mac foundation / CI | IN PROGRESS (CI passed) | Actions run #1 green; add automation and negative tests. Human Mac testing deferred to external beta |
-| M1 PDF import / OCR / preview / checklist / export | NOT STARTED | No PDF engine yet |
-| M2 Office profiles / XLSX / versioning | NOT STARTED | No implementation |
-| M3 Classification / linked document checks | NOT STARTED | No implementation |
-| M4 Timeline / draft communications / exports | NOT STARTED | No implementation |
-| M5 Guarded LLM-controlled actions | NOT STARTED | No model execution |
-| M6 Commercial Mac release | NOT STARTED | No signed/notarized build or pilot |
+| M0 native SwiftUI/SQLite/CI | IN PROGRESS | one early successful CI build, later failure diagnosed; full regression retest pending; no physical Mac validation |
+| M1 PDF import/checklist/export | IN PROGRESS | source submitted; new CI must verify; full GUI hands-on deferred |
+| M2 office workflows/XLSX | NOT STARTED | no code |
+| M3 classification/validation | NOT STARTED | no code |
+| M4 timelines/email drafts | NOT STARTED | no code |
+| M5 guarded LLM actions | NOT STARTED | no code |
+| M6 commercial installer | NOT STARTED | no Apple signing or external beta |
 
-## Hardware and test constraints — owner confirmation 2026-11-21T04:54:03.882Z
-- **Owner has no local Mac.** Do not repeatedly request a physical Mac or treat missing hands-on UI evaluation as a stop gate for implementing M1–M5.
-- Use the hosted Apple-silicon macOS CI runner for automated build, unit, integration, synthetic-document, and feasible app-launch tests. Track their actual outcomes separately from hands-on acceptance.
-- Real human UI, Finder interaction, VoiceOver, Gatekeeper first install, and Apple Foundation Models on-device operation remain **UNVERIFIED** until external Mac tester access.
-- See [remote test strategy](REMOTE_TEST_STRATEGY.md). Aim for a simple signed/notarized tester-ready distribution, not terminal instructions or routine Gatekeeper bypass.
+## Next executable step
+1. Inspect macOS Actions run on latest commit: fix Swift compiler/test failures and update verified metrics. No feature is declared passed from a design alone.
+2. After green CI, harden import/cancellation/recovery and automatic starter checklists, track remaining M1 defects.
+3. Continue until a functional first beta can be provided to an external Mac user using signed/notarized distribution; no owner-side Mac is available.
+4. Update CHANGELOG and this STATUS per substantive commit. No sensitive client data in public Git.
 
-## Next executable steps
-1. Expand M0 persistence/SQLite negative tests and feasible automated Mac launch smoke testing in GitHub Actions.
-2. Begin M1 now: approved PDF intake, SHA-256 immutable copies, PDFKit/Vision OCR fallback, preview, checklists and export. CI verification is required for every significant slice.
-3. When the core workflow is useful, prepare the first external Mac beta with signing/notarization or supported TestFlight distribution and a short feedback script; tester hardware and developer-account credentials will be needed then.
-4. Keep CHANGELOG, STATUS and acceptance test status updated without conflating successful CI with human UI testing.
-
-**Security/quality:** No real contracts or secrets in Git; all original PDF data must remain immutable. Cloud inference is opt-in only. Agent tool access is not implemented yet.
+**Architecture:** The graphical interface and future LLM tools must use the same typed core operations. Never grant an LLM arbitrary filesystem access or unattended consequential real estate actions.

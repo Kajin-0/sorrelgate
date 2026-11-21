@@ -3,7 +3,7 @@
 **Updated:** 2026-11-20T23:19:47-05:00 (`America/New_York`)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**State at handoff:** M0 native SwiftUI/SQLite scaffold built successfully in [GitHub Actions run #1](https://github.com/Kajin-0/sorrelgate/actions/runs/44866969670), with four XCTest cases invoked. No local Mac is available to the owner; physical UI/Apple Intelligence tests are deferred until an external Mac tester can install a tester-ready build. Hosted GitHub macOS CI is the active engineering verification environment. No paid release, PDF OCR pipeline, or AI agent yet; read `docs/STATUS.md` for latest verified evidence. `docs/STATUS.md` is authoritative for subsequent progress.
+**State at handoff:** M1 PDF import, hash-preserved local originals, PDFKit/Vision extraction, editable task linkage and export were submitted for CI verification. **Do not claim M1 passed until latest GitHub Actions build and tests are inspected.** Prior M0 CI success was followed by a failing Date equality test at run #3; that flaky test has been corrected to compare stored timestamps with tolerance. The owner has no Mac; interactive beta tests are deferred. `docs/STATUS.md` is authoritative.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Continue M0 failure-path/CI testing, then proceed to M1 PDF import/preview/export without waiting for a local Mac. No owner Mac exists; plan actual interactive acceptance testing at the first external Mac beta. See `docs/REMOTE_TEST_STRATEGY.md`. CI compilation does not prove real Mac usability or Apple Intelligence execution. For Codex use `docs/CODEX_MASTER_PROMPT.md`; for regular ChatGPT use connected GitHub tools and verify GitHub CI runs.
+**Next:** Verify the latest macOS Actions run for M1 PDF import, persistent checklist, export and OCR; diagnose and fix any failures before expanding. The previous run #3 failed due to exact Date round-trip equality and the test was corrected. No owner Mac exists; plan actual interactive acceptance testing at the first external Mac beta. See `docs/REMOTE_TEST_STRATEGY.md`. CI compilation does not prove real Mac usability or Apple Intelligence execution. For Codex use `docs/CODEX_MASTER_PROMPT.md`; for regular ChatGPT use connected GitHub tools and verify GitHub CI runs.

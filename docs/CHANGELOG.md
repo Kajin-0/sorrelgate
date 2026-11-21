@@ -2,6 +2,15 @@
 
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
+## 2026-11-21T05:02:40.473Z — Implement M1 PDF/preview/checklist/export slice, CI pending
+- **Changes:** Added DocumentWorkspace actor (PDFKit + Vision OCR, SHA-256, immutable copies, SQLite-backed document/page/checklist, cross-transaction link constraints, verified package export), SwiftUI import/preview/checklist/export interface and five synthetic-PDF XCTest scenarios.
+- **Defect discovered:** CI [run #3](https://github.com/Kajin-0/sorrelgate/actions/runs/44868312124) FAILED: exact Date equality after SQLite REAL round-trip in testCreateAndListTransactions. Corrected test to compare stable fields and timestamp with 1 ms tolerance, preserving real persisted time precision rather than weakening production behavior.
+- **Tests at submission:** New M1 code **NOT YET RUN**; a new GitHub Actions run will be triggered by this commit. No macOS owner device.
+- **Safety:** Sources immutable, imports user-authorized, no secrets or copyrighted blank forms, no cloud transport; failed OCR leaves unavailable state.
+- **Limitations:** Document classification, office presets, bulk folder import, detailed source provenance, AI agent, code signing/notarization and human UI tests remain pending. Do not claim paid release.
+- **Next:** Read CI run, fix compilation/tests, update verified evidence and continue incremental M1 hardening.
+- **Commit:** See accompanying M1 implementation commit.
+
 ## 2026-11-21T04:54:03.882Z — Confirmed no owner Mac; revised CI-first delivery and external beta gates
 - **User constraint:** No Mac accessible to project owner. Do not pause coding until external Mac tester receives a usable build.
 - **Policy changes:** Mac CI remains mandatory for compilation and automated tests. Human UI/installer/Apple Intelligence runtime testing is deferred and remains unverified. First external tester path prioritizes a simple signed/notarized installer (or an eligible TestFlight route).
