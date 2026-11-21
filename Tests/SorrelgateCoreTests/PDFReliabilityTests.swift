@@ -25,6 +25,17 @@ final class PDFReliabilityTests: XCTestCase {
         )
     }
 
+    /// Parallel Swift XCTest runners can suppress stdout. Write fixed-format
+    /// CI measurement receipts to RUNNER_TEMP for an explicit Actions step.
+    private func emitMetric(_ filename: String, _ message: String) throws {
+        print(message)
+        if let directory = ProcessInfo.processInfo.environment["RUNNER_TEMP"] {
+            let url = URL(fileURLWithPath: directory, isDirectory: true)
+                .appendingPathComponent(filename)
+            try (message + "\n").write(to: url, atomically: true, encoding: .utf8)
+        }
+    }
+
     private func digest(_ data: Data) -> String {
         SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
     }
@@ -135,7 +146,10 @@ final class PDFReliabilityTests: XCTestCase {
         XCTAssertEqual(extracted.count, 1)
         XCTAssertEqual(extracted[0].method, .vision)
         let recall = tokenRecall(extracted[0].text)
-        print(String(format: "M1_OCR_CI token_recall=%.3f expected_terms=7 method=Vision", recall))
+        try emitMetric(
+            "sorrelgate-m1-ocr.txt",
+            String(format: "M1_OCR_CI token_recall=%.3f expected_terms=7 method=Vision", recall)
+        )
         XCTAssertGreaterThanOrEqual(recall, 0.85)
         XCTAssertTrue(extracted[0].text.contains("8123") || words(extracted[0].text).contains("8123"))
         XCTAssertEqual(doc.sha256, digest(original))
@@ -338,10 +352,13 @@ final class PDFReliabilityTests: XCTestCase {
         let sorted = durations.sorted()
         let p50 = sorted[24]
         let p95 = sorted[47]
-        print(String(format:
-            "M1_BATCH_CI files=50 digital=46 raster=4 duration_s=%.3f throughput_files_per_s=%.3f p50_import_s=%.3f p95_import_s=%.3f",
-            elapsed, 50.0 / max(elapsed, 0.001), p50, p95
-        ))
+        try emitMetric(
+            "sorrelgate-m1-batch.txt",
+            String(format:
+                "M1_BATCH_CI files=50 digital=46 raster=4 duration_s=%.3f throughput_files_per_s=%.3f p50_import_s=%.3f p95_import_s=%.3f",
+                elapsed, 50.0 / max(elapsed, 0.001), p50, p95
+            )
+        )
         let all = try await store.documents(for: transaction)
         XCTAssertEqual(all.count, 50)
         XCTAssertEqual(Set(all.map(\.sha256)).count, 50)
