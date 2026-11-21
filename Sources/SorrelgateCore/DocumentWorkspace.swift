@@ -489,7 +489,6 @@ private final class DocumentSQLiteStore {
                         guard sqlite3_step(statement) == SQLITE_DONE else { throw error }
                     }
                 }
-            }
             try execute("COMMIT;")
         } catch {
             try? execute("ROLLBACK;")

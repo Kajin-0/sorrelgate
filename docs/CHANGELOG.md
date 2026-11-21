@@ -2,6 +2,13 @@
 
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
+## 2026-11-21T05:03:40.139Z — Repair M1 Swift parsing failure from first CI attempt
+- **Failure evidence:** [CI run #4](https://github.com/Kajin-0/sorrelgate/actions/runs/44868984731) failed at Swift package compilation with extraneous closing brace in `DocumentSQLiteStore.insertDocument` around line 493; related missing-member errors were parser cascade.
+- **Change:** Removed precisely one extra closing brace; no change to intended SQL transaction semantics.
+- **Tests:** New run triggered by this commit. No success claim until observed.
+- **Next:** Review CI compiler/test output; repair any remaining problems before proceeding.
+- **Commit:** See accompanying fix commit.
+
 ## 2026-11-21T05:02:40.473Z — Implement M1 PDF/preview/checklist/export slice, CI pending
 - **Changes:** Added DocumentWorkspace actor (PDFKit + Vision OCR, SHA-256, immutable copies, SQLite-backed document/page/checklist, cross-transaction link constraints, verified package export), SwiftUI import/preview/checklist/export interface and five synthetic-PDF XCTest scenarios.
 - **Defect discovered:** CI [run #3](https://github.com/Kajin-0/sorrelgate/actions/runs/44868312124) FAILED: exact Date equality after SQLite REAL round-trip in testCreateAndListTransactions. Corrected test to compare stable fields and timestamp with 1 ms tolerance, preserving real persisted time precision rather than weakening production behavior.
