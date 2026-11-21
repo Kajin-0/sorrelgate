@@ -28,4 +28,6 @@
 4. **NO physical Mac evidence**: SwiftUI rendering, keyboard focus/shortcuts, modal dismissal, Finder permissions, accessibility, 700-point layout, and screenshot automation are **NOT VERIFIED**.
 5. Stop after a green PR and review; **no merge without owner review**, and no PR B/C without a distinct reason tied to observed failure or explicit next authorization.
 
+**Verification added 2026-11-21T15:24:46.007Z:** [PR #19](https://github.com/Kajin-0/sorrelgate/pull/19) feature commit `780fffea41ad94bfe0ccb883b860f774a1cc2726`; macOS [#108](https://github.com/Kajin-0/sorrelgate/actions/runs/44918660472) and [#109](https://github.com/Kajin-0/sorrelgate/actions/runs/44918667753) **PASS 57/57 XCTest, native app build, unsigned artifact**. Three new import-report tests passed. This is **not** a visual or human Mac validation. PR remains DRAFT and UNMERGED for owner review.
+
 **Recorded 2026-11-21T15:19:20.413Z.**

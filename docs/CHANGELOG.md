@@ -1,5 +1,11 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T15:24:46.007Z — PR #19 UI P1 fix scope source CI VERIFIED, unmerged for review
+- **Verified code commit:** `780fffea41ad94bfe0ccb883b860f774a1cc2726` on [PR #19](https://github.com/Kajin-0/sorrelgate/pull/19); [macOS Actions #108](https://github.com/Kajin-0/sorrelgate/actions/runs/44918660472) and [#109](https://github.com/Kajin-0/sorrelgate/actions/runs/44918667753), **both SUCCESS** with **57/57 XCTest**, native SwiftUI Mac build `BUILD SUCCEEDED`, unsigned artifact packaged and uploaded. All 54 previous tests remained green. Three new `ImportBatchReportTests` verify mixed success/duplicates/failure counts, cancellation with retained partial success, filename deduplication and explicit omitted-error count.
+- **Risk disposition:** Static code structure for CSV review and office draft corrected; keyboard, sheet dismissal, screenshot visual layout, Finder sandbox behavior and accessibility remain **NOT VERIFIED on physical Mac**. No new dependencies, network, data conversion or PDF source integrity alterations.
+- **Control:** This CI-verification note is documentation-only; a new documentation-head CI check may run separately. Draft remains **UNMERGED until owner review**. Stop work after green docs-head; no PR B/C automatically.
+
+
 ## 2026-11-21T15:19:48.580Z — Owner-audit P1 workflow safety, one-time exception (CI PENDING, unmerged)
 - **Reason:** Independent static audit identifies real workflow traps and data-loss-by-discard behavior. See [UI audit triage](UI_AUDIT_TRIAGE_20261121.md) for item-by-item source verification and explicit deferrals; the exception is limited to this PR and expires on review. No speculative styling or whole-layout rewrite.
 - **UI:** CSV review always exposes Cancel/Use and thrown mapping errors, lists blockers before sample rows. Office edit drafts use stable task IDs and a saved-snapshot dirty check; attempted Done/office/workflow transitions require Save/Discard/Keep Editing and prevent outside dismissal while dirty. Restore saved transaction selection, distinguish select-an-existing from first-run empty state; one native `Window` scene instead of multiple workspace models. Combine linked-document text in its task row; loading state hides false empty rows.
