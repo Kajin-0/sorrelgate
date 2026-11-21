@@ -10,6 +10,7 @@ struct OfficeSettingsSheet: View {
     @State private var newOfficeName = ""
     @State private var isImportingCSV = false
     @State private var isImportingXLSX = false
+    @State private var isReadingXLSX = false
     @State private var xlsxWorkbook: XLSXChecklistWorkbook?
     @State private var csvTable: CSVChecklistTable?
     @State private var selectedOfficeID: UUID?
@@ -96,7 +97,11 @@ struct OfficeSettingsSheet: View {
                     Button("Import CSV") { isImportingCSV = true }
                         .disabled(isWorking)
                     Button("Import Excel") { isImportingXLSX = true }
-                        .disabled(isWorking)
+                        .disabled(isWorking || isReadingXLSX)
+                    if isReadingXLSX {
+                        ProgressView().controlSize(.small)
+                            .accessibilityLabel("Reading Excel workbook")
+                    }
                     Spacer()
                     if let notice {
                         Text(notice).font(.caption).foregroundStyle(.secondary)
@@ -157,7 +162,21 @@ struct OfficeSettingsSheet: View {
                        size.intValue > XLSXChecklistImporter.byteLimit {
                         throw XLSXChecklistError.tooLarge
                     }
-                    xlsxWorkbook = try XLSXChecklistImporter.parse(Data(contentsOf: url))
+                    let data = try Data(contentsOf: url)
+                    isReadingXLSX = true
+                    Task {
+                        defer { isReadingXLSX = false }
+                        do {
+                            let workbook = try await Task.detached(
+                                priority: .userInitiated
+                            ) {
+                                try XLSXChecklistImporter.parse(data)
+                            }.value
+                            xlsxWorkbook = workbook
+                        } catch {
+                            errorMessage = error.localizedDescription
+                        }
+                    }
                 } catch {
                     errorMessage = error.localizedDescription
                 }
