@@ -13,7 +13,8 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 ## Remote CI and external Mac beta preparation
 - [x] First macOS Actions runner build/test passed; no local Mac required
 - [ ] Expand automated macOS app-launch and fresh-restart smoke tests where feasible
-- [ ] Build a signed/notarized low-friction distribution or supported TestFlight beta before nontechnical tester install
+- [ ] First free assisted pilot: use Codex + free Xcode local build on tester's Mac. No paid Apple membership now.
+- [ ] Later commercial self-serve release: signed/notarized installer only after user approves spending.
 - [ ] Obtain hands-on verification from external Mac tester; do not claim this based on CI
 
 ## M1 — Vertical slice
@@ -27,8 +28,8 @@ Use as a release gate ledger; check boxes only when implementation **and actual 
 - [ ] Crash/restart, corrupt PDF, zero-byte PDF, duplicate PDF and hash tests
 
 ## M2 — TC workflow
-- [ ] Listing Preparation starter checklist
-- [ ] Accepted Offer starter checklist
+- [x] Listing Preparation starter checklist — 9 bundled administrative tasks, idempotent seed, CI #7
+- [x] Accepted Offer starter checklist — 12 bundled administrative tasks, restart persistence, CI #7
 - [ ] Different office profiles; configurable task order, states and requirements
 - [ ] XLSX/CSV checklist import with preview and correction
 - [ ] Template version snapshots and safe updates

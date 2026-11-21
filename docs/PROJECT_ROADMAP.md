@@ -1,6 +1,6 @@
 # Sorrelgate — Staged implementation roadmap
 
-**Status:** M0 native build and tests passed in GitHub CI; other milestones unimplemented. Owner lacks a local Mac, so interactive validation is deferred to external beta. See [remote testing](REMOTE_TEST_STRATEGY.md). Detailed tasks are in [Implementation Checklist](IMPLEMENTATION_CHECKLIST.md).
+**Status:** M0/M1 core CI green; M2 starter workflows and task editing implemented, 11 tests PASS in Mac CI #7. Named offices, Excel/CSV and human beta still pending. Owner lacks a local Mac, so interactive validation is deferred to external beta. See [remote testing](REMOTE_TEST_STRATEGY.md). Detailed tasks are in [Implementation Checklist](IMPLEMENTATION_CHECKLIST.md).
 
 | Milestone | Deliverable | Required exit evidence |
 |---|---|---|

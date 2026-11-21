@@ -3,7 +3,7 @@
 **Updated:** 2026-11-21T05:15:20.571Z (UTC)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**State at handoff:** M1 core tests and native Mac compilation **PASS** in [Actions run #5](https://github.com/Kajin-0/sorrelgate/actions/runs/44869071688) (9 XCTest cases). DocumentWorkspace includes hashed immutable PDF import, PDFKit/Vision text extraction, SQLite checklists and export; SwiftUI includes file import, PDF preview, checklist, export picker. NO physical Mac; UI/Apple Intelligence, normal signed installation and full reliability gates are unverified. `docs/STATUS.md` is authoritative.
+**State at handoff:** M2 seller starter checklist and editable task UI have been compiled/tested in [Actions #7](https://github.com/Kajin-0/sorrelgate/actions/runs/44870027594): **11 XCTest cases passed**, native SwiftUI app BUILD SUCCEEDED. Versioned 9 listing/12 accepted-offer tasks load into new transactions and manual edits are protected. No owner Mac, paid Apple membership, local AI, office profiles or XLSX import yet. **$0 additional spending is mandatory during MVP testing**; Codex can build locally on the external tester's Mac with free Xcode. `docs/STATUS.md` is authoritative.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Verify the latest GitHub Actions run for auto-seeded starter checklists, task edit UI and selected-PDF retention; then implement office profiles, editable templates and spreadsheet import. No paid Apple enrollment or installer until the owner explicitly approves. Do not demand a Mac, Codex, or an Apple Developer payment until a useful signed beta is ready for an external user. Reference the successful M1 run #5 and keep status/change ledger current.
+**Next:** Implement saved office profiles and editable office-specific templates, then CSV/XLSX import. Extend M1 Vision OCR and import cancellation tests. No developer membership or paid installer for initial supervised Mac pilot.

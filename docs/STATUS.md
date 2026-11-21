@@ -1,31 +1,30 @@
-# Sorrelgate — Current state
+# Sorrelgate — Verified development status
 
-**Updated:** 2026-11-21T05:14:07.576Z (UTC)
-**Repository:** https://github.com/Kajin-0/sorrelgate
-**Budget:** $0 additional spending during the early MVP. No Apple Developer membership, paid API or signing expenses. Codex can build locally using free Xcode on the authorized future Mac tester's machine.
-**Owner Mac:** None; GitHub Actions macOS 26 arm64 handles automated builds and testing.
+**Verified:** 2026-11-21T05:18:08.321Z (UTC)
+**Repository:** https://github.com/Kajin-0/sorrelgate (public by owner's choice)
+**Budget:** $0 additional during the early MVP. Apple membership, signing, notarization, paid APIs and cloud hosting are DEFERRED. Codex may build locally using free Xcode on the external tester's Mac with the owner's consent.
+**No owner Mac:** GitHub Actions macOS runners verify builds and automated tests; real UI, macOS permissions, real OCR performance and on-device LLM must be validated later on the tester's Mac.
 
-## Last verified results
-[GitHub Actions run #5](https://github.com/Kajin-0/sorrelgate/actions/runs/44869071688) SUCCESS: 9 XCTest cases passed and native app compiled, including PDF import/hash, digital text extraction, checklist storage, and safe export.
+## Latest verified Mac CI: PASS
+- [GitHub Actions #7](https://github.com/Kajin-0/sorrelgate/actions/runs/44870027594) SUCCESS on source commit `5b419be1f9a7bce6a0402c069f55463930a52c13`.
+- Apple Silicon macOS 26, Xcode 26.6, Swift 6.3.3, XcodeGen 2.46.0.
+- `swift test --parallel`: **11 XCTest cases invoked successfully** (4 original transaction tests, 5 PDF/checklist tests, 2 starter/edit tests). Tests include SQLite persistence, synthetic PDF integrity and text extraction, duplicate/invalid PDFs, a 10-file batch, checklist transaction isolation, safe export, starter idempotence and persistence across reopen. Note that a distinct Swift Testing harness reports 0 Swift Testing cases, not zero XCTest cases.
+- Native XcodeGen project generation and `xcodebuild ... CODE_SIGNING_ALLOWED=NO build`: PASS.
+- Latest CI development artifact: `Sorrelgate-macOS-unsigned-debug` ID **14693785979**, **690,515 bytes**, expires 2026-11-28; downloadable from the Actions run. Not a normal one-click end-user installer.
+- [Actions #6](https://github.com/Kajin-0/sorrelgate/actions/runs/44869921480) also passed the first versioned-resource backend source.
 
-## Submitted, pending new CI
-- Bundled versioned 21-task seller-side starter JSON in SorrelgateCore resources.
-- Atomic, idempotent checklist initialization in DocumentWorkspace; existing manual tasks preserved.
-- Transaction-scoped task rename/remove operations, leaving original PDFs untouched.
-- Two additional XCTest tests for seeding, no overwrite, restart persistence and cross-transaction protection.
-- SwiftUI now automatically seeds checklists for new transactions and offers a Load Starter Tasks action for older empty workspaces; editable task sheet renames/removes tasks and selected PDF persists across checklist refresh.
-- Free tester handoff instructions added for Codex-assisted local Xcode build, without Apple membership.
-**This new feature is NOT YET VERIFIED until fresh Actions completes.**
+## Working code and limitations
+- M0: native SwiftUI app and local SQLite transaction database; CI PASS, human UI not verified.
+- M1: Finder-selected PDF import, SHA-256 original preservation, PDFKit extraction / Vision OCR fallback, duplicate handling, preview, checklist/document links, export package. Synthetic backend tests PASS; scanned OCR accuracy, full error/cancellation and macOS interaction remain unverified.
+- M2: **IN PROGRESS.** Bundled versioned California seller administrative catalog: **9 listing tasks and 12 accepted-offer tasks** auto-seeded into new transaction checklists. Existing user tasks are not overwritten. Rename/remove is transaction-scoped and does not delete documents. PDF selection is preserved through task refresh. UI compiles; human validation pending. **Named office profiles, per-office saved templates, Excel/CSV import and template migration remain unimplemented.**
+- M3 recognition/validation: NOT STARTED.
+- M4 timelines/drafts: NOT STARTED.
+- M5 LLM operates typed backend: NOT STARTED (typed service foundation exists).
+- M6 commercial release: NOT STARTED. Paid Apple distribution postponed until strong MVP and owner approval.
 
-## Milestones
-- M0 native SwiftUI, SQLite, CI: verified in hosted CI; human Mac testing pending.
-- M1 PDF import, OCR, preview, checklist/export: core CI pass; scan accuracy, larger batches, cancel, and human UX need tests.
-- M2 office configuration: started with bundled templates; GUI auto-load, office profiles, XLSX/CSV mapping still to do.
-- M3 recognition, M4 drafts, M5 LLM tools, M6 distribution: not implemented.
-- $0 external supervised pilot: future Codex-assisted local source build, NO paid Apple signing required; polished self-service install deferred.
-
-## Next executable work
-1. Inspect the next GitHub Actions run; resolve any compiler or test failures.
-2. Connect the starter workflow to native UI, preserve current PDF selection during checklist actions.
-3. Implement office-specific templates and spreadsheet import without rewriting the M1 core.
-4. Continue regression testing with synthetic documents; do not imply the app is sellable or real Mac UX is verified.
+## Next engineering tasks
+1. Build named office profiles and office-specific editable checklist templates, taking immutable snapshots into each new transaction.
+2. Add CSV then XLSX import with column mapping preview. No need for external office systems in first MVP.
+3. Harden PDF importer/OCR (raster scan benchmark, cancellation, corrupt/disk-error cases, 50-PDF batch) and maintain CI green.
+4. Keep an authorized Codex-assisted local Mac build for the first supervised tester, not a paid signed app. See [free tester handoff](FREE_MAC_TESTER_HANDOFF.md).
+5. Update root AGENTS.md and timestamped CHANGELOG on every substantive implementation; NEVER claim human Mac tests have been performed.

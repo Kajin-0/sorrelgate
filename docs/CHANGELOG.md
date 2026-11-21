@@ -2,6 +2,14 @@
 
 Every substantive change gets an ISO-8601 timestamp with timezone, scope, tested results (or **not run**), limitations, and GitHub commit/PR. Keep newest entries first and update `docs/STATUS.md` in the same change.
 
+## 2026-11-21T05:18:08.321Z — 11 Mac tests green; versioned seller checklists and edit UI verified
+- **GitHub Actions:** [#7](https://github.com/Kajin-0/sorrelgate/actions/runs/44870027594) completed SUCCESS for commit `5b419be1f9a7bce6a0402c069f55463930a52c13`, Apple Silicon macOS 26 / Xcode 26.6 / Swift 6.3.3.
+- **Tests:** All 11 XCTest cases invoked successfully. New tests validate 9 listing + 12 accepted-offer tasks, idempotent seeding, restart persistence and scoped task edits; older M0/M1 tests also pass.
+- **Build:** SwiftUI native app BUILT successfully; unsigned debug artifact 690,515 bytes, ID 14693785979, 7-day retention. No real Mac GUI test.
+- **Policy:** Owner explicitly requires $0 additional expenses through initial MVP and allows future Codex-assisted local Xcode build on actual tester Mac. No Apple developer membership, notarization, hosting or paid LLM API required now.
+- **Remaining:** Saved named office profiles, XLSX/CSV import, OCR performance on real scans, UI polish and AI-controlled app actions.
+- **Next:** Implement M2 office-specific templates and CSV import with CI gating; preserve existing transaction checklist snapshots.
+
 ## 2026-11-21T05:15:20.571Z — Wire seller starter tasks into Mac interface and document free pilot installation
 - **UI:** Automatically initialize an editable snapshot on new transaction; Load Starter Tasks for older empty transactions; task edit sheet provides rename/confirmed removal and preserves PDFs; keep selected PDF preview on checklist updates.
 - **Tester plan:** FREE_MAC_TESTER_HANDOFF.md gives Codex instructions for a supervised zero-cost local Xcode build and test on the user's Mac; paid Apple notarization deferred.
