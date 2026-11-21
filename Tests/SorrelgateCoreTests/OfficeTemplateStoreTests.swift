@@ -26,7 +26,8 @@ final class OfficeTemplateStoreTests: XCTestCase {
         let workspace = try open(root)
         let alpha = try await workspace.createOffice(named: "Alpha Realty")
         let beta = try await workspace.createOffice(named: "Beta Brokerage")
-        XCTAssertEqual(try await workspace.offices().count, 2)
+        let offices = try await workspace.offices()
+        XCTAssertEqual(offices.count, 2)
         let initial = try await workspace.officeTemplate(
             officeID: alpha.id, workflow: .acceptedOffer
         )
@@ -56,38 +57,40 @@ final class OfficeTemplateStoreTests: XCTestCase {
         let officeID: UUID
         do {
             let workspace = try open(root)
-            officeID = try await workspace.createOffice(named: "Pacific Sellers").id
+            let office = try await workspace.createOffice(named: "Pacific Sellers")
+            officeID = office.id
             let first = try await workspace.saveOfficeTemplate(
                 officeID: officeID, workflow: .acceptedOffer,
                 expectedVersion: 1, titles: ["Receive agreement", "Arrange escrow"]
             )
             XCTAssertEqual(first.version, 2)
-            XCTAssertEqual(try await workspace.seedStarterChecklist(
+            let seededOld = try await workspace.seedStarterChecklist(
                 for: oldTransaction, workflow: .acceptedOffer, officeID: officeID
-            ), 2)
+            )
+            XCTAssertEqual(seededOld, 2)
             _ = try await workspace.saveOfficeTemplate(
                 officeID: officeID, workflow: .acceptedOffer,
                 expectedVersion: 2, titles: ["New requirement", "Receive agreement"]
             )
-            XCTAssertEqual(try await workspace.seedStarterChecklist(
+            let seededNew = try await workspace.seedStarterChecklist(
                 for: newTransaction, workflow: .acceptedOffer, officeID: officeID
-            ), 2)
+            )
+            XCTAssertEqual(seededNew, 2)
             // Repeated seeding must not replace previously edited content.
-            XCTAssertEqual(try await workspace.seedStarterChecklist(
+            let seededAgain = try await workspace.seedStarterChecklist(
                 for: oldTransaction, workflow: .acceptedOffer, officeID: officeID
-            ), 0)
+            )
+            XCTAssertEqual(seededAgain, 0)
         }
         let reopened = try open(root)
         let oldRows = try await reopened.checklist(for: oldTransaction)
         let newRows = try await reopened.checklist(for: newTransaction)
         XCTAssertEqual(oldRows.map(\.title), ["Receive agreement", "Arrange escrow"])
         XCTAssertEqual(newRows.map(\.title), ["New requirement", "Receive agreement"])
-        let oldSource = try XCTUnwrap(
-            try await reopened.checklistSnapshot(for: oldTransaction)
-        )
-        let newSource = try XCTUnwrap(
-            try await reopened.checklistSnapshot(for: newTransaction)
-        )
+        let oldResult = try await reopened.checklistSnapshot(for: oldTransaction)
+        let newResult = try await reopened.checklistSnapshot(for: newTransaction)
+        let oldSource = try XCTUnwrap(oldResult)
+        let newSource = try XCTUnwrap(newResult)
         XCTAssertEqual(oldSource.officeID, officeID)
         XCTAssertEqual(oldSource.officeName, "Pacific Sellers")
         XCTAssertEqual(oldSource.templateVersion, 2)
@@ -105,7 +108,8 @@ final class OfficeTemplateStoreTests: XCTestCase {
             for: transaction, workflow: .listingPreparation, officeID: office.id
         )
         XCTAssertEqual(count, 0)
-        XCTAssertNil(try await workspace.checklistSnapshot(for: transaction))
+        let source = try await workspace.checklistSnapshot(for: transaction)
+        XCTAssertNil(source)
         let tasks = try await workspace.checklist(for: transaction)
         XCTAssertEqual(tasks.count, 1)
         XCTAssertEqual(tasks.first?.id, manual.id)
@@ -156,9 +160,10 @@ final class OfficeTemplateStoreTests: XCTestCase {
         let transaction = UUID()
         do {
             let workspace = try open(root)
-            XCTAssertEqual(try await workspace.seedStarterChecklist(
+            let seeded = try await workspace.seedStarterChecklist(
                 for: transaction, workflow: .listingPreparation
-            ), 9)
+            )
+            XCTAssertEqual(seeded, 9)
             let rows = try await workspace.checklist(for: transaction)
             try await workspace.renameTask(
                 rows[0].id, in: transaction, to: "TC-adjusted listing task"
@@ -168,14 +173,14 @@ final class OfficeTemplateStoreTests: XCTestCase {
         let rows = try await reopened.checklist(for: transaction)
         XCTAssertEqual(rows.count, 9)
         XCTAssertEqual(rows[0].title, "TC-adjusted listing task")
-        let source = try XCTUnwrap(
-            try await reopened.checklistSnapshot(for: transaction)
-        )
+        let storedSource = try await reopened.checklistSnapshot(for: transaction)
+        let source = try XCTUnwrap(storedSource)
         XCTAssertNil(source.officeID)
         XCTAssertEqual(source.officeName, "Built-in starter")
         XCTAssertEqual(source.templateVersion, 1)
-        XCTAssertEqual(try await reopened.seedStarterChecklist(
+        let second = try await reopened.seedStarterChecklist(
             for: transaction, workflow: .listingPreparation
-        ), 0)
+        )
+        XCTAssertEqual(second, 0)
     }
 }
