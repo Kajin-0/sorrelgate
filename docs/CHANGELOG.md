@@ -1,5 +1,12 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T16:01:52.483Z — G1 narrowly labeled key facts and competing-value review (CI PENDING)
+- **Outcome:** Extend sourced human review from acceptance dates to exact closing dates and US-dollar purchase prices without free-form guessing. Every proposal remains tied to original PDF ID, SHA-256, page and line, starts unconfirmed and survives reopening. Ambiguous competing values remain visible, and the actor rejects two different human-confirmed values for one field.
+- **Files:** `DocumentWorkspace.swift` adds strict deterministic label recognition and existing SQLite proposal reuse; `WorkspaceModel.swift` and `MainView.swift` expose key-fact discovery and per-field conflict notices; `FieldProposalTests.swift` adds synthetic rule fixture metrics and multipage/conflict/persistence coverage; documentation and ADR updated.
+- **Verification now:** **NOT RUN**, target 59 XCTest plus native SwiftUI Xcode build and unsigned artifact on macOS CI. Baseline `main` [run #113](https://github.com/Kajin-0/sorrelgate/actions/runs/44920104915) succeeded with 57/57 XCTest/native build.
+- **Limitations:** Explicit full-line ISO/date and US-dollar price formats only; no real forms, natural language parsing, OCR field accuracy, legal claims, model access, real Mac GUI or document type classification. Unknown/free-form/estimated fields abstain; no dependencies, runtime network or new spending. Next: record actual CI and close PR only green.
+
+
 ## 2026-11-21T15:36:20.336Z — Owner delegated PR #19 review; P1 corrective exception closed and merged
 - **Merge:** [PR #19](https://github.com/Kajin-0/sorrelgate/pull/19) squash `66592dc958eaee2df9c5244ad21c7467940a13bc`. Feature source macOS [#108](https://github.com/Kajin-0/sorrelgate/actions/runs/44918660472), [#109](https://github.com/Kajin-0/sorrelgate/actions/runs/44918667753), documentation head [#110](https://github.com/Kajin-0/sorrelgate/actions/runs/44919079496), [#111](https://github.com/Kajin-0/sorrelgate/actions/runs/44919084816) **all SUCCESS** with 57/57 XCTest, native SwiftUI Mac build and unsigned artifact upload. Review confirmed unchanged original PDF/hash code, additive-only core API, no network/dependency/payment addition. User explicitly declined manual review and authorized assistant completion.
 - **Stop:** Corrective P1 source-level slice completed; **no additional UI PR** without a new observed blocker or owner scope decision. Post-merge main exact-head CI pending at documentation time.

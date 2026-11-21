@@ -2,6 +2,10 @@
 
 **Policy:** Never silently reverse decisions. Append dated records with rationale, competing alternatives and outcome.
 
+## ADR-023 — 2026-11-21T16:01:52.483Z — Constrained key-fact vocabulary and conflicting confirmations
+**Decision (CI PENDING):** Extend the working G1 source-linked review route to exactly labeled ISO closing dates and fully formed US-dollar purchase prices, in addition to acceptance date. Preserve source PDF/page/hash, immutable originals, user Confirm/Reject/Unknown and stable proposal identity using existing persistence. Show competing values instead of silently choosing; prevent concurrent confirmation of two distinct values for the same field within a transaction (user must first mark the previous one Unknown/Rejected). **Rejected alternatives:** plausible-value selection from prose, regex over arbitrary paragraphs, new AI/OCR inference dependency, auto-confirmation, and full classifier redesign. **Tradeoff:** deliberate low recall and no general contract accuracy claim; synthetic examples estimate rule behavior only. G1 remains open for classification, coverage/precision on authorized held-out real documents, broader conflict handling and human Mac validation.
+
+
 ## ADR-022 — 2026-11-21T15:36:20.336Z — Final review delegated; merge approved and P1 exception closed
 **Decision:** Owner explicitly said not to request their PR review and to complete the work. Independently inspected PR #19 changed-file boundaries and verified green macOS Actions #108/#109/#110/#111 at head `5ba62afb97a1e43f70e391e2f3015dff664c418d` (**57/57 XCTest**, native build, unsigned artifact); PR was clean/mergeable and had no outside source/PDF hash/storage changes. Marked ready and squash-merged [PR #19](https://github.com/Kajin-0/sorrelgate/pull/19) as `66592dc958eaee2df9c5244ad21c7467940a13bc`. No human Mac UI test occurred. **Tradeoff:** automated source checks cannot certify actual SwiftUI sheet behavior or ease of use. This closes the one-time P1 correctness exception and restores the Delivery Contract's one-active-G1-gate policy. Future corrections must arise from real field/CI defects, not general styling churn.
 

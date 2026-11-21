@@ -287,10 +287,10 @@ struct MainView: View {
                     }
                     Divider()
                     HStack {
-                        Text("Acceptance Date Review").font(.headline)
+                        Text("Key Facts Review").font(.headline)
                         Spacer()
                         Button("Find in Selected PDF") {
-                            workspace.findAcceptanceDatesInSelectedDocument()
+                            workspace.findKeyFactsInSelectedDocument()
                         }
                         .disabled(
                             workspace.selectedDocumentID == nil ||
@@ -299,7 +299,7 @@ struct MainView: View {
                         )
                     }
                     if workspace.fieldProposals.isEmpty {
-                        Text("Select a PDF, then find explicitly labeled dates. Any result needs your review; an absent date is not inferred.")
+                        Text("Select a PDF to find explicitly labeled acceptance dates, closing dates and purchase prices. Missing or ambiguous values are not guessed.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     } else {
@@ -317,6 +317,20 @@ struct MainView: View {
                                             .font(.caption.monospaced())
                                             .foregroundStyle(.secondary)
                                             .textSelection(.enabled)
+                                        if proposal.status != .rejected &&
+                                            workspace.fieldProposals.contains(where: {
+                                                $0.id != proposal.id &&
+                                                $0.kind == proposal.kind &&
+                                                $0.value != proposal.value &&
+                                                $0.status != .rejected
+                                            }) {
+                                            Label(
+                                                "Competing \(proposal.kind.displayName.lowercased()) values. Review each original page.",
+                                                systemImage: "exclamationmark.triangle"
+                                            )
+                                            .font(.caption)
+                                            .foregroundStyle(.orange)
+                                        }
                                         HStack {
                                             Button("View original page") {
                                                 workspace.showProposalSource(proposal)

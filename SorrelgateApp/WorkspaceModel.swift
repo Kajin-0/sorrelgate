@@ -316,7 +316,7 @@ final class WorkspaceModel: ObservableObject {
         }
     }
 
-    func findAcceptanceDatesInSelectedDocument() {
+    func findKeyFactsInSelectedDocument() {
         guard let workspace = documentWorkspace,
               let transactionID = selectedTransactionID,
               let documentID = selectedDocumentID,
@@ -326,14 +326,14 @@ final class WorkspaceModel: ObservableObject {
         Task {
             defer { isFindingProposals = false }
             do {
-                let matches = try await workspace.proposeAcceptanceDates(
+                let matches = try await workspace.proposeKeyFacts(
                     from: documentID, in: transactionID
                 )
                 guard selectedTransactionID == transactionID else { return }
                 loadSelected()
                 noticeMessage = matches.isEmpty
-                    ? "No explicitly labeled ISO acceptance date found. Review the PDF manually."
-                    : "Found \(matches.count) source-linked candidate(s). Dates are not confirmed."
+                    ? "No explicitly labeled acceptance/closing date or purchase price found. Review the PDF manually."
+                    : "Found \(matches.count) source-linked candidate(s). All require human review."
                 noticeKind = .info
             } catch {
                 if selectedTransactionID == transactionID {
