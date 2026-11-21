@@ -11,6 +11,7 @@ public enum DocumentProcessingError: Error, LocalizedError {
     case missingDocument
     case missingFieldProposal
     case invalidFieldReviewStatus
+    case conflictingConfirmedField
     case invalidChecklistTask
     case invalidTaskTitle
     case duplicateDestination
@@ -25,6 +26,7 @@ public enum DocumentProcessingError: Error, LocalizedError {
         case .missingDocument: "That document could not be found."
         case .missingFieldProposal: "That field review item is not in this transaction."
         case .invalidFieldReviewStatus: "Choose Confirm, Reject, or Unknown for a proposed field."
+        case .conflictingConfirmedField: "Another different value is confirmed for this field. Mark the earlier value Unknown or Reject before confirming this one."
         case .invalidChecklistTask: "That checklist item could not be found in this transaction."
         case .invalidTaskTitle: "Enter a task description (1–250 characters)."
         case .duplicateDestination: "The destination contains an unexpected file. Nothing was overwritten."
@@ -73,14 +75,17 @@ public enum ImportDisposition: Sendable {
     case duplicate(ImportedDocument)
 }
 
-/// First G1 field: deliberately narrow, explicit text rather than AI guessing.
-/// New types require new held-out extraction and provenance tests.
+/// Strictly labeled administrative candidates; none is a verified legal fact.
 public enum FieldProposalKind: String, Sendable {
     case acceptanceDate
+    case closingDate
+    case purchasePrice
 
     public var displayName: String {
         switch self {
         case .acceptanceDate: "Acceptance date"
+        case .closingDate: "Closing date"
+        case .purchasePrice: "Purchase price"
         }
     }
 }
@@ -104,6 +109,68 @@ public struct FieldProposal: Identifiable, Equatable, Sendable {
     public let value: String
     public let evidence: String
     public let status: FieldReviewStatus
+}
+
+
+internal struct RecognizedFieldCandidate: Equatable {
+    let kind: FieldProposalKind
+    let value: String
+    let evidence: String
+}
+
+/// Bounded deterministic G1 extraction. Each proposal must occupy a complete,
+/// explicit label/value line; prose, estimates, malformed numbers and absent
+/// fields abstain. Source authenticity and approval remain separate checks.
+internal enum FieldRuleRecognizer {
+    private static let patterns: [(FieldProposalKind, String)] = [
+        (.acceptanceDate, #"^Acceptance\s+Date\s*:\s*(\d{4}-\d{2}-\d{2})$"#),
+        (.closingDate, #"^Closing\s+Date\s*:\s*(\d{4}-\d{2}-\d{2})$"#),
+        (.purchasePrice, #"^Purchase\s+Price\s*:\s*(\$(?:[1-9]\d{0,2}(?:,\d{3})+|[1-9]\d*)(?:\.\d{2})?)$"#)
+    ]
+
+    static func candidates(in text: String) -> [RecognizedFieldCandidate] {
+        let rules: [(FieldProposalKind, NSRegularExpression)] = patterns.compactMap {
+            kind, pattern in
+            guard let regex = try? NSRegularExpression(
+                pattern: pattern, options: [.caseInsensitive]
+            ) else { return nil }
+            return (kind, regex)
+        }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)!
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.isLenient = false
+        var found: [RecognizedFieldCandidate] = []
+        for rawLine in text.components(separatedBy: .newlines) {
+            let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !line.isEmpty, line.utf16.count <= 256 else { continue }
+            let nsLine = line as NSString
+            let range = NSRange(location: 0, length: nsLine.length)
+            for (kind, regex) in rules {
+                guard let match = regex.firstMatch(in: line, range: range),
+                      match.range == range,
+                      match.range(at: 1).location != NSNotFound else { continue }
+                let value = nsLine.substring(with: match.range(at: 1))
+                switch kind {
+                case .acceptanceDate, .closingDate:
+                    guard let parsed = formatter.date(from: value),
+                          formatter.string(from: parsed) == value else { continue }
+                case .purchasePrice:
+                    let digits = String(value.dropFirst())
+                        .replacingOccurrences(of: ",", with: "")
+                    guard let price = Decimal(
+                        string: digits, locale: Locale(identifier: "en_US_POSIX")
+                    ), price > 0, price < 1_000_000_000_000 else { continue }
+                }
+                found.append(RecognizedFieldCandidate(
+                    kind: kind, value: value, evidence: line
+                ))
+            }
+        }
+        return found
+    }
 }
 
 public struct ChecklistItem: Identifiable, Equatable, Sendable {
@@ -163,57 +230,54 @@ public actor DocumentWorkspace {
         try store.fieldProposals(transactionID: transactionID)
     }
 
-    /// First deliberately constrained field proposal: an *explicitly labeled*
-    /// ISO acceptance date in a source page. No legal date calculation,
-    /// signature inference, completion claim, or model instruction execution.
-    /// Re-running discovery must never reset a human review decision.
+
+    /// Compatibility path for earlier acceptance-date only callers.
     @discardableResult
     public func proposeAcceptanceDates(
         from documentID: UUID, in transactionID: UUID
     ) throws -> [FieldProposal] {
-        guard let document = try store.documents(transactionID: transactionID).first(
-            where: { $0.id == documentID }
-        ) else {
-            throw DocumentProcessingError.missingDocument
-        }
+        try discoverFields(
+            from: documentID, in: transactionID, allowedKinds: [.acceptanceDate]
+        )
+    }
+
+    /// Explicit, hash-backed key-fact discovery; nothing is auto-confirmed.
+    /// Each distinct source/page/value remains independently reviewable.
+    @discardableResult
+    public func proposeKeyFacts(
+        from documentID: UUID, in transactionID: UUID
+    ) throws -> [FieldProposal] {
+        try discoverFields(
+            from: documentID, in: transactionID,
+            allowedKinds: [.acceptanceDate, .closingDate, .purchasePrice]
+        )
+    }
+
+    private func discoverFields(
+        from documentID: UUID, in transactionID: UUID,
+        allowedKinds: Set<FieldProposalKind>
+    ) throws -> [FieldProposal] {
+        guard let document = try store.documents(transactionID: transactionID)
+            .first(where: { $0.id == documentID })
+        else { throw DocumentProcessingError.missingDocument }
         guard let actualSHA = try? Self.hashFile(at: storedPDFURL(for: document)),
               actualSHA == document.sha256 else {
             throw DocumentProcessingError.corruptedOriginal(document.originalName)
         }
-        let expression = try NSRegularExpression(
-            pattern: #"^\s*Acceptance\s+Date\s*:\s*(\d{4}-\d{2}-\d{2})\s*$"#,
-            options: [.caseInsensitive]
-        )
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)!
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.isLenient = false
         for page in try store.pageText(documentID: documentID)
             where page.method != .unavailable {
             try Task<Never, Never>.checkCancellation()
-            for rawLine in page.text.components(separatedBy: .newlines) {
-                let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
-                let lineText = line as NSString
-                let fullRange = NSRange(location: 0, length: lineText.length)
-                guard let match = expression.firstMatch(
-                    in: line, range: fullRange
-                ), match.range(at: 1).location != NSNotFound else { continue }
-                let value = lineText.substring(with: match.range(at: 1))
-                // Reject impossible calendar dates instead of proposing a
-                // superficially ISO-shaped but nonsensical value.
-                guard let date = formatter.date(from: value),
-                      formatter.string(from: date) == value else { continue }
+            for candidate in FieldRuleRecognizer.candidates(in: page.text)
+                where allowedKinds.contains(candidate.kind) {
                 try store.insertFieldProposal(
                     transactionID: transactionID, documentID: documentID,
-                    pageIndex: page.pageIndex, kind: .acceptanceDate,
-                    value: value, evidence: line
+                    pageIndex: page.pageIndex, kind: candidate.kind,
+                    value: candidate.value, evidence: candidate.evidence
                 )
             }
         }
         return try store.fieldProposals(transactionID: transactionID).filter {
-            $0.documentID == documentID && $0.kind == .acceptanceDate
+            $0.documentID == documentID && allowedKinds.contains($0.kind)
         }
     }
 
@@ -246,6 +310,15 @@ public actor DocumentWorkspace {
         }
         // Invalidate decisions against an original that is missing or corrupted.
         _ = try sourcePDFURL(for: proposalID, in: transactionID)
+        if status == .confirmed {
+            let proposals = try store.fieldProposals(transactionID: transactionID)
+            guard let target = proposals.first(where: { $0.id == proposalID })
+            else { throw DocumentProcessingError.missingFieldProposal }
+            guard !proposals.contains(where: {
+                $0.id != target.id && $0.kind == target.kind &&
+                $0.value != target.value && $0.status == .confirmed
+            }) else { throw DocumentProcessingError.conflictingConfirmedField }
+        }
         try store.reviewFieldProposal(
             proposalID, transactionID: transactionID, status: status
         )
