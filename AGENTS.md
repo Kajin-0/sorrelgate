@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Expand office task metadata and spreadsheet mappings without changing historical snapshots; harden M1 scanned OCR, cancellations and failure paths. M2/M6 release gates still incomplete. Extend M1 Vision OCR and import cancellation tests. No developer membership or paid installer for initial supervised Mac pilot.
+**Next:** Verify M2 office requirement/notes + additive SQLite migration in macOS CI (feature/m2-task-metadata-20261121; baseline #54 green). Then expand explicit CSV/XLSX requirement/notes column mapping, and harden M1 OCR, cancellation, crash recovery and filesystem failure paths. Existing historical snapshots must remain unchanged. No developer membership or paid installer for supervised pilot.

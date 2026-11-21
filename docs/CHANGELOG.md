@@ -1,5 +1,14 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T05:53:40.145Z — M2 office requirement and notes: implementation and migration tests (CI PENDING)
+- **Scope:** Add an explicit office requirement value (unspecified / office required / office optional) and optional notes to versioned office tasks. Copy both fields into immutable transaction checklist rows; expose in native Office Checklists editor. Avoid interpreting unlabeled historical checklists as legally required.
+- **Schema migration:** Existing `office_template_rows` and `checklist_tasks` receive additive idempotent columns with `unspecified` and empty-note defaults. No destructive rewrite and no new dependency. User-edited historical completion/document links are preserved.
+- **Compatibility:** Legacy title-only save still supported and preserves metadata for matched existing titles. CSV/XLSX title-only imports remain available but new metadata-column mappings are a separate scope.
+- **Tests added:** Three macOS XCTest scenarios: historical snapshot immutability across revision/restart, metadata-only version changes plus invalid-note refusal, and migration from real pre-metadata SQLite schemas.
+- **Verification:** New code/test/native app CI PENDING. Prior merged baseline `e6b6291` completed macOS Actions #54 successfully. No real Mac GUI or migration on real customer data tested.
+- **Next:** Repair and verify CI; merge only when clean. Expand spreadsheet mapping and M1 robustness without architectural churn.
+
+
 ## 2026-11-21T05:47:04.155Z — XLSX feature passes 24 XCTest and native Mac build (CI #50)
 - **Evidence:** [macOS Actions run #50](https://github.com/Kajin-0/sorrelgate/actions/runs/44872179791) **SUCCESS** for source commit `33686e2b2bb321d92f2238bec3e89adbc18d3ee8`. `swift test --parallel` invoked **24 XCTest cases** (20 previous + 4 new real ZIP/XML XLSX tests); XcodeGen project and native SwiftUI app BUILD SUCCEEDED; unsigned ZIP artifact uploaded. Code-signing and physical UI not tested.
 - **Implementation:** Multi-sheet Excel XLSX parser with shared+inline strings, sparse rows, formula/error refusal, ZIP archive declared-size safeguards; native XLSX file/sheet picker, explicit task-title column review and unsaved office checklist draft. Workbook parsing moved to detached user-initiated task to avoid blocking SwiftUI.
