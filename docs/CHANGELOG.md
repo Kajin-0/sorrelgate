@@ -1,5 +1,9 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T16:06:02.942Z — G1 PR #20 source CI VERIFIED, pending merge
+- **Code:** `88c72e14f92c001dfccefd13e8b4c9e055b8038c` on [PR #20](https://github.com/Kajin-0/sorrelgate/pull/20). [macOS Actions #44922386928](https://github.com/Kajin-0/sorrelgate/actions/runs/44922386928) **SUCCESS**: `swift test --parallel` invoked **59/59 XCTest**, native XcodeGen/Xcode SwiftUI **BUILD SUCCEEDED**, unsigned artifact upload **3,270,810 bytes**. The 7/20 rule examples are synthetic test fixture counts, **not estimates of real-world precision/recall**. Test code correction `88c72e1` moved `await` outside an XCTest assertion autoclosure; earlier head `b7514b2` compile failure is superseded.
+- **Boundaries:** No new source-PDF/hash/storage code, SQLite migration, cloud/model/dependency, customer data or spend. No physical Mac visual inspection or real form study. PR remains **UNMERGED** at this note; G1 still active for document types and real field coverage. Stop this increment after final CI/merge review.
+
 ## 2026-11-21T16:01:52.483Z — G1 narrowly labeled key facts and competing-value review (CI PENDING)
 - **Outcome:** Extend sourced human review from acceptance dates to exact closing dates and US-dollar purchase prices without free-form guessing. Every proposal remains tied to original PDF ID, SHA-256, page and line, starts unconfirmed and survives reopening. Ambiguous competing values remain visible, and the actor rejects two different human-confirmed values for one field.
 - **Files:** `DocumentWorkspace.swift` adds strict deterministic label recognition and existing SQLite proposal reuse; `WorkspaceModel.swift` and `MainView.swift` expose key-fact discovery and per-field conflict notices; `FieldProposalTests.swift` adds synthetic rule fixture metrics and multipage/conflict/persistence coverage; documentation and ADR updated.
