@@ -1,9 +1,9 @@
 # AGENTS.md — Sorrelgate permanent agent handoff
 
-**Updated:** 2026-11-21T07:36:41.448Z (UTC)
+**Updated:** 2026-11-21T07:43:48.888Z (UTC)
 **Repository:** `Kajin-0/sorrelgate`  
 **Project name:** **Sorrelgate** (do not call the product "TC Assistant" in new code/docs)  
-**Latest verified main:** [macOS Actions #77](https://github.com/Kajin-0/sorrelgate/actions/runs/44878217155) SUCCESS at `37b909a2`: **39 XCTest/native SwiftUI app build**. **Current feature (CI PENDING):** `feature/m1-pdf-reliability-20261121` adds genuine raster-only PDF/Vision OCR tests, a 50-PDF mixed batch benchmark with hash and source-byte closure, deterministic cancel/retry, missing/blocked storage and SQLite fault/rollback, destination corruption protection, plus a cancellation check immediately before database persistence. Target **46 XCTest**; no new dependencies. Actual external Mac, field-scanned OCR validation and true ENOSPC remains unverified. $0 additional cost.
+**Latest verified:** [PR #15](https://github.com/Kajin-0/sorrelgate/pull/15) M1 PDF/OCR reliability **MERGED** as `e8828a87b6d4d752a473a1ad0bdd2eadb970be8c`. Source [Actions #79](https://github.com/Kajin-0/sorrelgate/actions/runs/44881078287), [#80](https://github.com/Kajin-0/sorrelgate/actions/runs/44881082647) and metrics-enabled [#83](https://github.com/Kajin-0/sorrelgate/actions/runs/44881324257) **SUCCESS: 46 XCTest, native SwiftUI build, unsigned artifact**. Synthetic raster Vision token recall **7/7 (100%)**; 50 mixed one-page PDFs (46 digital+4 raster) **6.043 s / 8.274 files/s**, p50 **0.002 s**, p95 **1.039 s** on hosted macOS 26; these are NOT production/user-machine/real-scan guarantees. Post-merge main CI pending at documentation time. $0 additional MVP cost.
 
 ## 1. Mission and constraints (read before coding)
 
@@ -74,4 +74,4 @@ Never report release readiness without a clean, notarized Mac install; passing o
 
 ## 8. Immediate next action
 
-**Next:** Verify `feature/m1-pdf-reliability-20261121` M1 PDF reliability macOS CI with **46 expected XCTest** (39 baseline + 7 new), native SwiftUI Mac build and unsigned artifact; inspect true Vision OCR token recall for synthetic raster-only PDFs and actual 50-document throughput metrics from CI logs. New tests use only generated harmless PDFs, never customer files. Reject source mutation/corrupt stored originals; make cancellation cleanup and SQLite rollback explicit. Do not interpret a synthetic OCR recall as real field-scanned accuracy; actual disk-full ENOSPC, granted/denied Finder bookmarks, process kill during I/O and human UX still need dedicated testing. Merge only green CI; then remaining M1 fault/scan robustness. No new spending or architecture churn.
+**Next:** Verify post-merge `main` CI for PR #15 `e8828a8`. M1 synthetic bitmap-only OCR, cancel/retry, obstructed destination, SQLite failure rollback, corrupted original preservation, and **50 PDFs (46 digital, 4 raster)** are tested with 46/46 XCTest; measured in #83 **7/7 OCR tokens**, 6.043 s batch, 8.274 files/s, p50 0.002 s, p95 1.039 s. Hard remaining gates: real skewed/noisy/multipage scanned PDFs, deterministic cancellation *during* active blocked I/O, ENOSPC, revoked/denied Finder permissions, process termination, long-batch end-user UX, target Mac timing and cross-device accuracy. Avoid interpreting the benchmark as broad OCR validation or product readiness. No paid dependencies or architecture churn; continue focused M1 risk reduction, then M2/M3.

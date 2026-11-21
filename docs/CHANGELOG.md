@@ -1,5 +1,13 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-21T07:43:48.888Z — M1 raster Vision and 50-PDF reliability PR #15 merged; quantified macOS CI
+- **Merge:** [PR #15](https://github.com/Kajin-0/sorrelgate/pull/15) squash-merged as `e8828a87b6d4d752a473a1ad0bdd2eadb970be8c` after [Actions #79](https://github.com/Kajin-0/sorrelgate/actions/runs/44881078287), [#80](https://github.com/Kajin-0/sorrelgate/actions/runs/44881082647) and metrics-enabled [#83](https://github.com/Kajin-0/sorrelgate/actions/runs/44881324257) success.
+- **Tests/build:** Each successful run executes **46/46 XCTest** (39 prior + 7 new). Native XcodeGen/SwiftUI unsigned build and artifact upload PASS. #83 requires and prints OCR/batch metrics from RUNNER_TEMP (parallel XCTest stdout is otherwise suppressed).
+- **Measured metrics (macos-26 GitHub runner; clean 1-page synthetic PDFs):** true image-only Apple Vision OCR **7/7 selected English terms = 1.000 recall**, numeric ID checked; mixed **50 PDFs = 46 selectable text + 4 raster** finished **6.043 s** (from generation through import), **8.274 files/s**, import durations p50 **0.002 s**, p95 **1.039 s**. SHA-256 and byte-for-byte source/store equality for all 50, stored per-page extraction provenance, no .incoming files, document reopen/identity confirmed. P50/p95 include import calls only; 6.043 s includes fixture generation.
+- **Cancellation/rollback:** Pre-cancel, partial eight-file cancellation/resume, blocked destination, forced SQLite insert abort and successful retry, wrong-hash collision rejection pass. Added cancellation checkpoints after PDF parse, Vision, chunk writes and before DB commit; stored originals unchanged.
+- **Caveat:** No measured field-scan accuracy; synthetic 7-token recall does not characterize OCR WER across real legal forms. Real ENOSPC, Finder security scoped URL revocation, active mid-read interruption, multipage and human Mac UI remain open. New dependencies/spend: none. Post-merge main CI pending at this entry.
+
+
 ## 2026-11-21T07:36:41.448Z — M1 PDF/Vision OCR, cancellation and 50-PDF mixed stress tests (CI PENDING)
 - **Scope:** `feature/m1-pdf-reliability-20261121` atop verified main `37b909a2` (Actions #77 SUCCESS, 39 XCTest/native app). M1 reliability only; no new dependencies, paid tools, client files, or UI redesign.
 - **Production:** PDF import now checks Task cancellation after PDFKit open, immediately following Vision OCR, after each staged chunk write and sync, and immediately before document-side SQLite insert. If cancellation occurs after staging the final SHA-named file but before database insertion, the newly installed file is deleted in the existing catch rollback path; pre-existing matching originals remain protected.
