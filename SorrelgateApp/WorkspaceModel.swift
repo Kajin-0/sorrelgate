@@ -233,7 +233,9 @@ final class WorkspaceModel: ObservableObject {
                 checklistSource = snapshot
                 if let selectedDocumentID,
                    let selected = loadedDocuments.first(where: { $0.id == selectedDocumentID }) {
-                    previewURL = await workspace.storedPDFURL(for: selected)
+                    previewURL = try await workspace.sourcePDFURL(
+                        documentID: selected.id, in: id
+                    )
                 } else {
                     selectedDocumentID = nil
                     previewURL = nil
@@ -310,7 +312,9 @@ final class WorkspaceModel: ObservableObject {
     }
 
     func selectDocument(_ document: ImportedDocument?) {
-        guard let document, let workspace = documentWorkspace else {
+        guard let document, let workspace = documentWorkspace,
+              let transactionID = selectedTransactionID else {
+            selectedDocumentID = nil
             previewURL = nil
             previewPageIndex = 0
             return
@@ -320,10 +324,20 @@ final class WorkspaceModel: ObservableObject {
             previewNavigationID = UUID()
         }
         selectedDocumentID = document.id
+        previewURL = nil
         Task {
-            let url = await workspace.storedPDFURL(for: document)
-            if selectedDocumentID == document.id {
+            do {
+                let url = try await workspace.sourcePDFURL(
+                    documentID: document.id, in: transactionID
+                )
+                guard selectedTransactionID == transactionID,
+                      selectedDocumentID == document.id else { return }
                 previewURL = url
+            } catch {
+                guard selectedTransactionID == transactionID,
+                      selectedDocumentID == document.id else { return }
+                previewURL = nil
+                errorMessage = error.localizedDescription
             }
         }
     }

@@ -221,8 +221,11 @@ public actor DocumentWorkspace {
         try store.checklist(transactionID: transactionID)
     }
 
-    public func pageText(documentID: UUID) throws -> [DocumentPageText] {
-        try store.pageText(documentID: documentID)
+    /// Cached extracted text is sensitive. Verify transaction ownership and
+    /// the current immutable source SHA-256 before serving stored page text.
+    public func pageText(documentID: UUID, in transactionID: UUID) throws -> [DocumentPageText] {
+        _ = try sourcePDFURL(documentID: documentID, in: transactionID)
+        return try store.pageText(documentID: documentID)
     }
 
     /// Review items are always scoped to one transaction, never globally listed.
@@ -309,6 +312,19 @@ public actor DocumentWorkspace {
         }
     }
 
+    /// The document must belong to this transaction. Caller-supplied document
+    /// structs and identifiers cannot authorize a read of an unrelated PDF.
+    public func sourcePDFURL(documentID: UUID, in transactionID: UUID) throws -> URL {
+        guard let document = try store.documents(transactionID: transactionID)
+            .first(where: { $0.id == documentID })
+        else { throw DocumentProcessingError.missingDocument }
+        let url = storedPDFURL(for: document)
+        guard let hash = try? Self.hashFile(at: url), hash == document.sha256 else {
+            throw DocumentProcessingError.corruptedOriginal(document.originalName)
+        }
+        return url
+    }
+
     /// Return only a source PDF that still matches the candidate's imported
     /// document hash; never trust the proposed field's copied metadata alone.
     public func sourcePDFURL(
@@ -321,11 +337,7 @@ public actor DocumentWorkspace {
               document.sha256 == proposal.sourceSHA256,
               proposal.pageIndex >= 0, proposal.pageIndex < document.pageCount
         else { throw DocumentProcessingError.missingFieldProposal }
-        let url = storedPDFURL(for: document)
-        guard let hash = try? Self.hashFile(at: url), hash == document.sha256 else {
-            throw DocumentProcessingError.corruptedOriginal(document.originalName)
-        }
-        return url
+        return try sourcePDFURL(documentID: document.id, in: transactionID)
     }
 
     /// The decision comes only from an explicit human UI action.
@@ -352,7 +364,9 @@ public actor DocumentWorkspace {
         )
     }
 
-    public func storedPDFURL(for document: ImportedDocument) -> URL {
+    /// Internal path-construction helper; never expose an unverified caller-
+    /// supplied ImportedDocument as a public file-access capability.
+    func storedPDFURL(for document: ImportedDocument) -> URL {
         documentsRoot
             .appendingPathComponent(document.transactionID.uuidString, isDirectory: true)
             .appendingPathComponent(document.sha256 + ".pdf")

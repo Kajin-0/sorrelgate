@@ -67,7 +67,7 @@ final class DocumentWorkspaceTests: XCTestCase {
         XCTAssertEqual(document.pageCount, 1)
         let storedURL = await workspace.storedPDFURL(for: document)
         XCTAssertEqual(try Data(contentsOf: storedURL), input)
-        let extracted = try await workspace.pageText(documentID: document.id)
+        let extracted = try await workspace.pageText(documentID: document.id, in: transaction)
         XCTAssertEqual(extracted.count, 1)
         XCTAssertTrue(extracted[0].text.contains("synthetic acceptance"))
 
@@ -247,5 +247,52 @@ final class DocumentWorkspaceTests: XCTestCase {
         }
         let batch = try await workspace.documents(for: transaction)
         XCTAssertEqual(batch.count, 10)
+    }
+
+    /// A known document UUID alone must not disclose another transaction's
+    /// original or cached OCR text. Tampered originals must also block reads.
+    func testScopedDocumentReadsRejectForeignIDsAndCorruptedOriginals() async throws {
+        let root = try makeTemporaryFolder()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let aURL = root.appendingPathComponent("transaction-a.pdf")
+        let bURL = root.appendingPathComponent("transaction-b.pdf")
+        try createPDF(at: aURL, text: "Synthetic private terms transaction Alpha")
+        try createPDF(at: bURL, text: "Synthetic private terms transaction Beta")
+        let workspace = try makeWorkspace(root: root)
+        let a = UUID(), b = UUID()
+        guard case .imported(let docA) = try await workspace.importPDF(aURL, into: a),
+              case .imported(let docB) = try await workspace.importPDF(bURL, into: b)
+        else { return XCTFail("Expected two imported fictional originals") }
+
+        let permitted = try await workspace.sourcePDFURL(documentID: docA.id, in: a)
+        XCTAssertEqual(try Data(contentsOf: permitted), try Data(contentsOf: aURL))
+        let pageA = try await workspace.pageText(documentID: docA.id, in: a)
+        XCTAssertTrue(pageA[0].text.contains("Alpha"))
+
+        for (documentID, owner) in [(docA.id, b), (docB.id, a), (UUID(), a)] {
+            do {
+                _ = try await workspace.sourcePDFURL(documentID: documentID, in: owner)
+                XCTFail("Foreign or unknown document ID must not return a source path")
+            } catch DocumentProcessingError.missingDocument {}
+            do {
+                _ = try await workspace.pageText(documentID: documentID, in: owner)
+                XCTFail("Foreign or unknown document ID must not disclose page text")
+            } catch DocumentProcessingError.missingDocument {}
+        }
+        // Corrupting an archived original must not leak its previously cached
+        // extracted text under a valid transaction ID.
+        let storedB = await workspace.storedPDFURL(for: docB)
+        try Data("tampered".utf8).write(to: storedB)
+        do {
+            _ = try await workspace.sourcePDFURL(documentID: docB.id, in: b)
+            XCTFail("Stored PDF integrity must be checked before preview")
+        } catch DocumentProcessingError.corruptedOriginal {}
+        do {
+            _ = try await workspace.pageText(documentID: docB.id, in: b)
+            XCTFail("Cached OCR/text must not bypass corrupted-source checks")
+        } catch DocumentProcessingError.corruptedOriginal {}
+        let reopened = try makeWorkspace(root: root)
+        let stillA = try await reopened.pageText(documentID: docA.id, in: a)
+        XCTAssertEqual(stillA, pageA)
     }
 }

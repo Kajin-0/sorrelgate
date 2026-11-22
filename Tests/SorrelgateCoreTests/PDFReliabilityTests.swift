@@ -142,7 +142,7 @@ final class PDFReliabilityTests: XCTestCase {
         let transaction = UUID()
         guard case .imported(let doc) = try await store.importPDF(source, into: transaction)
         else { return XCTFail("Expected a real raster OCR import") }
-        let extracted = try await store.pageText(documentID: doc.id)
+        let extracted = try await store.pageText(documentID: doc.id, in: transaction)
         XCTAssertEqual(extracted.count, 1)
         XCTAssertEqual(extracted[0].method, .vision)
         let recall = tokenRecall(extracted[0].text)
@@ -365,7 +365,7 @@ final class PDFReliabilityTests: XCTestCase {
         for (document, original, method) in expectedFiles {
             let originalURL = await store.storedPDFURL(for: document)
             XCTAssertEqual(try Data(contentsOf: originalURL), original)
-            let pages = try await store.pageText(documentID: document.id)
+            let pages = try await store.pageText(documentID: document.id, in: transaction)
             XCTAssertEqual(pages.count, 1)
             XCTAssertEqual(pages.first?.method, method)
             if method == .vision {

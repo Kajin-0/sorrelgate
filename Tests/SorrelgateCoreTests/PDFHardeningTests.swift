@@ -199,7 +199,7 @@ final class PDFHardeningTests: XCTestCase {
             source, into: transaction
         ) else { return XCTFail("Expected five-page image-only import") }
 
-        let pages = try await store.pageText(documentID: document.id)
+        let pages = try await store.pageText(documentID: document.id, in: transaction)
         XCTAssertEqual(document.pageCount, 5)
         XCTAssertEqual(pages.map(\.pageIndex), [0, 1, 2, 3, 4])
         XCTAssertEqual(pages.count, 5)
@@ -229,7 +229,7 @@ final class PDFHardeningTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: source), bytes)
 
         let reopened = try workspace(root)
-        let reopenedPages = try await reopened.pageText(documentID: document.id)
+        let reopenedPages = try await reopened.pageText(documentID: document.id, in: transaction)
         XCTAssertEqual(reopenedPages, pages)
     }
 
