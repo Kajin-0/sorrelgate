@@ -244,6 +244,9 @@ final class WorkspaceModel: ObservableObject {
             } catch {
                 if selectedTransactionID == id {
                     isLoadingSelection = false
+                    // A stale preview must not survive a failed source integrity
+                    // check or a failed transaction reload.
+                    previewURL = nil
                     errorMessage = error.localizedDescription
                 }
             }
