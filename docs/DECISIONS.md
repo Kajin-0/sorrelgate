@@ -2,6 +2,9 @@
 
 **Policy:** Never silently reverse decisions. Append dated records with rationale, competing alternatives and outcome.
 
+## ADR-028 — 2026-11-22T00:08:27.241Z — Transaction-scoped PDF text and original access
+**Decision (CI PENDING):** Eliminate public document-ID-only cached-text reads and public URL construction from unverified ImportedDocument data. Every cross-module PDF read now requires document ID and transaction ID, validated against persisted ownership and immutable SHA-256. Keep raw path construction internal for ingestion and tests. The UI's document preview must recheck the selected transaction after asynchronous source lookup. **Reason:** The old API allowed a future tool caller with a known foreign document ID to read extracted text without transaction scope; a forged document struct could construct an unchecked stored path. **Rejected:** adding generalized agent authorization before G4, UI redesign, parser rewrites, cloud services. **Limit:** this is a domain boundary, not an authentication system or protection against malicious code already executing with unrestricted database access.
+
 **ADR-027 closure (2026-11-21T22:44:42.440Z):** [PR #24](https://github.com/Kajin-0/sorrelgate/pull/24) merged after 2 exact-head CI SUCCESS, 62 XCTest. The permanent default for `proposeKeyFacts(in:)` is atomic new-candidate insertion across already imported PDFs. No change to individual-PDF discovery or to user review choices. No real Mac launch claim.
 
 ## ADR-027 — 2026-11-21T22:40:36.792Z — Failed batch discovery must not leave new partial candidate state

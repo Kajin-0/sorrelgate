@@ -1,5 +1,11 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-22T00:08:27.241Z — G1 scoped document access and source hash verification (CI PENDING)
+- Identified that public `DocumentWorkspace.pageText(documentID:)` allowed read by UUID without verifying transaction ownership, and public `storedPDFURL(for:)` constructed local archive paths from caller-provided metadata. This bypasses the transaction-scoped read contract required for future typed AI actions.
+- Replaced the public page-text entry point with `pageText(documentID:in:)`, added hash-checked `sourcePDFURL(documentID:in:)`, and made raw stored-path construction internal. The GUI document preview now uses the scoped read and guards asynchronous selection changes; no visual redesign.
+- Added one PDFKit/SQLite negative-control test: valid same-transaction reads; foreign and unknown UUIDs denied; archived original tampering denies both preview and cached extracted text; valid neighboring transaction remains accessible after reopen. Updated existing OCR/50-PDF tests for explicit transaction scope.
+- This enforces **document ownership and integrity**, not full user authentication: future agent dispatcher authorization remains G4. Existing tester build is unchanged. Target 63 XCTest; CI **NOT RUN** at authoring. No new spend or customer files.
+
 ## 2026-11-21T22:44:42.440Z — PR #24 VERIFIED and MERGED: G1 atomic batch proposals
 - Merged `5a6d4f9f5eeb007e90afa2888eea8e3285a4e08e` after both exact-source CI [#44957980112](https://github.com/Kajin-0/sorrelgate/actions/runs/44957980112) and [#44957995198](https://github.com/Kajin-0/sorrelgate/actions/runs/44957995198) SUCCESS: 62/62 XCTest, 7 package-sanitizer tests, optimized native Mac build, PDFKit fixture checks, source-free ZIP audit.
 - SQL batch transaction prevents a failed later PDF hash check/cancellation/DB error leaving newly proposed dates or amounts from earlier PDFs; existing human-confirmed proposals remain unchanged. Two regression assertions cover clean failure, reopened state and previously confirmed values. No UI/schema changes. Real Mac pilot still not performed; current tester build intentionally unchanged.
