@@ -1,5 +1,10 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-22T00:14:18.255Z — PR #25 scoped PDF reads VERIFIED and MERGED
+- Squash `6dcc5c4656ab833a259c35abf92e0ddc785976b9`, two exact-source Mac CI runs #44965276596 and #44965280270 **SUCCESS**. All **63/63 XCTest** including the new cross-transaction/extracted text guard, **7/7 distribution security tests**, native Release build, 3 synthetic PDFKit samples (7 pages/5 checks), source-free package binary scan and ZIP integrity.
+- `DocumentWorkspace.pageText(documentID:in:)` / `sourcePDFURL(documentID:in:)` now validate transaction ownership in SQLite and original SHA-256. Unscoped public page-text accessor removed and raw `storedPDFURL(for:)` made internal. GUI original preview uses the scoped path, rejects stale asynchronous selection and clears preview after reload/integrity failure. Existing OCR/50-document tests updated.
+- No visual redesign, no new schemas, no external API, no change to today's pilot download. This is scoped document access; independent model authorization and live agent do not exist. Next prioritize actual Mac pilot and G1 real-world held-out document evaluation, not more synthetic feature expansion.
+
 ## 2026-11-22T00:08:27.241Z — G1 scoped document access and source hash verification (CI PENDING)
 - Identified that public `DocumentWorkspace.pageText(documentID:)` allowed read by UUID without verifying transaction ownership, and public `storedPDFURL(for:)` constructed local archive paths from caller-provided metadata. This bypasses the transaction-scoped read contract required for future typed AI actions.
 - Replaced the public page-text entry point with `pageText(documentID:in:)`, added hash-checked `sourcePDFURL(documentID:in:)`, and made raw stored-path construction internal. The GUI document preview now uses the scoped read and guards asynchronous selection changes; no visual redesign.

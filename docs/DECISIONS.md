@@ -2,6 +2,8 @@
 
 **Policy:** Never silently reverse decisions. Append dated records with rationale, competing alternatives and outcome.
 
+**ADR-028 closure (2026-11-22T00:14:18.255Z):** [PR #25](https://github.com/Kajin-0/sorrelgate/pull/25) MERGED on two green exact-head macOS CI runs (63 XCTest + 7 scanner tests; Release app/ZIP success). Unscoped public page reads and unchecked public document-path construction are eliminated. Transaction-scoped SHA-verified reads are retained as the permanent domain interface; future LLM user/permission authorization remains a separately required G4 layer. No change to current human pilot build.
+
 ## ADR-028 — 2026-11-22T00:08:27.241Z — Transaction-scoped PDF text and original access
 **Decision (CI PENDING):** Eliminate public document-ID-only cached-text reads and public URL construction from unverified ImportedDocument data. Every cross-module PDF read now requires document ID and transaction ID, validated against persisted ownership and immutable SHA-256. Keep raw path construction internal for ingestion and tests. The UI's document preview must recheck the selected transaction after asynchronous source lookup. **Reason:** The old API allowed a future tool caller with a known foreign document ID to read extracted text without transaction scope; a forged document struct could construct an unchecked stored path. **Rejected:** adding generalized agent authorization before G4, UI redesign, parser rewrites, cloud services. **Limit:** this is a domain boundary, not an authentication system or protection against malicious code already executing with unrestricted database access.
 
