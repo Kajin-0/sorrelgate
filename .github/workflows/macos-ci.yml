@@ -47,8 +47,20 @@ jobs:
             -destination "generic/platform=macOS" \
             -derivedDataPath .build/DerivedData \
             CODE_SIGNING_ALLOWED=NO \
+            'ARCHS=arm64 x86_64' \
+            ONLY_ACTIVE_ARCH=NO \
             'LD_RUNPATH_SEARCH_PATHS=@executable_path/../Frameworks @loader_path/../Frameworks' \
             build
+      - name: Verify minimum Ventura deployment and universal executable
+        run: |
+          app=".build/DerivedData/Build/Products/Release/Sorrelgate.app"
+          /usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$app/Contents/Info.plist" | grep -Fx '13.0'
+          lipo -verify_arch arm64 x86_64 "$app/Contents/MacOS/Sorrelgate"
+          for arch in arm64 x86_64; do
+            vtool -show-build -arch "$arch" "$app/Contents/MacOS/Sorrelgate"
+            vtool -show-build -arch "$arch" "$app/Contents/MacOS/Sorrelgate" | grep -Eq 'minos 13\\.0'
+          done
+          echo "VENTURA_13_UNIVERSAL_METADATA_PASS"
       - name: Assemble and audit source-free tester bundle
         run: |
           bash scripts/package_beta_handoff.sh \
@@ -56,7 +68,7 @@ jobs:
       - name: Upload one standalone source-free tester ZIP (UNSIGNED)
         uses: actions/upload-artifact@v4
         with:
-          name: Sorrelgate-0.1.1-Standalone-Mac-Test
-          path: dist/Sorrelgate-0.1.1-Standalone-Mac-Test.zip
+          name: Sorrelgate-0.1.2-Ventura-Standalone-Mac-Test
+          path: dist/Sorrelgate-0.1.2-Ventura-Standalone-Mac-Test.zip
           if-no-files-found: error
           retention-days: 14

@@ -56,23 +56,22 @@ struct MainView: View {
             ) {
                 transactionDetail(transaction)
             } else if workspace.transactions.isEmpty {
-                ContentUnavailableView {
-                    Label("Start a Transaction", systemImage: "house")
-                } description: {
-                    Text("Create your first transaction to start organizing the paperwork.")
-                } actions: {
-                    Button("New Transaction") { isPresentingNewTransaction = true }
-                        .buttonStyle(.borderedProminent)
-                }
+                SorrelgateEmptyState(
+                    title: "Start a Transaction",
+                    icon: "house",
+                    description: "Create your first transaction to start organizing the paperwork.",
+                    actionTitle: "New Transaction",
+                    onAction: { isPresentingNewTransaction = true }
+                )
             } else {
-                ContentUnavailableView {
-                    Label("Select a Transaction", systemImage: "house")
-                } description: {
-                    Text("Choose an existing transaction from the sidebar.")
-                }
+                SorrelgateEmptyState(
+                    title: "Select a Transaction",
+                    icon: "house",
+                    description: "Choose an existing transaction from the sidebar."
+                )
             }
         }
-        .onChange(of: workspace.selectedTransactionID) { _, id in
+        .onChange(of: workspace.selectedTransactionID) { id in
             if let id {
                 UserDefaults.standard.set(
                     id.uuidString, forKey: "SorrelgateSelectedTransactionID"

@@ -2,6 +2,8 @@ SORRELGATE — FIRST MAC TEST
 ===========================
 
 This folder includes Sorrelgate.app, sample documents and instructions.
+This test build targets macOS 13 Ventura or newer on either Intel
+or Apple Silicon. Runtime testing on Ventura is still required.
 No account, download, coding or developer software is needed.
 
 Give this folder to Codex on your Mac. Ask it to read

@@ -165,10 +165,10 @@ struct OfficeSettingsSheet: View {
                         .disabled(isWorking || draftTasks.isEmpty || !isDirty)
                 }
             } else {
-                ContentUnavailableView(
-                    "No Office Selected",
-                    systemImage: "building.2",
-                    description: Text("Add an office to customize its seller-side workflows.")
+                SorrelgateEmptyState(
+                    title: "No Office Selected",
+                    icon: "building.2",
+                    description: "Add an office to customize its seller-side workflows."
                 )
             }
         }

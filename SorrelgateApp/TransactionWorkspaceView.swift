@@ -160,23 +160,22 @@ struct TransactionWorkspaceView: View {
             }
 
             if workspace.documents.isEmpty {
-                ContentUnavailableView {
-                    Label("Start with your paperwork", systemImage: "doc.on.doc")
-                } description: {
-                    Text("Add PDFs to this transaction, then check any suggested details.")
-                } actions: {
-                    Button("Add PDFs", action: onImport)
-                        .buttonStyle(.borderedProminent)
-                }
+                SorrelgateEmptyState(
+                    title: "Start with your paperwork",
+                    icon: "doc.on.doc",
+                    description: "Add PDFs to this transaction, then check any suggested details.",
+                    actionTitle: "Add PDFs",
+                    onAction: onImport
+                )
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 14) {
                         if needsAttention.isEmpty {
-                            ContentUnavailableView {
-                                Label("No details waiting for review", systemImage: "checklist")
-                            } description: {
-                                Text("Choose Find details in PDFs to look for labeled dates and prices. This does not check whether paperwork is complete.")
-                            }
+                            SorrelgateEmptyState(
+                                title: "No details waiting for review",
+                                icon: "checklist",
+                                description: "Choose Find details in PDFs to look for labeled dates and prices. This does not check whether paperwork is complete."
+                            )
                         } else {
                             Text("\(needsAttention.count) to review")
                                 .font(.subheadline.weight(.semibold))
@@ -281,10 +280,10 @@ struct TransactionWorkspaceView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Your PDFs").font(.headline)
             if workspace.documents.isEmpty {
-                ContentUnavailableView(
-                    "No PDFs added",
-                    systemImage: "doc.on.doc",
-                    description: Text("Use Add PDFs above to import files.")
+                SorrelgateEmptyState(
+                    title: "No PDFs added",
+                    icon: "doc.on.doc",
+                    description: "Use Add PDFs above to import files."
                 )
             } else {
                 List(selection: $workspace.selectedDocumentID) {
@@ -300,7 +299,7 @@ struct TransactionWorkspaceView: View {
                     }
                 }
                 .frame(minHeight: 110, idealHeight: 160, maxHeight: 220)
-                .onChange(of: workspace.selectedDocumentID) { _, id in
+                .onChange(of: workspace.selectedDocumentID) { id in
                     workspace.selectDocument(
                         workspace.documents.first(where: { $0.id == id })
                     )
@@ -313,11 +312,11 @@ struct TransactionWorkspaceView: View {
                     )
                     .accessibilityLabel("Original selected PDF")
                 } else {
-                    ContentUnavailableView(
-                        "Choose a PDF",
-                        systemImage: "doc.text.magnifyingglass",
-                        description: Text("Select a file above to read its original pages.")
-                    )
+                    SorrelgateEmptyState(
+                    title: "Choose a PDF",
+                    icon: "doc.text.magnifyingglass",
+                    description: "Select a file above to read its original pages."
+                )
                 }
             }
         }
@@ -386,11 +385,11 @@ struct TransactionWorkspaceView: View {
             }
             .overlay {
                 if workspace.tasks.isEmpty {
-                    ContentUnavailableView(
-                        "No tasks yet",
-                        systemImage: "checklist",
-                        description: Text("Add a task or load the starter checklist.")
-                    )
+                    SorrelgateEmptyState(
+                    title: "No tasks yet",
+                    icon: "checklist",
+                    description: "Add a task or load the starter checklist."
+                )
                 }
             }
         }
