@@ -61,6 +61,8 @@ jobs:
             vtool -show-build -arch "$arch" "$app/Contents/MacOS/Sorrelgate" | grep -Fq 'minos 13.0'
           done
           echo "VENTURA_13_UNIVERSAL_METADATA_PASS"
+      - name: Launch real app process on macOS 26 CI host (NOT Ventura)
+        run: bash scripts/smoke_launch_macos.sh .build/DerivedData/Build/Products/Release/Sorrelgate.app
       - name: Assemble and audit source-free tester bundle
         run: |
           bash scripts/package_beta_handoff.sh \
