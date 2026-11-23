@@ -86,7 +86,8 @@ final class PilotJourneyTests: XCTestCase {
             ) else { return XCTFail("Expected a new fictional PDF") }
             imported.append(original)
         }
-        XCTAssertEqual(try await documents.documents(for: transactionID).count, 3)
+        let importedRows = try await documents.documents(for: transactionID)
+        XCTAssertEqual(importedRows.count, 3)
         // Import does not autonomously create or confirm consequential facts.
         let beforeReview = try await documents.fieldProposals(for: transactionID)
         XCTAssertTrue(beforeReview.isEmpty)
