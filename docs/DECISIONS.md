@@ -2,6 +2,9 @@
 
 **Policy:** Never silently reverse decisions. Append dated records with rationale, competing alternatives and outcome.
 
+## ADR-029 — 2026-11-23T17:59:19.954Z — Back-deploy first human pilot to macOS Ventura 13
+**Decision (CI PENDING):** Existing native Sorrelgate manual functionality shall target macOS 13 with a universal Intel/Apple Silicon 0.1.2 beta. Replace unavailable macOS 14-only SwiftUI conveniences instead of making the tester upgrade or rewriting product UI. Prebuild remotely with Xcode 26 on GitHub-hosted macOS and check both architecture slices and deployment metadata. Provide novice Finder install/testing steps: Codex desktop is not a prerequisite on Ventura (ChatGPT/Codex desktop requires macOS 14). **Do not** direct a Ventura Mac to compile Swift-tools-version 6 with obsolete Xcode; Apple Xcode 26 itself requires a newer host. **Tradeoffs:** Apple signing/notarization unavailable at current $0 approval; first launch may be blocked by Gatekeeper; target-version cross-compilation is NOT the same as a real macOS 13 runtime test. Keep existing security, source-free external handoff, human approvals, core tests and stop-on-malware-warning policy.
+
 **ADR-028 closure (2026-11-22T00:14:18.255Z):** [PR #25](https://github.com/Kajin-0/sorrelgate/pull/25) MERGED on two green exact-head macOS CI runs (63 XCTest + 7 scanner tests; Release app/ZIP success). Unscoped public page reads and unchecked public document-path construction are eliminated. Transaction-scoped SHA-verified reads are retained as the permanent domain interface; future LLM user/permission authorization remains a separately required G4 layer. No change to current human pilot build.
 
 ## ADR-028 — 2026-11-22T00:08:27.241Z — Transaction-scoped PDF text and original access
