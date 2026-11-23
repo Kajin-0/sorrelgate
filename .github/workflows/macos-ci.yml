@@ -61,10 +61,17 @@ jobs:
             vtool -show-build -arch "$arch" "$app/Contents/MacOS/Sorrelgate" | grep -Fq 'minos 13.0'
           done
           echo "VENTURA_13_UNIVERSAL_METADATA_PASS"
+      - name: Launch real app process on macOS 26 CI host (NOT Ventura)
+        run: bash scripts/smoke_launch_macos.sh .build/DerivedData/Build/Products/Release/Sorrelgate.app
       - name: Assemble and audit source-free tester bundle
         run: |
           bash scripts/package_beta_handoff.sh \
             .build/DerivedData/Build/Products/Release/Sorrelgate.app
+      - name: Launch the exact packaged Sorrelgate.app on macOS 26 (NOT Ventura)
+        run: |
+          mkdir -p .build/packaged-smoke
+          ditto -x -k dist/Sorrelgate-0.1.2-Ventura-Standalone-Mac-Test.zip .build/packaged-smoke
+          bash scripts/smoke_launch_macos.sh .build/packaged-smoke/Sorrelgate-Standalone-Test/Sorrelgate.app
       - name: Upload one standalone source-free tester ZIP (UNSIGNED)
         uses: actions/upload-artifact@v4
         with:
@@ -72,3 +79,22 @@ jobs:
           path: dist/Sorrelgate-0.1.2-Ventura-Standalone-Mac-Test.zip
           if-no-files-found: error
           retention-days: 14
+
+  packaged-macos15-smoke:
+    name: Launch exact packaged app on macOS 15 (NOT Ventura)
+    runs-on: macos-15
+    needs: macos
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: Sorrelgate-0.1.2-Ventura-Standalone-Mac-Test
+          path: .build/packaged-download
+      - name: Verify source-free ZIP launches on an older supported macOS host
+        run: |
+          sw_vers
+          uname -m
+          mkdir -p .build/packaged-smoke
+          ditto -x -k .build/packaged-download/Sorrelgate-0.1.2-Ventura-Standalone-Mac-Test.zip .build/packaged-smoke
+          bash scripts/smoke_launch_macos.sh .build/packaged-smoke/Sorrelgate-Standalone-Test/Sorrelgate.app
