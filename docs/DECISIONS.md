@@ -2,6 +2,8 @@
 
 **Policy:** Never silently reverse decisions. Append dated records with rationale, competing alternatives and outcome.
 
+**ADR-029 verification update (2026-11-23T19:17:26.760Z):** [PR #27](https://github.com/Kajin-0/sorrelgate/pull/27) merged: both packaged and raw native apps launched on macOS26 CI; exact packaged ZIP also launched on macOS15; all 64 tests and sanitizer passed. **Gate unchanged:** actual macOS13 Ventura startup and full GUI pilot have not been performed and are mandatory before readiness. Do not equate deployment metadata or newer-host app launch with proven Ventura runtime. Signed/notarized distribution remains separate scope.
+
 **ADR-029 verification (2026-11-23T18:14:27.249Z):** [PR #26](https://github.com/Kajin-0/sorrelgate/pull/26) MERGED after source-exact CI #45235033999 success: macOS13 minimum, x86_64+arm64 executable, 63 XCTest, 7 scanner tests, PDFKit/ZIP security. User's actual Ventura device launch remains unverified and required; no macOS13 hosted runner or Mac desktop Codex fallback.
 
 ## ADR-029 — 2026-11-23T17:59:19.954Z — Back-deploy first human pilot to macOS Ventura 13
