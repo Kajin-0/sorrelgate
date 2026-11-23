@@ -3,6 +3,8 @@ SORRELGATE — LOCAL MAC INSTALL AND TEST
 
 You are assisting a nontechnical Mac owner with a self-contained,
 compiled application. Use ONLY the files supplied in this folder.
+On Ventura, use a web-browser assistant or an authorized technician if
+the desktop assistant is unavailable. Do not require the desktop app.
 The owner should not need to operate a Terminal or developer tools.
 
 BOUNDARIES
@@ -19,10 +21,13 @@ BOUNDARIES
 
 INSTALLATION AND SAFETY CHECKS
 1. Obtain the owner's consent to inspect this Mac. Verify it is an
-   Apple-silicon Mac (arm64) running macOS 26 or newer. Stop if not.
+   Intel (x86_64) or Apple Silicon (arm64) Mac running macOS 13
+   Ventura or newer. Stop if not. Do not attempt to install a newer
+   desktop assistant or the latest Xcode onto an unsupported Mac.
 2. Find Sorrelgate.app, the included sample PDFs, "APP INTEGRITY.txt",
-   and "SAMPLE SHA256.txt". Check the application version is 0.1.1,
-   bundle ID com.sorrelgate.app, and the executable architecture arm64.
+   and "SAMPLE SHA256.txt". Check the application version is 0.1.2,
+   bundle ID com.sorrelgate.app, minimum macOS 13.0 and that the
+   executable contains both arm64 and x86_64 architectures.
 3. Validate every SHA-256 file hash listed in APP INTEGRITY.txt and
    SAMPLE SHA256.txt against the supplied files. Do not claim that
    these hashes establish software provenance or notarization.
@@ -30,7 +35,9 @@ INSTALLATION AND SAFETY CHECKS
    convenient owner-approved location. If an existing version is
    present, ask first instead of overwriting it.
 5. Attempt a normal launch. If blocked, explain the exact macOS
-   warning and give the owner a choice. Apple's normal app-specific
+   warning and give the owner a choice. For a trusted private beta,
+   direct them to Apple menu > System Settings > Privacy & Security >
+   Open Anyway only after the first failed launch, if offered. Apple's normal app-specific
    Open Anyway flow may be appropriate if they independently trust
    this privately supplied application. Only the owner can approve
    that exception. If macOS warns about damage or malware, STOP.
@@ -56,5 +63,7 @@ STOP CONDITIONS
   the necessary clicks while you observe and record results.
 - If safe launch is blocked or requires signing by the distributor,
   report the exact blocker; do not obtain another build elsewhere.
+- A compatible binary is not proof of a successful Ventura GUI test.
+  Record real startup, permissions and user workflow results.
 - This beta has no integrated automated operator. Codex is only
   handling setup and testing in this trial.

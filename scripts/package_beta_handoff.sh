@@ -10,9 +10,14 @@ if [ "$(uname -s)" != "Darwin" ]; then
   exit 2
 fi
 app="$1"
-version="0.1.1"
+version="0.1.2"
 /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$app/Contents/Info.plist" | grep -Fx "$version"
 test -f "$app/Contents/MacOS/Sorrelgate"
+/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$app/Contents/Info.plist" | grep -Fx '13.0'
+lipo "$app/Contents/MacOS/Sorrelgate" -verify_arch arm64 x86_64
+for arch in arm64 x86_64; do
+  vtool -show-build -arch "$arch" "$app/Contents/MacOS/Sorrelgate" | grep -Fq 'minos 13.0'
+done
 mkdir -p dist
 staging="$(mktemp -d -t SorrelgateStandalone)"
 trap 'rm -rf "$staging"' EXIT
@@ -68,7 +73,7 @@ cp docs/TESTER_REPORT.txt "$bundle/TEST RESULTS.txt"
 )
 # Mandatory binary-aware release gate; failure prevents uploaded distribution.
 python3 scripts/verify_customer_bundle.py "$bundle"
-archive="dist/Sorrelgate-$version-Standalone-Mac-Test.zip"
+archive="dist/Sorrelgate-$version-Ventura-Standalone-Mac-Test.zip"
 ditto -c -k --keepParent "$bundle" "$archive"
 unzip -tq "$archive"
 echo "STANDALONE_TEST_BUNDLE_PASS archive=$archive version=$version"

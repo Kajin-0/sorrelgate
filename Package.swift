@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "Sorrelgate",
-    platforms: [.macOS(.v15)],
+    platforms: [.macOS(.v13)],
     products: [
         .library(name: "SorrelgateCore", targets: ["SorrelgateCore"])
     ],

@@ -1,5 +1,11 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-23T17:59:19.954Z — macOS 13.7.8 pilot compatibility implementation (CI PENDING)
+- Discovered actual tester's machine runs Ventura 13.7.8, while Beta 0.1.1 binary requires macOS 26; the desktop ChatGPT/Codex app requires macOS 14, independently blocking the originally planned installer workflow.
+- Created Beta 0.1.2 with macOS 13 deployment in app and Swift package, replaced macOS 14-only ContentUnavailableView empty states and new-style onChange callbacks with macOS 13-compatible equivalents without changing user workflow.
+- Requested a universal Intel x86_64 + Apple Silicon arm64 Release binary from CI; packaging fails unless executable's Mach-O minimum OS and Info.plist show macOS 13.0 and both slices present. Retained binary-leak scanning, PDF fixtures and checksums. Updated novice-facing Finder/Apple Privacy & Security instructions; Codex optional, no local development tools.
+- Tests and true Ventura GUI/launch are **UNVERIFIED at authoring**. MacOS 26 CI can verify cross-compilation; only tester on Ventura can confirm runtime. No purchase/signing nor user data required.
+
 ## 2026-11-22T00:14:18.255Z — PR #25 scoped PDF reads VERIFIED and MERGED
 - Squash `6dcc5c4656ab833a259c35abf92e0ddc785976b9`, two exact-source Mac CI runs #44965276596 and #44965280270 **SUCCESS**. All **63/63 XCTest** including the new cross-transaction/extracted text guard, **7/7 distribution security tests**, native Release build, 3 synthetic PDFKit samples (7 pages/5 checks), source-free package binary scan and ZIP integrity.
 - `DocumentWorkspace.pageText(documentID:in:)` / `sourcePDFURL(documentID:in:)` now validate transaction ownership in SQLite and original SHA-256. Unscoped public page-text accessor removed and raw `storedPDFURL(for:)` made internal. GUI original preview uses the scoped path, rejects stale asynchronous selection and clears preview after reload/integrity failure. Existing OCR/50-document tests updated.

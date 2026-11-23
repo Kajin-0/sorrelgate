@@ -4,6 +4,7 @@ SORRELGATE — FIRST MAC TEST RESULTS
 Use only fictional sample files. No actual client information.
 Mac model/chip: ______________________________
 macOS version: _______________________________
+Processor architecture (arm64/x86_64): ________
 App version: _________________________________
 
 Mark each PASS / FAIL / NOT TRIED:

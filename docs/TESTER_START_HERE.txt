@@ -1,29 +1,42 @@
-SORRELGATE — FIRST MAC TEST
-===========================
+SORRELGATE — MAC TEST (VENTURA AND NEWER)
+======================================
 
-This folder includes Sorrelgate.app, sample documents and instructions.
-No account, download, coding or developer software is needed.
+This test kit contains Sorrelgate.app and three fictional PDF samples.
+It is designed for macOS 13 Ventura or newer, on Intel or Apple Silicon.
+No development tools, source code, Terminal, or coding knowledge are needed.
+The application has not yet been launched or certified on Ventura.
 
-Give this folder to Codex on your Mac. Ask it to read
-"FOR CODEX - SETUP AND TEST.txt" and assist with installation.
-You do not need to use Terminal. Approve actions only when you
-understand them and want to continue.
+INSTALL THE APP
+1. Double-click the downloaded ZIP to extract the Sorrelgate folder.
+2. Open the extracted folder, locate Sorrelgate.app and copy it into
+   your Applications folder. Do not overwrite a previous version without
+   choosing to replace it intentionally.
+3. Double-click Sorrelgate in Applications to try opening it.
+4. This early test app is NOT signed or notarized by Apple.
+   If macOS reports it cannot verify the developer, only if you trust
+   the privately supplied app and wish to proceed: open Apple menu >
+   System Settings > Privacy & Security, find the blocked Sorrelgate
+   app near the Security section, and select Open Anyway, then
+   confirm the app-specific decision. Apple may request your password.
+   Never disable Gatekeeper or other system-wide protections.
+   If macOS warns that the software is damaged or malicious, STOP.
+5. If the app still cannot open, record the exact warning and stop.
+   You can ask for help in a web browser; no desktop assistant is needed.
 
-This early beta is unsigned and not notarized by Apple. macOS may block
-the first launch. If that happens, Codex will explain the exact warning,
-and you can decide whether an app-specific exception is appropriate.
-Never disable system-wide security protections.
+TEST ONLY WITH THE INCLUDED FICTIONAL DOCUMENTS
+1. Create an Accepted Offer transaction at "123 Example Lane".
+2. Import the three PDFs in "Sample Documents".
+3. Open Review and select "Find details in PDFs".
+4. Open an original source page to check suggested dates and prices.
+   Mark one suggestion "Not sure".
+5. Open Documents to inspect a PDF and Checklist to finish one task.
+6. Export to a new folder. Quit and reopen Sorrelgate to check that
+   the transaction, documents and decisions remain saved.
+7. Record what succeeded or failed in "TEST RESULTS.txt".
 
-AFTER SORRELGATE OPENS
-1. Create an Accepted Offer transaction for "123 Example Lane".
-2. Import the three PDFs from "Sample Documents".
-3. Open Review and click "Find details in PDFs".
-4. Open an original page and compare the suggested dates or prices.
-   Choose "Not sure" for one suggestion.
-5. Open Checklist and mark a task complete; inspect a PDF in Documents.
-6. Export to a folder you choose.
-7. Close and reopen Sorrelgate to confirm your changes were saved.
+No real client contracts, private details, or licensed forms in this
+initial test. Sorrelgate cannot establish legal compliance, send
+messages, or automatically act as an AI operator.
 
-Record the results in "TEST RESULTS.txt". Use only the included
-fictional documents; do not add any actual customer paperwork.
-Sorrelgate does not establish legal compliance or send messages.
+The included SHA-256 manifests can confirm that files in this kit have
+not changed, but they are NOT an Apple signature or safety guarantee.
