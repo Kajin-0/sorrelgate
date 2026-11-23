@@ -58,7 +58,7 @@ jobs:
           lipo "$app/Contents/MacOS/Sorrelgate" -verify_arch arm64 x86_64
           for arch in arm64 x86_64; do
             vtool -show-build -arch "$arch" "$app/Contents/MacOS/Sorrelgate"
-            vtool -show-build -arch "$arch" "$app/Contents/MacOS/Sorrelgate" | grep -Eq 'minos 13\\.0'
+            vtool -show-build -arch "$arch" "$app/Contents/MacOS/Sorrelgate" | grep -Fq 'minos 13.0'
           done
           echo "VENTURA_13_UNIVERSAL_METADATA_PASS"
       - name: Assemble and audit source-free tester bundle

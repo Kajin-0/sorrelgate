@@ -16,7 +16,7 @@ test -f "$app/Contents/MacOS/Sorrelgate"
 /usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$app/Contents/Info.plist" | grep -Fx '13.0'
 lipo "$app/Contents/MacOS/Sorrelgate" -verify_arch arm64 x86_64
 for arch in arm64 x86_64; do
-  vtool -show-build -arch "$arch" "$app/Contents/MacOS/Sorrelgate" | grep -Eq 'minos 13\\.0'
+  vtool -show-build -arch "$arch" "$app/Contents/MacOS/Sorrelgate" | grep -Fq 'minos 13.0'
 done
 mkdir -p dist
 staging="$(mktemp -d -t SorrelgateStandalone)"
