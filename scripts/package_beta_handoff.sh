@@ -14,7 +14,7 @@ version="0.1.2"
 /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$app/Contents/Info.plist" | grep -Fx "$version"
 test -f "$app/Contents/MacOS/Sorrelgate"
 /usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$app/Contents/Info.plist" | grep -Fx '13.0'
-lipo -verify_arch arm64 x86_64 "$app/Contents/MacOS/Sorrelgate"
+lipo "$app/Contents/MacOS/Sorrelgate" -verify_arch arm64 x86_64
 for arch in arm64 x86_64; do
   vtool -show-build -arch "$arch" "$app/Contents/MacOS/Sorrelgate" | grep -Eq 'minos 13\\.0'
 done
