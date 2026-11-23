@@ -2,6 +2,8 @@
 # Mac CI startup check for the compiled native application; NOT a Ventura test.
 set -euo pipefail
 app="${1:?Provide macOS Sorrelgate.app path}"
+# LaunchServices resolves -a paths reliably only when absolute.
+app="$(cd "$(dirname "$app")" && pwd -P)/$(basename "$app")"
 test -f "$app/Contents/MacOS/Sorrelgate"
 test "$(uname -s)" = "Darwin"
 echo "MAC_LAUNCH_SMOKE_HOST=$(sw_vers -productVersion)"
