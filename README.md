@@ -4,13 +4,13 @@
 
 **Mac-native, local-first AI assistant for California real estate transaction coordinators.**
 
-> **Status:** **Beta 0.1.1** is a supervised, **unsigned** Mac pilot package—not a signed one-click release. The native SwiftUI app and 59 XCTest tests pass on current [main CI](https://github.com/Kajin-0/sorrelgate/actions/runs/44923066766). The updated beta bundle provides fictional sample PDFs, optional CSV, quick-start and tester report; its first screen is a review-first workspace with separate Documents and Checklist views. Human Mac usability remains **UNVERIFIED**, and G1 document intelligence is incomplete; commercial release is NO-GO. See [first pilot handoff](docs/FREE_MAC_TESTER_HANDOFF.md) and [technician setup](docs/BETA_0_1_TECHNICIAN.md).
+> **Current test build:** **Beta 0.1.2, unsigned**, for **macOS Ventura 13.0+**, Apple Silicon **and Intel**. [Exact-source macOS CI #45235033999](https://github.com/Kajin-0/sorrelgate/actions/runs/45235033999) passed **63/63 core tests**, **7 distribution sanitizer tests**, native universal build, macOS 13.0 minimum-version checks in both architectures, synthetic PDFKit/ZIP integrity. Download the single `Sorrelgate-0.1.2-Ventura-Standalone-Mac-Test` Actions artifact and extract the inner ZIP. Tester-facing kit includes Finder instructions and fictional files only; no source/build dependencies. **Actual macOS 13.7.8 launch and human usability remain UNVERIFIED.** It is not notarized, an LLM operator does not yet exist, and commercial release remains NO-GO.
 
 Sorrelgate helps a nontechnical transaction coordinator organize signed PDFs, track office-specific tasks, identify potential missing paperwork or contradictory information, draft communications, and export a reviewable transaction package. The application is designed to be operated either through simple native Mac controls **or** through natural-language requests that invoke the same guarded backend actions.
 
 ## First release
 
-- **Platform:** Apple-silicon macOS application, SwiftUI + Swift 6, with macOS 26+ as the provisional minimum to validate on the target Mac.
+- **Platform:** Native SwiftUI + Swift 6, minimum deployment target macOS 13.0, universal arm64 + x86_64. Compilation verified; macOS Ventura physical runtime verification is pending.
 - **Primary user:** Independent California **seller-side** transaction coordinator working across different offices and agents.
 - **Workflows:** "Prepare a House for Sale" and "Accepted Offer — Seller Side".
 - **Core engine:** PDFKit extraction, Vision OCR fallback, immutable document copies with SHA-256, configurable checklists, provenance-linked validation, approved timelines and drafts, safe export.
@@ -45,7 +45,7 @@ The source of the native Xcode project is [\`project.yml\`](project.yml), genera
 
 ## $0 early MVP and assisted Mac pilot
 
-No Apple membership or paid API is required during current testing. When the real Mac user is ready to help, Codex can install **free Xcode** and build Sorrelgate from source on their Mac; no terminal commands are required of the user. This is an assisted pilot, not the final one-click public installation. See [FREE_MAC_TESTER_HANDOFF.md](docs/FREE_MAC_TESTER_HANDOFF.md).
+No Apple membership or paid API is required during current testing. When the real Mac user is ready to help, the tester can use the precompiled Beta 0.1.2 through Finder; do not require Codex desktop, Xcode or source compilation on Ventura. This is an assisted pilot, not the final one-click public installation. See [FREE_MAC_TESTER_HANDOFF.md](docs/FREE_MAC_TESTER_HANDOFF.md).
 
 ## No local Mac: testing and first external beta
 

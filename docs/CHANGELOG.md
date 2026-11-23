@@ -1,5 +1,10 @@
 # Sorrelgate — Append-only timestamped change log
 
+## 2026-11-23T18:14:27.249Z — PR #26 merged: Ventura 13.7.8-compatible universal Beta 0.1.2 build verified
+- Squash `6a0261b424715b1827adc5c666e39c82d76569f8`; source-exact GitHub Actions [#45235033999](https://github.com/Kajin-0/sorrelgate/actions/runs/45235033999) **SUCCESS**, 63/63 XCTest, 7/7 standalone distribution scanner tests, native universal (x86_64+arm64) Release app, macOS deployment 13.0 in Info.plist and both Mach-O LC_BUILD_VERSION records, Apple PDFKit/fixture checks and clean sanitized ZIP. Artifact 14848697514 / 1,686,398 bytes outer, 1,696,751 bytes downloadable inner, expires December 7, 2026. Independent ZIP exam passed integrity, 28 entries, executable mode 0755, no prohibited repo/build markers.
+- Mac13 requires SwiftUI fallbacks for macOS14-only ContentUnavailableView and 2-argument onChange. Manual navigation and backend behavior unchanged. Tester kit includes self-guided Finder install; do not require ChatGPT/Codex desktop on Ventura because it requires macOS14. No Xcode/source checkout on tester Mac.
+- Limit: GitHub runners do not execute Ventura; actual macOS13 13.7.8 launch, Gatekeeper approval, Finder file import, persistence and usability must be recorded by human tester. Source-compatible is not user-qualified. No new spend, original source files remain private from beta ZIP.
+
 ## 2026-11-23T17:59:19.954Z — macOS 13.7.8 pilot compatibility implementation (CI PENDING)
 - Discovered actual tester's machine runs Ventura 13.7.8, while Beta 0.1.1 binary requires macOS 26; the desktop ChatGPT/Codex app requires macOS 14, independently blocking the originally planned installer workflow.
 - Created Beta 0.1.2 with macOS 13 deployment in app and Swift package, replaced macOS 14-only ContentUnavailableView empty states and new-style onChange callbacks with macOS 13-compatible equivalents without changing user workflow.
